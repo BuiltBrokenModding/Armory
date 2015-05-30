@@ -39,7 +39,7 @@ public final class Armory extends AbstractMod
     @Mod.Instance(DOMAIN)
     public static Armory INSTANCE;
 
-    @SidedProxy(clientSide = "ClientProxy", serverSide = "CommonProxy")
+    @SidedProxy(clientSide = "com.builtbroken.armory.ClientProxy", serverSide = "com.builtbroken.armory.CommonProxy")
     public static CommonProxy proxy;
 
     public static ModCreativeTab CREATIVE_TAB;

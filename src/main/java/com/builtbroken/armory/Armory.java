@@ -1,6 +1,6 @@
 package com.builtbroken.armory;
 
-import com.builtbroken.armory.content.blocks.bronzeOre;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
 import cpw.mods.fml.common.Mod;
@@ -63,8 +63,8 @@ public final class Armory extends AbstractMod
         CREATIVE_TAB = new ModCreativeTab("armory");
         getManager().setTab(CREATIVE_TAB);
 
-        //Blocks
-        bronzeOre.mainRegistry();
+        //Ore
+        Engine.requestOres();
     }
 
     @Mod.EventHandler

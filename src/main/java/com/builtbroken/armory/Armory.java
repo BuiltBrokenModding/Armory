@@ -48,8 +48,8 @@ public final class Armory extends AbstractMod
     public static final String BLOCK_PATH = TEXTURE_PATH + "blocks/";
     public static final String ITEM_PATH = TEXTURE_PATH + "items/";
 
+    /** Configuration */
     public static Configuration config;
-    public static Armory instance;
 
     @Mod.Instance(DOMAIN)
     public static Armory INSTANCE;
@@ -67,6 +67,7 @@ public final class Armory extends AbstractMod
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        //Creative Tab
         super.preInit(event);
         CREATIVE_TAB = new ModCreativeTab("armory");
         getManager().setTab(CREATIVE_TAB);

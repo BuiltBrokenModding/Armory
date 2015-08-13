@@ -13,7 +13,7 @@ public class ConfigurationArmory {
 
     public static void syncConfig() {
 
-        FMLCommonHandler.instance().bus().register(Armory.instance);
+        FMLCommonHandler.instance().bus().register(Armory.INSTANCE);
 
         //Recipe Category
         final String RECIPES = Armory.config.CATEGORY_GENERAL + Armory.config.CATEGORY_SPLITTER + "Recipie Toggles";
@@ -23,6 +23,8 @@ public class ConfigurationArmory {
         if(Armory.config.hasChanged())
             Armory.config.save();
 
+
+        //Other Categories
     }
 
 }

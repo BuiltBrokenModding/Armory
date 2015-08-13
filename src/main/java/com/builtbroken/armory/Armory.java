@@ -3,14 +3,18 @@ package com.builtbroken.armory;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
+import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import com.builtbroken.armory.changes.*;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.config.Configuration;
+
 import java.util.List;
 
 import java.util.LinkedList;
@@ -35,13 +39,17 @@ public final class Armory extends AbstractMod
 
     public static final String ASSETS_PATH = "/assets/armory/";
     public static final String TEXTURE_PATH = "textures/";
-    public static final String GUI_PATH = TEXTURE_PATH + "gui/";
+    public static final String GUI_PREFIX = "gui/";
+    public static final String GUI_PATH = TEXTURE_PATH + GUI_PREFIX;
     public static final String MODEL_PREFIX = "models/";
     public static final String MODEL_DIRECTORY = ASSETS_PATH + MODEL_PREFIX;
 
     public static final String MODEL_TEXTURE_PATH = TEXTURE_PATH + MODEL_PREFIX;
     public static final String BLOCK_PATH = TEXTURE_PATH + "blocks/";
     public static final String ITEM_PATH = TEXTURE_PATH + "items/";
+
+    public static Configuration config;
+    public static Armory instance;
 
     @Mod.Instance(DOMAIN)
     public static Armory INSTANCE;
@@ -63,8 +71,23 @@ public final class Armory extends AbstractMod
         CREATIVE_TAB = new ModCreativeTab("armory");
         getManager().setTab(CREATIVE_TAB);
 
+        //Config
+        config = new Configuration(event.getSuggestedConfigurationFile());
+        ConfigurationArmory.syncConfig();
+
         //Ore
         Engine.requestOres();
+    }
+
+    @SubscribeEvent
+    public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent event) {
+
+        if(event.modID.equals(Armory.NAME)){
+
+            ConfigurationArmory.syncConfig();
+
+        }
+
     }
 
     @Mod.EventHandler
@@ -76,29 +99,32 @@ public final class Armory extends AbstractMod
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
-        List<ItemStack> itemList = new LinkedList<ItemStack>();
-        //Leather
-        itemList.add(new ItemStack(Items.leather_helmet));
-        itemList.add(new ItemStack(Items.leather_chestplate));
-        itemList.add(new ItemStack(Items.leather_leggings));
-        itemList.add(new ItemStack(Items.leather_boots));
-        //Iron
-        itemList.add(new ItemStack(Items.iron_helmet));
-        itemList.add(new ItemStack(Items.iron_chestplate));
-        itemList.add(new ItemStack(Items.iron_leggings));
-        itemList.add(new ItemStack(Items.iron_boots));
-        //Gold
-        itemList.add(new ItemStack(Items.golden_helmet));
-        itemList.add(new ItemStack(Items.golden_chestplate));
-        itemList.add(new ItemStack(Items.golden_leggings));
-        itemList.add(new ItemStack(Items.golden_boots));
-        //Diamond
-        itemList.add(new ItemStack(Items.diamond_helmet));
-        itemList.add(new ItemStack(Items.diamond_chestplate));
-        itemList.add(new ItemStack(Items.diamond_leggings));
-        itemList.add(new ItemStack(Items.diamond_boots));
 
-        VanillaChanges.RecipieRemover(itemList);
+        if(ConfigurationArmory.recipeToggle == ConfigurationArmory.RECIPETOGGLE_DEFAULT) {
+            List<ItemStack> itemList = new LinkedList<ItemStack>();
+            //Leather
+            itemList.add(new ItemStack(Items.leather_helmet));
+            itemList.add(new ItemStack(Items.leather_chestplate));
+            itemList.add(new ItemStack(Items.leather_leggings));
+            itemList.add(new ItemStack(Items.leather_boots));
+            //Iron
+            itemList.add(new ItemStack(Items.iron_helmet));
+            itemList.add(new ItemStack(Items.iron_chestplate));
+            itemList.add(new ItemStack(Items.iron_leggings));
+            itemList.add(new ItemStack(Items.iron_boots));
+            //Gold
+            itemList.add(new ItemStack(Items.golden_helmet));
+            itemList.add(new ItemStack(Items.golden_chestplate));
+            itemList.add(new ItemStack(Items.golden_leggings));
+            itemList.add(new ItemStack(Items.golden_boots));
+            //Diamond
+            itemList.add(new ItemStack(Items.diamond_helmet));
+            itemList.add(new ItemStack(Items.diamond_chestplate));
+            itemList.add(new ItemStack(Items.diamond_leggings));
+            itemList.add(new ItemStack(Items.diamond_boots));
+
+            VanillaChanges.RecipieRemover(itemList);
+        }
         super.postInit(event);
     }
 

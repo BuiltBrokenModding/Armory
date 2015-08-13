@@ -1,5 +1,6 @@
 package com.builtbroken.armory;
 
+import com.builtbroken.armory.content.medival.AddedItemBlocks;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
@@ -78,6 +79,9 @@ public final class Armory extends AbstractMod
 
         //Ore
         Engine.requestOres();
+
+        //Items
+        AddedItemBlocks.mainRegistry();
     }
 
     @SubscribeEvent

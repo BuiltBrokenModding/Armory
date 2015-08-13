@@ -1,6 +1,22 @@
 ## Master language file
 itemGroup.armory=Armory
-## Misc Blocks
-tile.bronOre.name=Bronze Ore
+## Armors
+item.bronNasal.name=Bronze Nasal Helmet
+item.bronCurass.name=Bronze Curass Chestplate
+item.bronChausses.name=Bronze Chausses Leggings
+item.bronSabaton.name=Bronze Sabaton Boots
 
+item.bronArmet.name=Bronze Armet Helmet
+item.bronFauld.name=Bronze Fauld Chestplate
+item.bronTasset.name=Bronze Tasset Leggings
+item.bronSolleret.name=Bronze Solleret Boots
 
+item.steelNasal.name=Steel Nasal Helmet
+item.steelCurass.name=Steel Curass Chestplate
+item.steelChausses.name=Steel Chausses Leggings
+item.steelSabaton.name=Steel Sabaton Boots
+
+item.steelArmet.name=Steel Armet Helmet
+item.steelFauld.name=Steel Fauld Chestplate
+item.steelTasset.name=Steel Tasset Leggings
+item.steelSolleret.name=Steel Solleret Boots

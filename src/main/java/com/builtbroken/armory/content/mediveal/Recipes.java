@@ -1,4 +1,4 @@
-package com.builtbroken.armory.content.medival;
+package com.builtbroken.armory.content.mediveal;
 
 /**
  * Created by Spencer on 8/13/2015.

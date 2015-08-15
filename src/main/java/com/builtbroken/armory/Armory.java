@@ -32,10 +32,10 @@ public final class Armory extends AbstractMod
     public static final String PREFIX = DOMAIN + ":";
 
     /** The version of WatchYourStep. */
-    public static final String MAJOR_VERSION = "@MAJOR@";
-    public static final String MINOR_VERSION = "@MINOR@";
-    public static final String REVISION_VERSION = "@REVIS@";
-    public static final String BUILD_VERSION = "@BUILD@";
+    public static final String MAJOR_VERSION = "0";
+    public static final String MINOR_VERSION = "0";
+    public static final String REVISION_VERSION = "1";
+    public static final String BUILD_VERSION = "2";
     public static final String VERSION = MAJOR_VERSION + "." + MINOR_VERSION + "." + REVISION_VERSION + "." + BUILD_VERSION;
 
     public static final String ASSETS_PATH = "/assets/armory/";

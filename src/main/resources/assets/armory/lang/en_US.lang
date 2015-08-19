@@ -20,3 +20,11 @@ item.steelArmet.name=Steel Armet Helmet
 item.steelFauld.name=Steel Fauld Chestplate
 item.steelTasset.name=Steel Tasset Leggings
 item.steelSolleret.name=Steel Solleret Boots
+
+item.bronArmingSword.name=Bronze Arming Sword
+item.bronLongSword.name=Bronze Long Sword
+item.bronBroadSword.name=Bronze Broad Sword
+
+item.steelArmingSword.name=Steel Arming Sword
+item.steelLongSword.name=Steel Long Sword
+item.steelBroadSword.name=Steel Broad Sword

@@ -4,12 +4,15 @@ import com.builtbroken.armory.Armory;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
@@ -20,7 +23,7 @@ import java.util.List;
 /**
  * Created by Dark on 8/20/2015.
  */
-public class ItemArmorSet extends Item
+public class ItemArmorSet extends ItemArmor
 {
     //TODO most likely this will need a damage event in order to block damage as it will not be handled by the default MC code
     //TODO add material types to nbt
@@ -29,6 +32,9 @@ public class ItemArmorSet extends Item
 
     public ItemArmorSet()
     {
+        //TODO add render event to render the armor so we don't have to extend ItemArmor
+        /** {@link net.minecraft.client.renderer.entity.RenderBiped#shouldRenderPass(EntityLiving, int, float)} */
+        super(ArmorMaterial.IRON, 0, 0);
         this.setHasSubtypes(true);
         this.setUnlocalizedName(Armory.PREFIX + "armorset");
     }
@@ -152,6 +158,12 @@ public class ItemArmorSet extends Item
     {
         //TODO use this later to add details to the armor that can't be done with textures, ex. Horns
         return null;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister p_94581_1_)
+    {
+
     }
 
     public enum ArmorType

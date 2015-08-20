@@ -1,5 +1,6 @@
 package com.builtbroken.armory;
 
+import com.builtbroken.armory.changes.VanillaChanges;
 import com.builtbroken.armory.content.mediveal.MedivealModular;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.mod.AbstractMod;
@@ -10,15 +11,12 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import com.builtbroken.armory.changes.*;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.config.Configuration;
-
-import java.util.List;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by robert on 11/18/2014.
@@ -49,9 +47,6 @@ public final class Armory extends AbstractMod
     public static final String BLOCK_PATH = TEXTURE_PATH + "blocks/";
     public static final String ITEM_PATH = TEXTURE_PATH + "items/";
 
-    /** Configuration */
-    public static Configuration config;
-
     @Mod.Instance(DOMAIN)
     public static Armory INSTANCE;
 
@@ -63,38 +58,33 @@ public final class Armory extends AbstractMod
     public Armory()
     {
         super(DOMAIN, "Armory");
+        CREATIVE_TAB = new ModCreativeTab("armory");
+        getManager().setTab(CREATIVE_TAB);
     }
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        //Creative Tab
         super.preInit(event);
-        CREATIVE_TAB = new ModCreativeTab("armory");
-        getManager().setTab(CREATIVE_TAB);
 
-        //Config
-        config = new Configuration(event.getSuggestedConfigurationFile());
-        ConfigurationArmory.syncConfig();
+        ConfigurationArmory.syncConfig(getConfig());
 
         //Ore
         Engine.requestOres();
-
-        //Items
-        MedivealModular.mainRegistry();
-
-        loader.applyModule(getProxy());
+        loader.applyModule(new MedivealModular(getManager()));
     }
 
     @SubscribeEvent
-    public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent event) {
-
-        if(event.modID.equals(Armory.NAME)){
-
-            ConfigurationArmory.syncConfig();
-
+    public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent event)
+    {
+        //TODO Check if this event is actually fired, as it might be used only by GuiConfig screen which we don't use
+        if (event.modID.equals(Armory.NAME))
+        {
+            //TODO might need to check if load is needed, and save is needed when this event is called
+            getConfig().load();
+            ConfigurationArmory.syncConfig(getConfig());
+            //TODO exit MC world and/or game if config changes something important
         }
-
     }
 
     @Mod.EventHandler
@@ -107,7 +97,11 @@ public final class Armory extends AbstractMod
     public void postInit(FMLPostInitializationEvent event)
     {
 
-        if(ConfigurationArmory.recipeToggle == ConfigurationArmory.RECIPETOGGLE_DEFAULT) {
+        if (ConfigurationArmory.recipeToggle == ConfigurationArmory.RECIPETOGGLE_DEFAULT)
+        {
+            //TODO create config per armor set
+            //TODO add configs to disable existing items
+            //TODO add configs to disable mob drops of these items
             List<ItemStack> itemList = new LinkedList<ItemStack>();
             //Leather
             itemList.add(new ItemStack(Items.leather_helmet));

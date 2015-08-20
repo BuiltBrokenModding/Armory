@@ -1,7 +1,8 @@
 package com.builtbroken.armory.content.mediveal;
 
 import com.builtbroken.armory.Armory;
-import com.builtbroken.mc.lib.mod.ModCreativeTab;
+import com.builtbroken.armory.content.prefab.armor.ItemArmorSet;
+import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.lib.mod.loadable.AbstractLoadable;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.item.Item;
@@ -11,16 +12,8 @@ import net.minecraftforge.common.util.EnumHelper;
 /**
  * Created by Spencer on 8/13/2015.
  */
-public class MedivealModular extends AbstractLoadable{
-
-    public static void mainRegistry(){
-        //Inint
-        initializeItem();
-        initalizeBlock();
-        //Reg
-        registerItem();
-        registerBlock();
-    }
+public class MedivealModular extends AbstractLoadable
+{
 
     //Materials
     public static ItemArmor.ArmorMaterial bronArmor = EnumHelper.addArmorMaterial("Bronze Armor", 30, new int[]{4, 8, 4, 4}, 10);
@@ -46,35 +39,55 @@ public class MedivealModular extends AbstractLoadable{
 
     //Armor
     //Bronze
-        //Tier 1
+    //Tier 1
     public static Item bronNasal;
     public static Item bronCurass;
     public static Item bronChausses;
     public static Item bronSabaton;
-        //Tier 2
+    //Tier 2
     public static Item bronArmet;
     public static Item bronFauld;
     public static Item bronTasset;
     public static Item bronSolleret;
     //Steel
-        //Tier 1
+    //Tier 1
     public static Item steelNasal;
     public static Item steelCurass;
     public static Item steelChausses;
     public static Item steelSabaton;
-        //Tier 2
+    //Tier 2
     public static Item steelArmet;
     public static Item steelFauld;
     public static Item steelTasset;
     public static Item steelSolleret;
 
-    public static void initializeItem() {
+    private final ModManager manager;
+
+    public MedivealModular(ModManager manager)
+    {
+        this.manager = manager;
+    }
+
+    @Override
+    public void preInit()
+    {
+        //TODO replace with modmanager calls
+        initializeItem();
+        registerItem();
+
+        manager.newItem("MedievalArmorSet", ItemArmorSet.class);
+    }
+
+    public static void initializeItem()
+    {
 
         //Items
 
         //Tools
 
         //Weapons
+        //TODO you don't need to set the creative tab as it is already set by the modmanager, that is if you actually use it
+        //TODO reset of these should have been set in the item class, don't follow MC's example for creating items unless you use prefabs
         bronArmingSword = new ItemBronArmingSword(bronToolTier1).setUnlocalizedName("bronArmingSword").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.ITEM_PATH + "bronArmingSword.png");
         bronLongSword = new ItemBronLongSword(bronToolTier2).setUnlocalizedName("bronLongSword").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":bronLongSword.png");
         bronBroadSword = new ItemBronBroadSword(bronToolTier3).setUnlocalizedName("bronBroadSword").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":bronBroadSword.png");
@@ -107,11 +120,8 @@ public class MedivealModular extends AbstractLoadable{
 
     }
 
-    public static void initalizeBlock(){
-
-    }
-
-    public static void registerItem(){
+    public static void registerItem()
+    {
 
         GameRegistry.registerItem(bronNasal, bronNasal.getUnlocalizedName());
         GameRegistry.registerItem(bronCurass, bronCurass.getUnlocalizedName());
@@ -142,9 +152,4 @@ public class MedivealModular extends AbstractLoadable{
         GameRegistry.registerItem(steelBroadSword, steelBroadSword.getUnlocalizedName());
 
     }
-
-    public static void registerBlock(){
-
-    }
-
 }

@@ -1,9 +1,12 @@
 package com.builtbroken.armory.content.prefab.armor;
 
+import com.builtbroken.armory.Armory;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -23,6 +26,13 @@ public class ItemArmorSet extends Item
     //TODO add material types to nbt
     //TODO handle damage using metadata
     //TODO add upgrade system
+
+    public ItemArmorSet()
+    {
+        this.setHasSubtypes(true);
+        this.setUnlocalizedName(Armory.PREFIX + "armorset");
+    }
+
     @Override
     public ItemStack onItemRightClick(ItemStack armorStack, World world, EntityPlayer player)
     {
@@ -100,18 +110,49 @@ public class ItemArmorSet extends Item
             switch (type)
             {
                 case HELM:
-                    Items.iron_helmet.getIcon(stack, pass);
+                    return Items.iron_helmet.getIconFromDamage(0);
                 case BODY:
-                    Items.iron_chestplate.getIcon(stack, pass);
+                    return Items.iron_chestplate.getIconFromDamage(0);
                 case LEGS:
-                    Items.iron_leggings.getIcon(stack, pass);
+                    return Items.iron_leggings.getIconFromDamage(0);
                 case BOOTS:
-                    Items.iron_boots.getIcon(stack, pass);
+                    return Items.iron_boots.getIconFromDamage(0);
             }
         }
         return Items.iron_helmet.getIcon(stack, pass);
     }
 
+    @Override @SideOnly(Side.CLIENT)
+    public boolean requiresMultipleRenderPasses()
+    {
+        return true;
+    }
+
+    @Override @SideOnly(Side.CLIENT)
+    public int getRenderPasses(int metadata)
+    {
+        //Temp work around for using getIcon(stack, pass) which is only called for items with several render passes
+        //TODO implement overlay for armor details, and stat info
+        return 1;
+    }
+
+    @Override
+    public String getArmorTexture(ItemStack stack, Entity entity, int slot, String textureType)
+    {
+        ArmorType type = getArmorType(stack);
+        if (type != null && type.slot == slot)
+        {
+            return Armory.PREFIX + type.getArmorTexture("leather", textureType);
+        }
+        return null;
+    }
+
+    @Override @SideOnly(Side.CLIENT)
+    public ModelBiped getArmorModel(EntityLivingBase entityLiving, ItemStack itemStack, int armorSlot)
+    {
+        //TODO use this later to add details to the armor that can't be done with textures, ex. Horns
+        return null;
+    }
 
     public enum ArmorType
     {
@@ -125,6 +166,11 @@ public class ItemArmorSet extends Item
         ArmorType(int slot)
         {
             this.slot = slot;
+        }
+
+        public String getArmorTexture(String set, String type)
+        {
+            return String.format("textures/models/armor/%s_layer_%d%s.png", set, (slot == 2 ? 2 : 1), type == null ? "" : String.format("_%s", type));
         }
     }
 }

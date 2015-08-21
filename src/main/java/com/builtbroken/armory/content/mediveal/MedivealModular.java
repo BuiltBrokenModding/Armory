@@ -97,7 +97,7 @@ public class MedivealModular extends AbstractLoadable
         steelBroadSword = new ItemSteelBroadSword(steelToolTier3).setUnlocalizedName("steelBroadSword").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":steelBroadSword.png");
 
         //Armors
-        bronNasal = new ItemBronArmor(bronArmor, Armory.proxy.addArmor("ItemBronArmor"), 0).setUnlocalizedName("bronNasal").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":bronNasal");
+       /* bronNasal = new ItemBronArmor(bronArmor, Armory.proxy.addArmor("ItemBronArmor"), 0).setUnlocalizedName("bronNasal").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":bronNasal");
         bronCurass = new ItemBronArmor(bronArmor, Armory.proxy.addArmor("ItemBronArmor"), 1).setUnlocalizedName("bronCurass").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":bronCurass");
         bronChausses = new ItemBronArmor(bronArmor, Armory.proxy.addArmor("ItemBronArmor"), 2).setUnlocalizedName("bronChausses").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":bronChausses");
         bronSabaton = new ItemBronArmor(bronArmor, Armory.proxy.addArmor("ItemBronArmor"), 3).setUnlocalizedName("bronSabaton").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":bronSabaton");
@@ -117,13 +117,13 @@ public class MedivealModular extends AbstractLoadable
         steelFauld = new ItemSteelArmor(steelArmor, Armory.proxy.addArmor("ItemSteelArmor"), 1).setUnlocalizedName("steelFauld").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":steelFauld");
         steelTasset = new ItemSteelArmor(steelArmor, Armory.proxy.addArmor("ItemSteelArmor"), 2).setUnlocalizedName("steelTasset").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":steelTasset");
         steelSolleret = new ItemSteelArmor(steelArmor, Armory.proxy.addArmor("ItemSteelArmor"), 3).setUnlocalizedName("steelSolleret").setCreativeTab(Armory.CREATIVE_TAB).setTextureName(Armory.ASSETS_PATH + Armory.TEXTURE_PATH + ":steelSolleret");
-
+*/
     }
 
     public static void registerItem()
     {
 
-        GameRegistry.registerItem(bronNasal, bronNasal.getUnlocalizedName());
+        /*GameRegistry.registerItem(bronNasal, bronNasal.getUnlocalizedName());
         GameRegistry.registerItem(bronCurass, bronCurass.getUnlocalizedName());
         GameRegistry.registerItem(bronChausses, bronChausses.getUnlocalizedName());
         GameRegistry.registerItem(bronSabaton, bronSabaton.getUnlocalizedName());
@@ -141,7 +141,7 @@ public class MedivealModular extends AbstractLoadable
         GameRegistry.registerItem(steelArmet, steelArmet.getUnlocalizedName());
         GameRegistry.registerItem(steelFauld, steelFauld.getUnlocalizedName());
         GameRegistry.registerItem(steelTasset, steelTasset.getUnlocalizedName());
-        GameRegistry.registerItem(steelSolleret, steelSolleret.getUnlocalizedName());
+        GameRegistry.registerItem(steelSolleret, steelSolleret.getUnlocalizedName());*/
 
         GameRegistry.registerItem(bronArmingSword, bronArmingSword.getUnlocalizedName());
         GameRegistry.registerItem(bronLongSword, bronLongSword.getUnlocalizedName());

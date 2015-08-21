@@ -5,5 +5,8 @@ package com.builtbroken.armory.content.mediveal.armor;
  */
 public enum EnumArmorSets
 {
-    BASIC;
+    NCCSBronze,
+    NCCSSteel,
+    AFTSBronze,
+    AFTSSteel,
 }

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<component inherit-compiler-output="true" jdk="1.8" jdk_type="JavaSDK">
-	<output-test url="file://$MODULE_DIR$/../VoltzEngine/out/test/Armory"/>
-	<exclude-output/>
-	<contentEntry url="file://$MODULE_DIR$">
-		<excludeFolder url="file://$MODULE_DIR$/BuiltBrokenScripts"/>
-		<excludeFolder url="file://$MODULE_DIR$/gradle"/>
-	</contentEntry>
-</component>

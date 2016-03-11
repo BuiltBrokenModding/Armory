@@ -6,7 +6,6 @@ import com.builtbroken.mc.api.explosive.IExplosiveHandler;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
@@ -14,7 +13,7 @@ public class EntityThrowableExplosive extends EntityThrowable implements IExplos
 {
     protected IExplosiveHandler explosive;
     protected NBTTagCompound explosive_data;
-    protected int size = 1;
+    protected double size = 1;
 
     public EntityThrowableExplosive(World world)
     {
@@ -51,5 +50,17 @@ public class EntityThrowableExplosive extends EntityThrowable implements IExplos
     public IExplosiveHandler getExplosive()
     {
         return explosive;
+    }
+
+    @Override
+    public NBTTagCompound getAdditionalExplosiveData()
+    {
+        return explosive_data;
+    }
+
+    @Override
+    public double getExplosiveSize()
+    {
+        return size;
     }
 }

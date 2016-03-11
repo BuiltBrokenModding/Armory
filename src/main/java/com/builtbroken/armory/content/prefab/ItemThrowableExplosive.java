@@ -1,12 +1,13 @@
 package com.builtbroken.armory.content.prefab;
 
 import com.builtbroken.mc.api.explosive.IExplosiveHandler;
-import com.builtbroken.mc.api.items.IExplosiveItem;
+import com.builtbroken.mc.api.items.explosives.IExplosiveItem;
 import com.builtbroken.mc.lib.world.explosive.ExplosiveRegistry;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 /**
@@ -46,5 +47,17 @@ public class ItemThrowableExplosive extends Item implements IExplosiveItem
     public IExplosiveHandler getExplosive(ItemStack stack)
     {
         return ExplosiveRegistry.get("TNT");
+    }
+
+    @Override
+    public NBTTagCompound getAdditionalExplosiveData(ItemStack stack)
+    {
+        return null;
+    }
+
+    @Override
+    public double getExplosiveSize(ItemStack stack)
+    {
+        return 0;
     }
 }

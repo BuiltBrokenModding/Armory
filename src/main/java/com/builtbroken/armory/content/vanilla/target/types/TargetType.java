@@ -20,4 +20,10 @@ public class TargetType implements ITargetType
     {
         return new EntityTarget(world, this);
     }
+
+    @Override
+    public void applyTranslation(EntityTarget target)
+    {
+
+    }
 }

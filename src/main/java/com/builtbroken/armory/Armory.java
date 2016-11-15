@@ -1,8 +1,10 @@
 package com.builtbroken.armory;
 
+import com.builtbroken.armory.registry.ArmoryJsonProcessor;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
+import com.builtbroken.mc.prefab.json.JsonContentLoader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -52,6 +54,8 @@ public final class Armory extends AbstractMod
         Engine.requestSimpleTools();
         Engine.requestCircuits();
         Engine.requestCraftingParts();
+
+        JsonContentLoader.registerProcessor(new ArmoryJsonProcessor());
     }
 
     @Mod.EventHandler

@@ -1,6 +1,6 @@
-package com.builtbroken.armory.content.vanilla.target.types;
+package com.builtbroken.armory.content.target.types;
 
-import com.builtbroken.armory.content.vanilla.target.EntityTarget;
+import com.builtbroken.armory.content.target.EntityTarget;
 import net.minecraft.world.World;
 
 /**

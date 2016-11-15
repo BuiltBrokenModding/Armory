@@ -1,5 +1,6 @@
-package com.builtbroken.armory;
+package com.builtbroken.armory.client;
 
+import com.builtbroken.armory.CommonProxy;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 
 /**
@@ -7,15 +8,8 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
  */
 public class ClientProxy extends CommonProxy
 {
-
-    public void registerRenderInfo(){
-
-    }
-
-    public int addArmor(String armor){
-
+    public int addArmor(String armor)
+    {
         return RenderingRegistry.addNewArmourRendererPrefix(armor);
-
     }
-
 }

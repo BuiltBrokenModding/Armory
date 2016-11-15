@@ -1,6 +1,6 @@
-package com.builtbroken.armory.content.vanilla.target;
+package com.builtbroken.armory.content.target;
 
-import com.builtbroken.armory.content.vanilla.target.types.ITargetType;
+import com.builtbroken.armory.content.target.types.ITargetType;
 import com.builtbroken.mc.prefab.tile.Tile;
 import net.minecraft.block.material.Material;
 

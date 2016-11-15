@@ -8,13 +8,8 @@ import com.builtbroken.mc.lib.mod.AbstractProxy;
  */
 public class CommonProxy extends AbstractProxy
 {
-
-    public void registerRenderInfo(){
-
-    }
-
-    public int addArmor(String armor){
+    public int addArmor(String armor)
+    {
         return 0;
     }
-
 }

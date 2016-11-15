@@ -1,6 +1,6 @@
-package com.builtbroken.armory.content.vanilla.target;
+package com.builtbroken.armory.content.target;
 
-import com.builtbroken.armory.content.vanilla.target.types.ITargetType;
+import com.builtbroken.armory.content.target.types.ITargetType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

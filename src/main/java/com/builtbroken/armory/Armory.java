@@ -1,6 +1,7 @@
 package com.builtbroken.armory;
 
-import com.builtbroken.armory.registry.ArmoryJsonProcessor;
+import com.builtbroken.armory.json.processor.AmmoJsonProcessor;
+import com.builtbroken.armory.json.processor.AmmoTypeJsonProcessor;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
@@ -55,7 +56,8 @@ public final class Armory extends AbstractMod
         Engine.requestCircuits();
         Engine.requestCraftingParts();
 
-        JsonContentLoader.registerProcessor(new ArmoryJsonProcessor());
+        JsonContentLoader.registerProcessor(new AmmoTypeJsonProcessor());
+        JsonContentLoader.registerProcessor(new AmmoJsonProcessor());
     }
 
     @Mod.EventHandler

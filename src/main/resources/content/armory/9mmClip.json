@@ -1,0 +1,8 @@
+{
+  "clip": {
+    "name": "9mmClip",
+    "type": "clip",
+    "ammo": "9mm",
+    "maxAmmo": 15
+  }
+}

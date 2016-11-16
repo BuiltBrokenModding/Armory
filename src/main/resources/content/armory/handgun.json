@@ -1,3 +1,13 @@
 {
-
+  "gun": {
+    "name": "handgun",
+    "type": "handgun",
+    "ID": "amory.test.hangun",
+    "ammo": "9mm",
+    "clipType": 3,
+    "fallOff": "0.05D",
+    "mass": 630,
+    "rateOfFire": 240,
+    "reloadTime": 40
+  }
 }

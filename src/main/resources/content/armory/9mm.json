@@ -1,0 +1,11 @@
+{
+  "ammoType": {
+    "name": "9mm"
+  },
+  "ammo": {
+    "name": "basic",
+    "type": "9mm",
+    "damage": 5,
+    "source": "impact"
+  }
+}

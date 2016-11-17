@@ -17,5 +17,14 @@ public enum ClipTypes
     /** Tommy gun */
     DRUM,
     /** LMG HMG */
-    BELT
+    BELT;
+
+    public static ClipTypes get(int clipType)
+    {
+        if (clipType >= 0 && clipType < values().length)
+        {
+            return values()[clipType];
+        }
+        return BREACH_LOADED;
+    }
 }

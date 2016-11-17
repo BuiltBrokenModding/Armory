@@ -1,6 +1,9 @@
 package com.builtbroken.armory.data.ammo;
 
+import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.DamageSource;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -8,8 +11,8 @@ import com.builtbroken.armory.data.ArmoryEntry;
  */
 public class AmmoData extends ArmoryEntry
 {
-    private final String ammoTypeName;
-    private final String damageSourceName;
+    private final AmmoType ammoType;
+    private final String damageSource;
 
     private final float damage;
 
@@ -17,11 +20,26 @@ public class AmmoData extends ArmoryEntry
     //TODO add effect handlers
     //TODO add damage calculations
 
-    public AmmoData(String name, String ammoType, String source, float damage)
+    public AmmoData(String name, AmmoType ammoType, String source, float damage)
     {
         super("ammo", name);
-        this.ammoTypeName = ammoType;
-        this.damageSourceName = source;
+        this.ammoType = ammoType;
+        this.damageSource = source;
         this.damage = damage;
+    }
+
+    public void applyDamage(Entity shooter, Entity entity)
+    {
+        if (damageSource != null && damage > 0)
+        {
+            //TODO create damage source with shooter, gun data, and damage type
+            entity.attackEntityFrom(DamageSource.generic, damage);
+        }
+    }
+
+    @Override
+    public void register()
+    {
+        ArmoryDataHandler.add(this);
     }
 }

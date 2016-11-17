@@ -3,10 +3,7 @@ package com.builtbroken.armory.json.processor;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.prefab.json.processors.JsonProcessor;
-import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
-
-import java.util.List;
 
 /**
  * Handles processing a single type of item
@@ -31,15 +28,9 @@ public abstract class ArmoryEntryJsonProcessor<E extends ArmoryEntry> extends Js
     }
 
     @Override
-    public List<String> getJsonKeyThatCanBeProcessed()
+    public String getJsonKey()
     {
-        return Lists.newArrayList(jsonKey);
-    }
-
-    @Override
-    public boolean canProcess(JsonElement element)
-    {
-        return element.isJsonObject() && element.getAsJsonObject().has(jsonKey);
+        return jsonKey;
     }
 
     public abstract E process(JsonElement element);

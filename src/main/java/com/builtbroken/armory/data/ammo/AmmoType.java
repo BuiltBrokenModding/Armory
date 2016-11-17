@@ -1,6 +1,8 @@
 package com.builtbroken.armory.data.ammo;
 
+import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
+import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +16,17 @@ import java.util.List;
 public class AmmoType extends ArmoryEntry
 {
     public final List<AmmoData> ammoDataObjects = new ArrayList();
+    public final EnumProjectileTypes projectileType;
 
-    public AmmoType(String name)
+    public AmmoType(String name, EnumProjectileTypes ammoType)
     {
         super("ammoType", name);
+        this.projectileType = ammoType;
+    }
+
+    @Override
+    public void register()
+    {
+        ArmoryDataHandler.add(this);
     }
 }

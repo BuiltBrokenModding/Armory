@@ -1,5 +1,6 @@
 package com.builtbroken.armory.json.processor;
 
+import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,7 +17,7 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
     }
 
     @Override
-    public String getSortingString()
+    public String getJsonKey()
     {
         return "ammo@after:ammoType";
     }
@@ -24,15 +25,14 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
     @Override
     public AmmoData process(JsonElement element)
     {
-        JsonObject object = element.getAsJsonObject();
-        JsonObject blockData = object.get("ammo").getAsJsonObject();
+        final JsonObject blockData = element.getAsJsonObject();
         if (blockData.has("type") && blockData.has("source") && blockData.has("damage"))
         {
             String name = blockData.get("name").getAsString();
             String type = blockData.get("type").getAsString();
             String source = blockData.get("source").getAsString();
             float damage = blockData.getAsJsonPrimitive("damage").getAsFloat();
-            return new AmmoData(name, type, source, damage);
+            return new AmmoData(name, ArmoryDataHandler.getAmmoType(type), source, damage);
         }
         else
         {

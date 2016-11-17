@@ -12,4 +12,13 @@ public enum EnumProjectileTypes
     GRENADE,
     BULLET,
     LASER;
+
+    public static EnumProjectileTypes get(int type)
+    {
+        if (type >= 0 && type < values().length)
+        {
+            return values()[type];
+        }
+        return BULLET;
+    }
 }

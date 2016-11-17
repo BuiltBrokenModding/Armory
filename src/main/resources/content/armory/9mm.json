@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name":"${Armory}"
+  },
   "ammoType": {
     "name": "9mm"
   },

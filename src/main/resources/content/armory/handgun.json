@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "${Armory}"
+  },
   "gun": {
     "name": "handgun",
     "type": "handgun",

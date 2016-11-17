@@ -42,6 +42,7 @@ public final class Armory extends AbstractMod
         super(DOMAIN, "Armory");
         CREATIVE_TAB = new ModCreativeTab("armory");
         getManager().setTab(CREATIVE_TAB);
+        modIssueTracker = "https://github.com/BuiltBrokenModding/Armory/issues";
     }
 
     @Mod.EventHandler

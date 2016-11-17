@@ -11,6 +11,8 @@ public abstract class ArmoryEntry implements IJsonGenObject
     private String name;
     private String type;
 
+    public int mass = -1;
+
     public ArmoryEntry(String type, String name)
     {
         this.type = type;

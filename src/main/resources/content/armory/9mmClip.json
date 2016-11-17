@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name":"${Armory}"
+  },
   "clip": {
     "name": "9mmClip",
     "type": "clip",

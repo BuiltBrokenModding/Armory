@@ -18,7 +18,14 @@ public class GunData extends RangeWeaponData
     /** Every weapon gets a single fire reload ability */
     public final ClipData singleFireClipData;
 
+    /** Unique save ID for the gun */
     public final String ID;
+
+    /** Reload time in ticks */
+    public int reloadTime = 20;
+
+    /** Rounds a min that can be fired from the weapon, does not include reload time */
+    public int rateOfFire = 60;
 
     public GunData(String id, String type, String name, AmmoType ammoType, ClipTypes clipType, ClipData singleFireData)
     {

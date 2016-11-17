@@ -65,6 +65,46 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
             JsonElement rateOfFire = blockData.get("rateOfFire");
             JsonElement reloadTime = blockData.get("reloadTime");
 
+            if (mass != null)
+            {
+                if (mass.isJsonPrimitive())
+                {
+                    data.mass = mass.getAsInt();
+                }
+                else
+                {
+                    throw new IllegalArgumentException("Invalid mass value " + mass + " when reading " + element);
+                }
+            }
+
+            if (fallOff != null)
+            {
+                //TODO create equation processor
+            }
+
+            if (rateOfFire != null)
+            {
+                if (rateOfFire.isJsonPrimitive())
+                {
+                    data.rateOfFire = rateOfFire.getAsInt();
+                }
+                else
+                {
+                    throw new IllegalArgumentException("Invalid rate of fire value " + rateOfFire + " when reading " + element);
+                }
+            }
+
+            if (reloadTime != null)
+            {
+                if (reloadTime.isJsonPrimitive())
+                {
+                    data.reloadTime = reloadTime.getAsInt();
+                }
+                else
+                {
+                    throw new IllegalArgumentException("Invalid reload time value " + reloadTime + " when reading " + element);
+                }
+            }
             return data;
         }
         else

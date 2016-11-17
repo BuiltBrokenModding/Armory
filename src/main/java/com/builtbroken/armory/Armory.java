@@ -1,16 +1,20 @@
 package com.builtbroken.armory;
 
+import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.json.processor.AmmoJsonProcessor;
 import com.builtbroken.armory.json.processor.AmmoTypeJsonProcessor;
+import com.builtbroken.armory.json.processor.ClipJsonProcessor;
+import com.builtbroken.armory.json.processor.GunJsonProcessor;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
-import com.builtbroken.mc.prefab.json.JsonContentLoader;
+import com.builtbroken.mc.lib.json.JsonContentLoader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import net.minecraft.item.Item;
 
 /**
  * Created by robert on 11/18/2014.
@@ -37,6 +41,8 @@ public final class Armory extends AbstractMod
 
     public static ModCreativeTab CREATIVE_TAB;
 
+    public static Item itemGun;
+
     public Armory()
     {
         super(DOMAIN, "Armory");
@@ -59,6 +65,10 @@ public final class Armory extends AbstractMod
 
         JsonContentLoader.registerProcessor(new AmmoTypeJsonProcessor());
         JsonContentLoader.registerProcessor(new AmmoJsonProcessor());
+        JsonContentLoader.registerProcessor(new ClipJsonProcessor());
+        JsonContentLoader.registerProcessor(new GunJsonProcessor());
+
+        itemGun = getManager().newItem("armoryGun", new ItemGun());
     }
 
     @Mod.EventHandler

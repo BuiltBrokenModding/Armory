@@ -11,10 +11,10 @@ import net.minecraft.util.DamageSource;
  */
 public class AmmoData extends ArmoryEntry
 {
-    private final AmmoType ammoType;
-    private final String damageSource;
+    public final AmmoType ammoType;
+    public final String damageSource;
 
-    private final float damage;
+    public final float damage;
 
     //TODO add optional damage types
     //TODO add effect handlers

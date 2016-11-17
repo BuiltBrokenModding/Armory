@@ -27,4 +27,16 @@ public enum ClipTypes
         }
         return BREACH_LOADED;
     }
+
+    public static ClipTypes get(String string)
+    {
+        for (ClipTypes type : values())
+        {
+            if (type.name().equalsIgnoreCase(string))
+            {
+                return type;
+            }
+        }
+        return CLIP;
+    }
 }

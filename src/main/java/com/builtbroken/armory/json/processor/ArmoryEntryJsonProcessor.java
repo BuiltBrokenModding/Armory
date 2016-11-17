@@ -2,8 +2,9 @@ package com.builtbroken.armory.json.processor;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.ArmoryEntry;
-import com.builtbroken.mc.prefab.json.processors.JsonProcessor;
+import com.builtbroken.mc.lib.json.processors.JsonProcessor;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * Handles processing a single type of item
@@ -34,4 +35,65 @@ public abstract class ArmoryEntryJsonProcessor<E extends ArmoryEntry> extends Js
     }
 
     public abstract E process(JsonElement element);
+
+    /**
+     * Called to process common shared data
+     *
+     * @param object
+     * @param e
+     * @return
+     */
+    public E processExtraData(JsonObject object, E e)
+    {
+        final JsonElement mass = object.get("mass");
+        if (mass != null)
+        {
+            if (mass.isJsonPrimitive())
+            {
+                e.mass = mass.getAsInt();
+            }
+            else
+            {
+                throw new IllegalArgumentException("Invalid mass value " + mass + " when reading " + object);
+            }
+        }
+
+        final JsonElement contentGroup = object.get("contentGroup");
+        if (contentGroup != null)
+        {
+            if (contentGroup.isJsonPrimitive())
+            {
+                e.contentGroup = mass.getAsString();
+            }
+            else
+            {
+                throw new IllegalArgumentException("Invalid content group value " + contentGroup + " when reading " + object);
+            }
+        }
+
+        final JsonElement translation = object.get("translationKey");
+        if (translation != null)
+        {
+            if (translation.isJsonPrimitive())
+            {
+                e.translationKey = jsonKey + "." + (e.contentGroup != null && !e.contentGroup.isEmpty() ? e.contentGroup + ":" : "") + translation.getAsString();
+            }
+            else
+            {
+                throw new IllegalArgumentException("Invalid translation value " + translation + " when reading " + object);
+            }
+        }
+        return e;
+    }
+
+    public void ensureValuesExist(JsonObject object, String... values)
+    {
+        for (String value : values)
+        {
+            if (!object.has("name"))
+            {
+                throw new IllegalArgumentException("File is missing " + value + " value " + object);
+            }
+        }
+    }
 }

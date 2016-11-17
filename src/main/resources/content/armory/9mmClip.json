@@ -4,6 +4,7 @@
   },
   "clip": {
     "name": "9mmClip",
+    "translationKey": "9mm",
     "type": "clip",
     "ammo": "9mm",
     "maxAmmo": 15

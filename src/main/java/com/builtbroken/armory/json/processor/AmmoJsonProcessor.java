@@ -25,18 +25,15 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
     @Override
     public AmmoData process(JsonElement element)
     {
-        final JsonObject blockData = element.getAsJsonObject();
-        if (blockData.has("type") && blockData.has("source") && blockData.has("damage"))
-        {
-            String name = blockData.get("name").getAsString();
-            String type = blockData.get("type").getAsString();
-            String source = blockData.get("source").getAsString();
-            float damage = blockData.getAsJsonPrimitive("damage").getAsFloat();
-            return new AmmoData(name, ArmoryDataHandler.getAmmoType(type), source, damage);
-        }
-        else
-        {
-            throw new IllegalArgumentException("File is missing key parts " + element);
-        }
+        final JsonObject object = element.getAsJsonObject();
+        ensureValuesExist(object, "name", "type", "source", "damage");
+
+        String name = object.get("name").getAsString();
+        String type = object.get("type").getAsString();
+        String source = object.get("source").getAsString();
+        float damage = object.getAsJsonPrimitive("damage").getAsFloat();
+        AmmoData data = new AmmoData(name, ArmoryDataHandler.getAmmoType(type), source, damage);
+        processExtraData(object, data);
+        return data;
     }
 }

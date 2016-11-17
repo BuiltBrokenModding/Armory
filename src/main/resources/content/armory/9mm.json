@@ -1,12 +1,15 @@
 {
   "author": {
-    "name":"${Armory}"
+    "name": "${Armory}"
   },
   "ammoType": {
-    "name": "9mm"
+    "name": "9mm",
+    "type": 4,
+    "translationKey": "9mm"
   },
   "ammo": {
     "name": "basic",
+    "translationKey": "9mm.basic",
     "type": "9mm",
     "damage": 5,
     "source": "impact"

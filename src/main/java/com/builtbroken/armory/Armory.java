@@ -63,10 +63,10 @@ public final class Armory extends AbstractMod
         Engine.requestCircuits();
         Engine.requestCraftingParts();
 
-        JsonContentLoader.registerProcessor(new AmmoTypeJsonProcessor());
-        JsonContentLoader.registerProcessor(new AmmoJsonProcessor());
-        JsonContentLoader.registerProcessor(new ClipJsonProcessor());
-        JsonContentLoader.registerProcessor(new GunJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new AmmoTypeJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new AmmoJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new ClipJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new GunJsonProcessor());
 
         itemGun = getManager().newItem("armoryGun", new ItemGun());
     }

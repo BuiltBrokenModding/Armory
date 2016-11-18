@@ -21,7 +21,13 @@ public class ClipJsonProcessor extends ArmoryEntryJsonProcessor<ClipData>
     @Override
     public String getJsonKey()
     {
-        return "clip@after:ammoType";
+        return "clip";
+    }
+
+    @Override
+    public String getLoadOrder()
+    {
+        return "after:ammoType";
     }
 
     @Override
@@ -35,7 +41,7 @@ public class ClipJsonProcessor extends ArmoryEntryJsonProcessor<ClipData>
 
         JsonPrimitive clipTypeValue = object.getAsJsonPrimitive("type");
         ClipTypes clipType;
-        if(clipTypeValue.isString())
+        if (clipTypeValue.isString())
         {
             clipType = ClipTypes.get(clipTypeValue.getAsString());
         }

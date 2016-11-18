@@ -17,9 +17,9 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
     }
 
     @Override
-    public String getJsonKey()
+    public String getLoadOrder()
     {
-        return "ammo@after:ammoType";
+        return "after:ammoType";
     }
 
     @Override

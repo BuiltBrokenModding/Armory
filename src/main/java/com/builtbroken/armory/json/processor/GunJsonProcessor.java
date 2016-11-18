@@ -22,7 +22,13 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
     @Override
     public String getJsonKey()
     {
-        return "gun@after:ammoType";
+        return "gun";
+    }
+
+    @Override
+    public String getLoadOrder()
+    {
+        return "after:ammoType";
     }
 
     @Override

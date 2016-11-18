@@ -19,6 +19,12 @@ public class AmmoTypeJsonProcessor extends ArmoryEntryJsonProcessor<AmmoType>
     }
 
     @Override
+    public String getLoadOrder()
+    {
+        return null;
+    }
+
+    @Override
     public AmmoType process(JsonElement element)
     {
         JsonObject object = element.getAsJsonObject();

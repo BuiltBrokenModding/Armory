@@ -6,12 +6,19 @@ package com.builtbroken.armory.data.projectiles;
  */
 public enum EnumProjectileTypes
 {
-    ARROW,
-    BOLT,
-    ROCKET,
-    GRENADE,
-    BULLET,
-    LASER;
+    ARROW("arrow"),
+    BOLT("bolt"),
+    ROCKET("rocket"),
+    GRENADE("grenade"),
+    BULLET("bullet"),
+    LASER("laser");
+
+    public final String catName;
+
+    EnumProjectileTypes(String categoryName)
+    {
+        this.catName = categoryName;
+    }
 
     public static EnumProjectileTypes get(int type)
     {

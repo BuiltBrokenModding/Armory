@@ -84,7 +84,7 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
         {
             if (rateOfFire.isJsonPrimitive())
             {
-                data.rateOfFire = rateOfFire.getAsInt();
+                data.setRateOfFire(rateOfFire.getAsInt());
             }
             else
             {

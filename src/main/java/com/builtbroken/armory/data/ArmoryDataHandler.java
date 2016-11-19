@@ -39,7 +39,7 @@ public class ArmoryDataHandler
 
     public static void add(GunData gun)
     {
-        GUN_DATA.put(gun.name(), gun);
+        GUN_DATA.put(gun.ID, gun);
     }
 
     public static void add(ArmorData armorData)

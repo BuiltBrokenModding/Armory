@@ -25,7 +25,9 @@ public class GunData extends RangeWeaponData
     public int reloadTime = 20;
 
     /** Rounds a min that can be fired from the weapon, does not include reload time */
-    public int rateOfFire = 60;
+    private int rateOfFire = 60;
+
+    private int firingDelay;
 
     public GunData(String id, String type, String name, AmmoType ammoType, ClipTypes clipType, ClipData singleFireData)
     {
@@ -39,5 +41,32 @@ public class GunData extends RangeWeaponData
     public void register()
     {
         ArmoryDataHandler.add(this);
+    }
+
+    /**
+     * Number of rounds that can be fired in
+     * a single min with the weapon ignoring
+     * max clip size.
+     */
+    public int getRateOfFire()
+    {
+        return rateOfFire;
+    }
+
+    /**
+     * Delay in milliseconds between rounds firing
+     *
+     * @return time milliseconds
+     */
+    public int getFiringDelay()
+    {
+        return firingDelay;
+    }
+
+    public void setRateOfFire(int rateOfFire)
+    {
+        this.rateOfFire = rateOfFire;
+        //Seconds in a min * millis in a second / rounds in a min
+        this.firingDelay = 60 * 1000 / rateOfFire;
     }
 }

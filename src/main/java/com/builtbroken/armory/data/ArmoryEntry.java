@@ -52,6 +52,10 @@ public abstract class ArmoryEntry implements IJsonGenObject
         return type;
     }
 
+    public String getUnlocalizedName()
+    {
+        return translationKey;
+    }
 
     @Override
     public abstract void register();

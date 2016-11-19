@@ -81,6 +81,7 @@ public final class Armory extends AbstractMod
     public void postInit(FMLPostInitializationEvent event)
     {
         super.postInit(event);
+
     }
 
     @Override

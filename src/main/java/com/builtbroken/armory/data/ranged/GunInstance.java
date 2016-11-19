@@ -2,6 +2,9 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.data.ammo.ClipInstance;
 import com.builtbroken.mc.api.ISave;
+import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
+import com.builtbroken.mc.lib.transform.vector.Location;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -55,12 +58,17 @@ public class GunInstance implements ISave
     protected void _doFire(World world, float yaw, float pitch)
     {
         final Pos aim = getAim(yaw, pitch);
-        final Pos start = aim.add(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
-        final Pos end = aim.multiply(500).add(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
+        final Pos entityPos = new Pos(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
+
+        final Pos start = aim.add(entityPos);
+        final Pos end = entityPos.add(aim.multiply(500));
+
+        Engine.instance.packetHandler.sendToAllAround(new PacketSpawnStream(world.provider.dimensionId, start, end, 1), new Location(entity), 200);
+
         MovingObjectPosition hit = start.rayTrace(world, end);
         if (hit != null && hit.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)
         {
-            if (hit.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY)
+            if (hit.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
             {
                 if (entity instanceof EntityPlayer)
                 {

@@ -5,9 +5,14 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.jlib.type.Pair;
+import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.api.items.IMouseButtonHandler;
 import com.builtbroken.mc.api.items.weapons.IAmmoType;
 import com.builtbroken.mc.api.items.weapons.IReloadableWeapon;
+import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.core.network.IPacketReceiver;
+import com.builtbroken.mc.core.network.packet.PacketPlayerItem;
+import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
 import com.builtbroken.mc.lib.helper.NBTUtility;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
@@ -16,13 +21,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,7 +49,7 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
  */
-public class ItemGun extends ItemWeapon implements IMouseButtonHandler, IReloadableWeapon, IPostInit
+public class ItemGun extends ItemWeapon implements IMouseButtonHandler, IReloadableWeapon, IPostInit, IPacketReceiver
 {
     private static final Long saveTimeLimit = TimeUnit.MILLISECONDS.convert(30, TimeUnit.DAYS);
     private static boolean initGunData = false;
@@ -211,7 +224,13 @@ public class ItemGun extends ItemWeapon implements IMouseButtonHandler, IReloada
     @Override
     public void onPostInit()
     {
-        if (!initGunData)
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @SubscribeEvent
+    public void onWorldLoad(WorldEvent.Load event)
+    {
+        if (event.world.provider.dimensionId == 0 && !initGunData)
         {
             initGunData = true;
             final File save = new File(NBTUtility.getSaveDirectory(), "bbm/armory/gunIndex.json");
@@ -226,6 +245,15 @@ public class ItemGun extends ItemWeapon implements IMouseButtonHandler, IReloada
                 generateNew();
             }
             saveGunDataToFile(save, keyToWriteTime);
+        }
+    }
+
+    @SubscribeEvent
+    public void onConnect(PlayerEvent.PlayerLoggedInEvent event)
+    {
+        if (!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
+        {
+            sendSyncPacket((EntityPlayerMP) event.player);
         }
     }
 
@@ -348,5 +376,37 @@ public class ItemGun extends ItemWeapon implements IMouseButtonHandler, IReloada
                 }
             }
         }
+    }
+
+    @Override
+    public void read(ByteBuf buf, EntityPlayer player, PacketType packet)
+    {
+        int size = buf.readInt();
+        if (size > 0)
+        {
+            metaToGun.clear();
+            for (int i = 0; i < size; i++)
+            {
+                metaToGun.put(buf.readInt(), ArmoryDataHandler.getGunData(ByteBufUtils.readUTF8String(buf)));
+            }
+        }
+    }
+
+    public void sendSyncPacket(EntityPlayerMP player)
+    {
+        PacketPlayerItem packet = new PacketPlayerItem(Item.getIdFromItem(this) * -1);
+        packet.data().writeInt(metaToGun.size());
+        for (Map.Entry<Integer, GunData> entry : metaToGun.entrySet())
+        {
+            packet.data().writeInt(entry.getKey());
+            ByteBufUtils.writeUTF8String(packet.data(), entry.getValue().ID);
+        }
+        Engine.instance.packetHandler.sendToPlayer(packet, player);
+    }
+
+    @Override
+    public boolean shouldReadPacket(EntityPlayer player, IWorldPosition receiveLocation, PacketType packet)
+    {
+        return player.worldObj.isRemote;
     }
 }

@@ -233,7 +233,7 @@ public class ItemGun extends ItemWeapon implements IMouseButtonHandler, IReloada
      * Inits the meta with new data. Only used
      * for first time installs or error correctly.
      */
-    protected void generateNew()
+    public static void generateNew()
     {
         int meta = 0;
         for (Map.Entry<String, GunData> entry : ArmoryDataHandler.GUN_DATA.entrySet())
@@ -250,7 +250,7 @@ public class ItemGun extends ItemWeapon implements IMouseButtonHandler, IReloada
      * @param keyToWriteTime - when the keys where written last, used for legacy loading when mods are disabled
      * @return data as a json object
      */
-    protected JsonObject getGunDataAsJson(HashMap<String, Long> keyToWriteTime)
+    public static JsonObject getGunDataAsJson(HashMap<String, Long> keyToWriteTime)
     {
         JsonObject object = new JsonObject();
         JsonArray array = new JsonArray();
@@ -274,7 +274,7 @@ public class ItemGun extends ItemWeapon implements IMouseButtonHandler, IReloada
      * @param save           - location to save the file
      * @param keyToWriteTime - when the keys where written last, used for legacy loading when mods are disabled
      */
-    protected void saveGunDataToFile(File save, HashMap<String, Long> keyToWriteTime)
+    public static void saveGunDataToFile(File save, HashMap<String, Long> keyToWriteTime)
     {
         try (FileWriter file = new FileWriter(save))
         {
@@ -292,7 +292,7 @@ public class ItemGun extends ItemWeapon implements IMouseButtonHandler, IReloada
      * @param save           - location to save the file
      * @param keyToWriteTime - when the keys where written last, used for legacy loading when mods are disabled
      */
-    protected void loadGunDataFromFile(File save, HashMap<String, Long> keyToWriteTime)
+    public static void loadGunDataFromFile(File save, HashMap<String, Long> keyToWriteTime)
     {
         int slotSearchIndex = 0;
         HashMap<Integer, String> metaToKeyMap = new HashMap();

@@ -15,6 +15,8 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
+import java.awt.*;
+
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
@@ -57,13 +59,27 @@ public class GunInstance implements ISave
 
     protected void _doFire(World world, float yaw, float pitch)
     {
+        //Figure out where the player is aiming
         final Pos aim = getAim(yaw, pitch);
-        final Pos entityPos = new Pos(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
 
-        final Pos start = aim.add(entityPos);
+        //Find our hand position so to position starting point near barrel of the gun
+        float rotationHand = MathHelper.wrapAngleTo180_float(((EntityPlayer) entity).renderYawOffset + 90);
+        final Pos hand = new Pos(
+                Math.cos(Math.toRadians(rotationHand)) - Math.sin(Math.toRadians(rotationHand)),
+                0,
+                Math.sin(Math.toRadians(rotationHand)) + Math.cos(Math.toRadians(rotationHand))
+        ).multiply(0.5);
+
+        final Pos entityPos = new Pos(entity.posX, entity.posY + 1.1, entity.posZ).add(hand);
+
+        final Pos start = entityPos;
         final Pos end = entityPos.add(aim.multiply(500));
 
-        Engine.instance.packetHandler.sendToAllAround(new PacketSpawnStream(world.provider.dimensionId, start, end, 1), new Location(entity), 200);
+        PacketSpawnStream packet = new PacketSpawnStream(world.provider.dimensionId, start, end, 2);
+        packet.red = (Color.blue.getRed() / 255f);
+        packet.green = (Color.blue.getGreen() / 255f);
+        packet.blue = (Color.blue.getBlue() / 255f);
+        Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
 
         MovingObjectPosition hit = start.rayTrace(world, end);
         if (hit != null && hit.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)

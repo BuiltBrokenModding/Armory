@@ -16,6 +16,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -38,6 +39,11 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
         this.setUnlocalizedName(Armory.PREFIX + name);
         this.setCreativeTab(CreativeTabs.tabCombat);
         this.setHasSubtypes(true);
+    }
+
+    public E getData(ItemStack stack)
+    {
+        return metaToData.get(stack.getItemDamage());
     }
 
     @Override

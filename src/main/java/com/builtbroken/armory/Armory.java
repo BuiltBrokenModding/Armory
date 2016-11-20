@@ -1,5 +1,7 @@
 package com.builtbroken.armory;
 
+import com.builtbroken.armory.content.items.ItemAmmo;
+import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.json.processor.AmmoJsonProcessor;
@@ -8,9 +10,9 @@ import com.builtbroken.armory.json.processor.ClipJsonProcessor;
 import com.builtbroken.armory.json.processor.GunJsonProcessor;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
+import com.builtbroken.mc.lib.json.JsonContentLoader;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
-import com.builtbroken.mc.lib.json.JsonContentLoader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -44,6 +46,8 @@ public final class Armory extends AbstractMod
     public static ModCreativeTab CREATIVE_TAB;
 
     public static Item itemGun;
+    public static Item itemClip;
+    public static Item itemAmmo;
 
     public Armory()
     {
@@ -77,6 +81,8 @@ public final class Armory extends AbstractMod
 
         //TODO gen more guns if registered guns is greater than 32000 (Which should never happen)
         itemGun = getManager().newItem("armoryGun", new ItemGun());
+        itemClip = getManager().newItem("armoryClip", new ItemClip());
+        itemAmmo = getManager().newItem("armoryAmmo", new ItemAmmo());
     }
 
     @Mod.EventHandler

@@ -1,11 +1,21 @@
 package com.builtbroken.armory.data;
 
-import com.builtbroken.armory.data.ammo.AmmoData;
-import com.builtbroken.armory.data.ammo.AmmoType;
-import com.builtbroken.armory.data.ammo.ClipData;
-import com.builtbroken.armory.data.ranged.GunData;
+import com.builtbroken.armory.Armory;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.internal.Streams;
+import com.google.gson.stream.JsonReader;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import io.netty.buffer.ByteBuf;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handles, stores, and offers access all data processed by the mod
@@ -15,55 +25,254 @@ import java.util.HashMap;
  */
 public class ArmoryDataHandler
 {
-    public static HashMap<String, AmmoType> AMMO_TYPE_DATA = new HashMap();
-    public static HashMap<String, AmmoData> AMMO_DATA = new HashMap();
-    public static HashMap<String, ClipData> CLIP_DATA = new HashMap();
-    public static HashMap<String, GunData> GUN_DATA = new HashMap();
+    /** Limit on how long to let a slot be used when a mod was uninstalled */
+    private static final Long saveTimeLimit = TimeUnit.MILLISECONDS.convert(30, TimeUnit.DAYS);
+    /** All data sets used to hold information about each ArmoryEntry set */
+    public static final HashMap<String, ArmoryData> DATA = new HashMap();
+    /** Primary instance for Armory data */
+    public static final ArmoryDataHandler INSTANCE = new ArmoryDataHandler();
 
-    public static HashMap<String, ArmorData> ARMOR_DATA = new HashMap();
-
-    public static void add(AmmoType ammoType)
+    /**
+     * Gets the ArmoryData set
+     *
+     * @param name - name of the set, should match
+     *             entry type
+     * @return set if one was registered
+     */
+    public ArmoryData get(String name)
     {
-        AMMO_TYPE_DATA.put(ammoType.name(), ammoType);
+        return DATA.get(name);
     }
 
-    public static void add(AmmoData ammo)
+    /**
+     * Adds a new data set
+     *
+     * @param data - set
+     */
+    public void add(ArmoryData data)
     {
-        AMMO_DATA.put(ammo.name(), ammo);
+        DATA.put(data.name, data);
     }
 
-    public static void add(ClipData clip)
+    /**
+     * Adds an entry to a data set
+     *
+     * @param name  - name of the set
+     * @param entry - entry
+     * @param <E>   - set class, will throw casting exception if type does not match
+     */
+    public <E extends ArmoryEntry> void add(String name, E entry)
     {
-        CLIP_DATA.put(clip.name(), clip);
+        if (DATA.get(name) != null)
+        {
+            DATA.get(name).add(entry);
+        }
+        else
+        {
+            throw new RuntimeException("No data set is registered for name " + name);
+        }
     }
 
-    public static void add(GunData gun)
+    /**
+     * Class used to store data for an armory entry set
+     *
+     * @param <E> - set class
+     */
+    public static class ArmoryData<E extends ArmoryEntry> extends HashMap<String, E>
     {
-        GUN_DATA.put(gun.ID, gun);
-    }
+        public final String name;
+        public final File save;
 
-    public static void add(ArmorData armorData)
-    {
-        ARMOR_DATA.put(armorData.name(), armorData);
-    }
+        private boolean hasRunInit = false;
 
-    public static AmmoType getAmmoType(String name)
-    {
-        return AMMO_TYPE_DATA.get(name);
-    }
+        public ArmoryData(File saveFolder, String name)
+        {
+            this.name = name;
+            save = new File(saveFolder, "bbm/armory/" + name + "Index.json");
+        }
 
-    public static AmmoData getAmmoData(String name)
-    {
-        return AMMO_DATA.get(name);
-    }
+        public void add(E entry)
+        {
+            put(entry.ID, entry);
+        }
 
-    public static ClipData getClipData(String name)
-    {
-        return CLIP_DATA.get(name);
-    }
+        public E get(String key)
+        {
+            return super.get(key);
+        }
 
-    public static GunData getGunData(String name)
-    {
-        return GUN_DATA.get(name);
+        /**
+         * Called to load or init data from file.
+         * <p>
+         * Not all items use this load method. Some may choose
+         * not to use a meta dependent solution.
+         *
+         * @param metaToEntry - map to store the loaded data inside
+         */
+        public void init(HashMap<Integer, E> metaToEntry)
+        {
+            if (!hasRunInit)
+            {
+                hasRunInit = true;
+                final HashMap<String, Long> keyToWriteTime = new HashMap();
+
+                if (save.exists())
+                {
+                    loadDataFromFile(keyToWriteTime, metaToEntry);
+                }
+                else
+                {
+                    int meta = 0;
+                    for (Map.Entry<String, E> entry : entrySet())
+                    {
+                        metaToEntry.put(meta, entry.getValue());
+                        meta += 1;
+                    }
+                }
+                saveDataToFile(keyToWriteTime, metaToEntry);
+            }
+        }
+
+        public void readBytes(ByteBuf buf, HashMap<Integer, E> metaToEntry)
+        {
+            int size = buf.readInt();
+            if (size > 0)
+            {
+                metaToEntry.clear();
+                for (int i = 0; i < size; i++)
+                {
+                    metaToEntry.put(buf.readInt(), get(ByteBufUtils.readUTF8String(buf)));
+                }
+            }
+        }
+
+        public void writeBytes(ByteBuf buf, HashMap<Integer, E> metaToEntry)
+        {
+            buf.writeInt(metaToEntry.size());
+            for (Map.Entry<Integer, E> entry : metaToEntry.entrySet())
+            {
+                buf.writeInt(entry.getKey());
+                ByteBufUtils.writeUTF8String(buf, entry.getValue().ID);
+            }
+        }
+
+        /**
+         * Gets the gun meta data as a json object. Used for both saving and
+         * client packet syncing
+         *
+         * @param keyToWriteTime - when the keys where written last, used for legacy loading when mods are disabled
+         * @return data as a json object
+         */
+        public JsonObject getDataAsJson(HashMap<String, Long> keyToWriteTime, HashMap<Integer, E> metaToEntry)
+        {
+            JsonObject object = new JsonObject();
+            JsonArray array = new JsonArray();
+            object.add(name, array);
+
+            for (Map.Entry<Integer, E> entry : metaToEntry.entrySet())
+            {
+                JsonObject obj = new JsonObject();
+                obj.add("ID", new JsonPrimitive(entry.getValue().ID));
+                obj.add("meta", new JsonPrimitive(entry.getKey()));
+                obj.add("writeTime", new JsonPrimitive(keyToWriteTime.containsKey(entry.getValue().ID) ? keyToWriteTime.get(entry.getValue().ID) : System.currentTimeMillis()));
+                array.add(obj);
+            }
+            return object;
+        }
+
+        /**
+         * Saves the gun data to the save folder so it can be loaded
+         * next time the game is run.
+         *
+         * @param keyToWriteTime - when the keys where written last, used for legacy loading when mods are disabled
+         */
+        public void saveDataToFile(HashMap<String, Long> keyToWriteTime, HashMap<Integer, E> metaToEntry)
+        {
+            if (!save.getParentFile().exists())
+            {
+                save.getParentFile().mkdirs();
+            }
+            try (FileWriter file = new FileWriter(save))
+            {
+                file.write(getDataAsJson(keyToWriteTime, metaToEntry).toString());
+            }
+            catch (Exception e)
+            {
+                //JUnit testing
+                if (Armory.INSTANCE == null)
+                {
+                    throw new RuntimeException(e);
+                }
+                Armory.INSTANCE.logger().error("Failed to write gun data to save folder [" + save + "]", e);
+            }
+        }
+
+        /**
+         * Loads gun data from file so meta values are consistent between mod changes.
+         *
+         * @param keyToWriteTime - when the keys where written last, used for legacy loading when mods are disabled
+         */
+        public void loadDataFromFile(HashMap<String, Long> keyToWriteTime, HashMap<Integer, E> metaToEntry)
+        {
+            int slotSearchIndex = 0;
+            HashMap<Integer, String> metaToKeyMap = new HashMap();
+            HashMap<String, Integer> keyToMetaMap = new HashMap();
+            try (FileReader stream = new FileReader(save))
+            {
+                JsonReader jsonReader = new JsonReader(new BufferedReader(stream));
+                JsonObject data = Streams.parse(jsonReader).getAsJsonObject();
+                JsonArray array = data.get(name).getAsJsonArray();
+                for (int i = 0; i < array.size(); i++)
+                {
+                    JsonObject element = array.get(i).getAsJsonObject();
+                    Long lastWriteTime = element.getAsJsonPrimitive("writeTime").getAsLong();
+                    Long delta = System.currentTimeMillis() - lastWriteTime;
+                    String name = element.getAsJsonPrimitive("ID").getAsString();
+                    //If saved X many days ago and not contains then do not store the data (Del in other words)
+                    if (delta < saveTimeLimit || get(name) != null)
+                    {
+                        int meta = element.getAsJsonPrimitive("meta").getAsInt();
+                        metaToKeyMap.put(meta, name);
+                        keyToMetaMap.put(name, meta);
+                        keyToWriteTime.put(name, lastWriteTime);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //JUnit testing
+                if (Armory.INSTANCE == null)
+                {
+                    throw new RuntimeException(e);
+                }
+                Armory.INSTANCE.logger().error("Failed to load " + name + " data from save folder [" + save + "]", e);
+            }
+
+            //Loop threw existing entries and match them to known gun data
+            for (Map.Entry<String, E> entry : entrySet())
+            {
+                //Data is already mapped so add to meta values
+                if (keyToMetaMap.containsKey(entry.getKey()))
+                {
+                    metaToEntry.put(keyToMetaMap.get(entry.getKey()), entry.getValue());
+                }
+                //New data, find a free slot to use
+                else
+                {
+                    while (true)
+                    {
+                        if (!metaToKeyMap.containsKey(slotSearchIndex))
+                        {
+                            metaToKeyMap.put(slotSearchIndex, entry.getKey());
+                            keyToMetaMap.put(entry.getKey(), slotSearchIndex);
+                            metaToEntry.put(slotSearchIndex, get(entry.getKey()));
+                            slotSearchIndex++;
+                            break;
+                        }
+                        slotSearchIndex++;
+                    }
+                }
+            }
+        }
     }
 }

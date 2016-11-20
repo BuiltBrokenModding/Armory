@@ -1,6 +1,7 @@
 package com.builtbroken.armory.json.processor;
 
 import com.builtbroken.armory.data.ArmoryDataHandler;
+import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.ammo.ClipData;
 import com.builtbroken.armory.data.ammo.ClipTypes;
 import com.google.gson.JsonElement;
@@ -34,10 +35,11 @@ public class ClipJsonProcessor extends ArmoryEntryJsonProcessor<ClipData>
     public ClipData process(JsonElement element)
     {
         final JsonObject object = element.getAsJsonObject();
-        ensureValuesExist(object, "name", "type", "maxAmmo", "ammo");
+        ensureValuesExist(object, "id", "name", "type", "maxAmmo", "ammo");
 
         String name = object.get("name").getAsString();
         String ammo = object.get("ammo").getAsString();
+        String id = object.get("id").getAsString();
 
         JsonPrimitive clipTypeValue = object.getAsJsonPrimitive("type");
         ClipTypes clipType;
@@ -51,7 +53,7 @@ public class ClipJsonProcessor extends ArmoryEntryJsonProcessor<ClipData>
         }
 
         int maxAmmo = object.getAsJsonPrimitive("maxAmmo").getAsInt();
-        ClipData data = new ClipData(name, clipType, ArmoryDataHandler.getAmmoType(ammo), maxAmmo);
+        ClipData data = new ClipData(id, name, clipType, (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammo), maxAmmo);
         processExtraData(object, data);
         return data;
     }

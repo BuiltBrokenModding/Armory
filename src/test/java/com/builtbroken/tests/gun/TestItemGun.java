@@ -25,24 +25,25 @@ public class TestItemGun extends AbstractTest
 {
     public void testDataSave()
     {
-        ItemGun.metaToGun.put(0, new GunData("gun0", null, null, null, null, null));
-        ItemGun.metaToGun.put(1, new GunData("gun1", null, null, null, null, null));
-        ItemGun.metaToGun.put(2, new GunData("gun2", null, null, null, null, null));
-        ItemGun.metaToGun.put(3, new GunData("gun3", null, null, null, null, null));
-        File file = new File("tmp");
-        File save = new File(file, "testDataSave.json");
-        if (!file.exists())
-        {
-            file.mkdirs();
-        }
-        ItemGun.saveGunDataToFile(save, new HashMap());
-        assertTrue(save.exists());
+        File folder = new File(System.getProperty("user.dir"), "tmp");
+        folder.deleteOnExit();
 
-        try (FileReader stream = new FileReader(save))
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "gun"));
+        ItemGun itemGun = new ItemGun();
+
+        itemGun.metaToData.put(0, new GunData("gun0", null, null, null, null, null));
+        itemGun.metaToData.put(1, new GunData("gun1", null, null, null, null, null));
+        itemGun.metaToData.put(2, new GunData("gun2", null, null, null, null, null));
+        itemGun.metaToData.put(3, new GunData("gun3", null, null, null, null, null));
+
+        ArmoryDataHandler.INSTANCE.get("gun").saveDataToFile(new HashMap(), itemGun.metaToData);
+        assertTrue(ArmoryDataHandler.INSTANCE.get("gun").save.exists());
+
+        try (FileReader stream = new FileReader(ArmoryDataHandler.INSTANCE.get("gun").save))
         {
             JsonReader jsonReader = new JsonReader(new BufferedReader(stream));
             JsonObject data = Streams.parse(jsonReader).getAsJsonObject();
-            JsonArray array = data.get("guns").getAsJsonArray();
+            JsonArray array = data.get("gun").getAsJsonArray();
             for (int i = 0; i < array.size(); i++)
             {
                 JsonObject element = array.get(i).getAsJsonObject();
@@ -56,40 +57,50 @@ public class TestItemGun extends AbstractTest
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             fail();
         }
 
-        save.delete();
+        folder.delete();
     }
 
     public void testDataLoad()
     {
-        ItemGun.metaToGun.put(0, new GunData("gun0", null, null, null, null, null));
-        ItemGun.metaToGun.put(1, new GunData("gun1", null, null, null, null, null));
-        ItemGun.metaToGun.put(2, new GunData("gun2", null, null, null, null, null));
-        ItemGun.metaToGun.put(3, new GunData("gun3", null, null, null, null, null));
+        File folder = new File(System.getProperty("user.dir"), "tmp");
+        folder.deleteOnExit();
 
-        ArmoryDataHandler.add(new GunData("gun0", null, null, null, null, null));
-        ArmoryDataHandler.add(new GunData("gun1", null, null, null, null, null));
-        ArmoryDataHandler.add(new GunData("gun2", null, null, null, null, null));
-        ArmoryDataHandler.add(new GunData("gun3", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "gun"));
+        ItemGun itemGun = new ItemGun();
 
-        File file = new File("tmp");
-        File save = new File(file, "testDataSave.json");
-        if (!file.exists())
-        {
-            file.mkdirs();
-        }
-        ItemGun.saveGunDataToFile(save, new HashMap());
-        assertTrue(save.exists());
-        ItemGun.metaToGun.clear();
+        //Init some data into meta values for save run
+        itemGun.metaToData.put(0, new GunData("gun0", null, null, null, null, null));
+        itemGun.metaToData.put(1, new GunData("gun1", null, null, null, null, null));
+        itemGun.metaToData.put(2, new GunData("gun2", null, null, null, null, null));
+        itemGun.metaToData.put(3, new GunData("gun3", null, null, null, null, null));
 
-        ItemGun.loadGunDataFromFile(save, new HashMap());
-        assertEquals("gun0", ItemGun.metaToGun.get(0).ID);
-        assertEquals("gun1", ItemGun.metaToGun.get(1).ID);
-        assertEquals("gun2", ItemGun.metaToGun.get(2).ID);
-        assertEquals("gun3", ItemGun.metaToGun.get(3).ID);
+        //Init data into handler so loading works correctly
+        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData("gun0", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData("gun1", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData("gun2", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData("gun3", null, null, null, null, null));
+        assertEquals(4, ArmoryDataHandler.INSTANCE.get("gun").size());
 
-        save.delete();
+        //Save data to file to test loading
+        ArmoryDataHandler.INSTANCE.get("gun").saveDataToFile(new HashMap(), itemGun.metaToData);
+
+        //Ensure save worked correctly
+        assertTrue(ArmoryDataHandler.INSTANCE.get("gun").save.exists());
+        assertEquals(4, ArmoryDataHandler.INSTANCE.get("gun").size());
+
+        //Clear meta values as we are reloading them
+        itemGun.metaToData.clear();
+
+        ArmoryDataHandler.INSTANCE.get("gun").loadDataFromFile(new HashMap(), itemGun.metaToData);
+        assertEquals("gun0", itemGun.metaToData.get(0).ID);
+        assertEquals("gun1", itemGun.metaToData.get(1).ID);
+        assertEquals("gun2", itemGun.metaToData.get(2).ID);
+        assertEquals("gun3", itemGun.metaToData.get(3).ID);
+
+        folder.delete();
     }
 }

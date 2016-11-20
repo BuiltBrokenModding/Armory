@@ -35,7 +35,7 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
     public GunData process(JsonElement element)
     {
         final JsonObject object = element.getAsJsonObject();
-        ensureValuesExist(object, "name", "type", "ID", "clipType", "ammo");
+        ensureValuesExist(object, "ID", "name", "type", "ID", "clipType", "ammo");
 
         //Required data
         final String name = object.get("name").getAsString();
@@ -51,7 +51,7 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
 
         //Get and validate ammo type
         final String ammoTypeValue = object.get("ammo").getAsString();
-        final AmmoType ammoType = ArmoryDataHandler.getAmmoType(ammoTypeValue);
+        final AmmoType ammoType = (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammoTypeValue);
         if (ammoType == null)
         {
             throw new IllegalArgumentException("Invalid ammo type " + ammoType + " while reading " + element);
@@ -60,7 +60,7 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
         final ClipTypes clipType = ClipTypes.get(clipTypeValue);
 
         //Build single fire clip type used to breach load the weapon, also doubles as the clip type for muskets & bold action rifles
-        final ClipData singleFireData = new ClipData(name + "@singleFire", clipType != ClipTypes.FRONT_LOADED ? ClipTypes.BREACH_LOADED : ClipTypes.FRONT_LOADED, ammoType, 1);
+        final ClipData singleFireData = new ClipData(ID, name + "@singleFire", clipType != ClipTypes.FRONT_LOADED ? ClipTypes.BREACH_LOADED : ClipTypes.FRONT_LOADED, ammoType, 1);
 
         //Make gun object
         final GunData data = new GunData(ID, type, name, ammoType, clipType, singleFireData);

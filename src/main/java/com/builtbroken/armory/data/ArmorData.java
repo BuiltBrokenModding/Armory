@@ -6,14 +6,8 @@ package com.builtbroken.armory.data;
  */
 public class ArmorData extends ArmoryEntry
 {
-    public ArmorData(String name)
+    public ArmorData(String id, String name)
     {
-        super("armor", name);
-    }
-
-    @Override
-    public void register()
-    {
-        ArmoryDataHandler.add(this);
+        super(id, "armor", name);
     }
 }

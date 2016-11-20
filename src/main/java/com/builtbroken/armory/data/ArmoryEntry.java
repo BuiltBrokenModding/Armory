@@ -1,6 +1,7 @@
 package com.builtbroken.armory.data;
 
 import com.builtbroken.mc.lib.json.imp.IJsonGenObject;
+import net.minecraft.item.Item;
 
 /**
  * All armory objects extend this for common shared data and functions
@@ -24,16 +25,29 @@ public abstract class ArmoryEntry implements IJsonGenObject
     /** Group to cluster the items in, normally this is the mod domain or author name */
     public String contentGroup;
 
+    public Item itemFile;
+    public int meta;
+
+    /** Unique save ID, Use mod:type.name.subName */
+    public final String ID;
+
     /**
      * Creates a new instance
      *
      * @param type - Type of the item {ammo, ammoType, clip, gun}
      * @param name - simple name of the item
      */
-    public ArmoryEntry(String type, String name)
+    public ArmoryEntry(String id, String type, String name)
     {
         this.type = type;
         this.name = name;
+        this.ID = id;
+    }
+
+    public void set(Item item, int meta)
+    {
+        this.itemFile = item;
+        this.meta = meta;
     }
 
     /**
@@ -58,6 +72,8 @@ public abstract class ArmoryEntry implements IJsonGenObject
     }
 
     @Override
-    public abstract void register();
-
+    public void register()
+    {
+        ArmoryDataHandler.INSTANCE.get(type).add(this);
+    }
 }

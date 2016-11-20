@@ -13,6 +13,7 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.io.StringReader;
 
 /**
@@ -24,12 +25,14 @@ public class TestClipProcessor extends AbstractTest
 {
     public void testLoading()
     {
-        AmmoType ammoType = new AmmoType("9mm", EnumProjectileTypes.BULLET);
-        ArmoryDataHandler.add(ammoType);
+        AmmoType ammoType = new AmmoType("0", "9mm", EnumProjectileTypes.BULLET);
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(new File("tmp"), "ammoType"));
+        ArmoryDataHandler.INSTANCE.get("ammoType").add(ammoType);
 
         JsonReader jsonReader = new JsonReader(new StringReader(
                 "{\n" +
                         "  \"clip\": {\n" +
+                        "    \"id\": \"9mmClip\",\n" +
                         "    \"name\": \"9mmClip\",\n" +
                         "    \"translationKey\": \"9mm\",\n" +
                         "    \"type\": \"clip\",\n" +

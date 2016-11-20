@@ -28,14 +28,14 @@ public class AmmoTypeJsonProcessor extends ArmoryEntryJsonProcessor<AmmoType>
     public AmmoType process(JsonElement element)
     {
         JsonObject object = element.getAsJsonObject();
-        ensureValuesExist(object, "name", "type");
+        ensureValuesExist(object, "id", "name", "type");
 
         int type = object.getAsJsonPrimitive("type").getAsInt();
         if (type < 0 || type >= EnumProjectileTypes.values().length)
         {
             throw new IllegalArgumentException("Invalid projectile type " + type + " while reading " + element);
         }
-        AmmoType data = new AmmoType(object.get("name").getAsString(), EnumProjectileTypes.get(type));
+        AmmoType data = new AmmoType(object.get("id").getAsString(), object.get("name").getAsString(), EnumProjectileTypes.get(type));
         processExtraData(object, data);
         return data;
     }

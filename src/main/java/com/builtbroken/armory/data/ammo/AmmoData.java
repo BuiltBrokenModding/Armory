@@ -1,6 +1,5 @@
 package com.builtbroken.armory.data.ammo;
 
-import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;
@@ -20,13 +19,15 @@ public class AmmoData extends ArmoryEntry
     //TODO add effect handlers
     //TODO add damage calculations
 
-    public AmmoData(String name, AmmoType ammoType, String source, float damage)
+    public AmmoData(String id, String name, AmmoType ammoType, String source, float damage)
     {
-        super("ammo", name);
+        super(id, "ammo", name);
         this.ammoType = ammoType;
         this.damageSource = source;
         this.damage = damage;
     }
+
+
 
     public void applyDamage(Entity shooter, Entity entity)
     {
@@ -35,11 +36,5 @@ public class AmmoData extends ArmoryEntry
             //TODO create damage source with shooter, gun data, and damage type
             entity.attackEntityFrom(DamageSource.generic, damage);
         }
-    }
-
-    @Override
-    public void register()
-    {
-        ArmoryDataHandler.add(this);
     }
 }

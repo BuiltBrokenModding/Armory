@@ -1,11 +1,13 @@
 package com.builtbroken.armory;
 
 import com.builtbroken.armory.content.items.ItemGun;
+import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.json.processor.AmmoJsonProcessor;
 import com.builtbroken.armory.json.processor.AmmoTypeJsonProcessor;
 import com.builtbroken.armory.json.processor.ClipJsonProcessor;
 import com.builtbroken.armory.json.processor.GunJsonProcessor;
 import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
 import com.builtbroken.mc.lib.json.JsonContentLoader;
@@ -63,11 +65,17 @@ public final class Armory extends AbstractMod
         Engine.requestCircuits();
         Engine.requestCraftingParts();
 
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "gun"));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "ammo"));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "ammoType"));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "clip"));
+
         JsonContentLoader.INSTANCE.add(new AmmoTypeJsonProcessor());
         JsonContentLoader.INSTANCE.add(new AmmoJsonProcessor());
         JsonContentLoader.INSTANCE.add(new ClipJsonProcessor());
         JsonContentLoader.INSTANCE.add(new GunJsonProcessor());
 
+        //TODO gen more guns if registered guns is greater than 32000 (Which should never happen)
         itemGun = getManager().newItem("armoryGun", new ItemGun());
     }
 

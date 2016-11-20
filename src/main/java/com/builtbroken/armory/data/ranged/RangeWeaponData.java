@@ -14,9 +14,9 @@ public abstract class RangeWeaponData extends Weapon
     /** Type of ammo this weapon uses for firing */
     public final AmmoType ammoType;
 
-    public RangeWeaponData(String type, String name, AmmoType ammoType)
+    public RangeWeaponData(String id, String type, String name, AmmoType ammoType)
     {
-        super(type, name);
+        super(id, type, name);
         this.ammoType = ammoType;
     }
 }

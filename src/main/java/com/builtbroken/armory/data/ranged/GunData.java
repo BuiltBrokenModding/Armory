@@ -1,6 +1,5 @@
 package com.builtbroken.armory.data.ranged;
 
-import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.ammo.ClipData;
 import com.builtbroken.armory.data.ammo.ClipTypes;
@@ -18,8 +17,7 @@ public class GunData extends RangeWeaponData
     /** Every weapon gets a single fire reload ability */
     public final ClipData singleFireClipData;
 
-    /** Unique save ID for the gun */
-    public final String ID;
+    public final String gunType;
 
     /** Reload time in ticks */
     public int reloadTime = 20;
@@ -31,16 +29,10 @@ public class GunData extends RangeWeaponData
 
     public GunData(String id, String type, String name, AmmoType ammoType, ClipTypes clipType, ClipData singleFireData)
     {
-        super(type, name, ammoType);
-        this.ID = id;
+        super(id, "gun", name, ammoType);
+        this.gunType = type;
         this.clipType = clipType;
         this.singleFireClipData = singleFireData;
-    }
-
-    @Override
-    public void register()
-    {
-        ArmoryDataHandler.add(this);
     }
 
     /**

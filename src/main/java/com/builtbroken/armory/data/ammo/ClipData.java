@@ -1,6 +1,5 @@
 package com.builtbroken.armory.data.ammo;
 
-import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
 
 /**
@@ -18,17 +17,11 @@ public class ClipData extends ArmoryEntry
     /** Max size of the clip */
     public final int maxAmmo;
 
-    public ClipData(String name, ClipTypes clip, AmmoType ammo, int maxAmmo)
+    public ClipData(String id, String name, ClipTypes clip, AmmoType ammo, int maxAmmo)
     {
-        super("clip", name);
+        super(id, "clip", name);
         this.type = clip;
         this.ammoType = ammo;
         this.maxAmmo = maxAmmo;
-    }
-
-    @Override
-    public void register()
-    {
-        ArmoryDataHandler.add(this);
     }
 }

@@ -1,6 +1,5 @@
 package com.builtbroken.armory.data.ammo;
 
-import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.mc.api.items.weapons.IAmmoType;
@@ -21,16 +20,10 @@ public class AmmoType extends ArmoryEntry implements IAmmoType
     /** Type of projectile of the ammo type */
     public final EnumProjectileTypes projectileType;
 
-    public AmmoType(String name, EnumProjectileTypes ammoType)
+    public AmmoType(String id, String name, EnumProjectileTypes ammoType)
     {
-        super("ammoType", name);
+        super(id, "ammoType", name);
         this.projectileType = ammoType;
-    }
-
-    @Override
-    public void register()
-    {
-        ArmoryDataHandler.add(this);
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.io.StringReader;
 
 /**
@@ -23,13 +24,15 @@ public class TestAmmoProcessor extends AbstractTest
 {
     public void testLoading()
     {
-        AmmoType ammoType = new AmmoType("9mm", EnumProjectileTypes.BULLET);
-        ArmoryDataHandler.add(ammoType);
+        AmmoType ammoType = new AmmoType("0", "9mm", EnumProjectileTypes.BULLET);
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(new File("tmp"), "ammoType"));
+        ArmoryDataHandler.INSTANCE.get("ammoType").add(ammoType);
 
         JsonReader jsonReader = new JsonReader(new StringReader(
                 "{\n" +
                         "\"ammo\": {\n" +
                         "    \"name\": \"basic\",\n" +
+                        "    \"id\": \"basic\",\n" +
                         "    \"translationKey\": \"9mm.basic\",\n" +
                         "    \"type\": \"9mm\",\n" +
                         "    \"damage\": 5,\n" +

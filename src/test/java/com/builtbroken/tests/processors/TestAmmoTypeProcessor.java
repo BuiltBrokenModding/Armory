@@ -23,6 +23,7 @@ public class TestAmmoTypeProcessor extends AbstractTest
         JsonReader jsonReader = new JsonReader(new StringReader(
                 "{\n" +
                         "  \"ammoType\": {\n" +
+                        "    \"id\": \"9mm\",\n" +
                         "    \"name\": \"9mm\",\n" +
                         "    \"type\": 4,\n" +
                         "    \"translationKey\": \"9mm\"\n" +

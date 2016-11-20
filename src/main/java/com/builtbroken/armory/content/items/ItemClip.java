@@ -4,10 +4,12 @@ import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.ClipData;
+import com.builtbroken.armory.data.ammo.ClipInstanceItem;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
+import com.builtbroken.mc.api.modules.weapon.IClip;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.creativetab.CreativeTabs;
@@ -115,6 +117,16 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
             }
         }
         return clip;
+    }
+
+    @Override
+    public IClip toClip(ItemStack clipStack)
+    {
+        if (clipStack == null || clipStack.getItem() != this)
+        {
+            return null;
+        }
+        return new ClipInstanceItem(clipStack, getData(clipStack));
     }
 
     /**

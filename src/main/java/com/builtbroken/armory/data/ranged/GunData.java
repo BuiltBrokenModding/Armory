@@ -16,7 +16,7 @@ public class GunData extends RangeWeaponData implements IGunData
     /** Type of reload/clip this can accept */
     public final ReloadType reloadType;
     /** Every weapon gets a single fire reload ability */
-    public final IClipData singleFireClipData;
+    public final IClipData builtInClip;
 
     public final String gunType;
 
@@ -33,13 +33,19 @@ public class GunData extends RangeWeaponData implements IGunData
         super(id, "gun", name, ammoType);
         this.gunType = type;
         this.reloadType = clipType;
-        this.singleFireClipData = singleFireData;
+        this.builtInClip = singleFireData;
     }
 
     @Override
     public ReloadType getReloadType()
     {
         return reloadType;
+    }
+
+    @Override
+    public IClipData getBuiltInClipData()
+    {
+        return builtInClip;
     }
 
     @Override

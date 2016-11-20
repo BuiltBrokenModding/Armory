@@ -3,11 +3,14 @@ package com.builtbroken.armory.data.ranged;
 import com.builtbroken.armory.data.ammo.ClipInstance;
 import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.data.weapon.IGunData;
+import com.builtbroken.mc.api.data.weapon.ReloadType;
+import com.builtbroken.mc.api.modules.weapon.IClip;
 import com.builtbroken.mc.api.modules.weapon.IGun;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
 import com.builtbroken.mc.lib.transform.vector.Location;
 import com.builtbroken.mc.lib.transform.vector.Pos;
+import com.builtbroken.mc.prefab.module.AbstractModule;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -21,26 +24,33 @@ import net.minecraft.world.World;
 import java.awt.*;
 
 /**
+ * The actual gun instance used for data accessing and handling
+ *
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
  */
-public class GunInstance implements ISave, IGun
+public class GunInstance extends AbstractModule implements ISave, IGun
 {
     /** Who is holding the weapon */
     public final Entity entity;
     /** Properties of the weapon */
-    public final IGunData gunData;
+    protected final IGunData gunData;
 
     /** Clip that is feed into the weapon */
-    public ClipInstance clip;
+    protected IClip clip;
 
     /** Last time the weapon was fired, milliseconds */
     private Long lastTimeFired = 0L;
 
-    public GunInstance(Entity entity, IGunData gun)
+    public GunInstance(ItemStack gunStack, Entity entity, IGunData gun)
     {
+        super(gunStack, "armory:gun");
         this.entity = entity;
         this.gunData = gun;
+        if (isManuallyFeedClip())
+        {
+            clip = new ClipInstance(gun.getBuiltInClipData());
+        }
     }
 
     /**
@@ -69,6 +79,7 @@ public class GunInstance implements ISave, IGun
         //TODO return and allow reload animations
         if (hasAmmo())
         {
+            consumeAmmo();
             //Figure out where the player is aiming
             final Pos aim = getAim(yaw, pitch);
 
@@ -106,6 +117,11 @@ public class GunInstance implements ISave, IGun
         }
     }
 
+    protected void consumeAmmo()
+    {
+        clip.consumeAmmo(1);
+    }
+
     protected void onHit(Entity entity)
     {
         if (entity instanceof EntityPlayer)
@@ -133,18 +149,37 @@ public class GunInstance implements ISave, IGun
 
     public boolean hasAmmo()
     {
-        return clip != null && clip.currentAmmo > 0;
+        return clip != null && clip.getAmmoCount() > 0;
     }
 
     public void reloadWeapon(IInventory inventory)
     {
-        unloadWeapon(inventory);
-        if (clip == null)
+        if (isManuallyFeedClip())
         {
-            for (int i = 0; i < inventory.getSizeInventory(); i++)
-            {
+            loadRound(inventory);
+        }
+        else
+        {
+            loadBestClip(inventory);
+        }
+    }
 
-            }
+    private void loadBestClip(IInventory inventory)
+    {
+        for (int i = 0; i < inventory.getSizeInventory(); i++)
+        {
+            //TODO find best clip
+        }
+        //TODO only unload if clip was found
+        unloadWeapon(inventory);
+        //TODO load clip
+    }
+
+    private void loadRound(IInventory inventory)
+    {
+        for (int i = 0; i < inventory.getSizeInventory(); i++)
+        {
+            //TODO find rounds to load into gun until full
         }
     }
 
@@ -152,8 +187,22 @@ public class GunInstance implements ISave, IGun
     {
         if (clip != null)
         {
-
+            if (isManuallyFeedClip())
+            {
+                //TODO place all rounds into inventory
+            }
+            else
+            {
+                //TODO place clip into inventory
+            }
         }
+    }
+
+    public boolean isManuallyFeedClip()
+    {
+        return getGunData().getReloadType() == ReloadType.BREACH_LOADED
+                || getGunData().getReloadType() == ReloadType.FRONT_LOADED
+                || getGunData().getReloadType() == ReloadType.HAND_FEED;
     }
 
     public IInventory getInventory()
@@ -167,28 +216,42 @@ public class GunInstance implements ISave, IGun
 
     public boolean hasSights()
     {
+        //TODO implement
         return false;
     }
 
     public void sightWeapon()
     {
-
+        //TODO implement
     }
 
     public void load(NBTTagCompound tag)
     {
-
+        //TODO implement
     }
 
     @Override
     public NBTTagCompound save(NBTTagCompound nbt)
     {
-        return null;
+        //TODO implement
+        return nbt;
     }
 
     @Override
     public IGunData getGunData()
     {
         return gunData;
+    }
+
+    @Override
+    public IClip getLoadedClip()
+    {
+        return clip;
+    }
+
+    @Override
+    public String getSaveID()
+    {
+        return "armory:gun";
     }
 }

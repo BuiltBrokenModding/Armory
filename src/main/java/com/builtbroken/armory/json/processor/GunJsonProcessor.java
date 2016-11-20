@@ -3,8 +3,8 @@ package com.builtbroken.armory.json.processor;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.ammo.ClipData;
-import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.armory.data.ranged.GunData;
+import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -60,10 +60,23 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
         final ReloadType clipType = ReloadType.get(clipTypeValue);
 
         //Build single fire clip type used to breach load the weapon, also doubles as the clip type for muskets & bold action rifles
-        final ClipData singleFireData = new ClipData(ID, name + "@singleFire", clipType != ReloadType.FRONT_LOADED ? ReloadType.BREACH_LOADED : ReloadType.FRONT_LOADED, ammoType, 1);
+        final ClipData builtInClip;
+        if (clipType == ReloadType.FRONT_LOADED)
+        {
+            builtInClip = new ClipData(ID, name + "@frontLoaded", ReloadType.FRONT_LOADED, ammoType, 1);
+        }
+        else if (clipType == ReloadType.HAND_FEED)
+        {
+            ensureValuesExist(object, "clipSize");
+            builtInClip = new ClipData(ID, name + "@handFeed", ReloadType.HAND_FEED, ammoType, object.getAsJsonPrimitive("clipSize").getAsInt());
+        }
+        else
+        {
+            builtInClip = new ClipData(ID, name + "@singleFire", ReloadType.BREACH_LOADED, ammoType, 1);
+        }
 
         //Make gun object
-        final GunData data = new GunData(ID, type, name, ammoType, clipType, singleFireData);
+        final GunData data = new GunData(ID, type, name, ammoType, clipType, builtInClip);
 
         //Process extra data that all objects share
         processExtraData(object, data);

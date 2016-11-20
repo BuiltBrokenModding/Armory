@@ -4,15 +4,14 @@ import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.jlib.type.Pair;
-import com.builtbroken.mc.api.items.IMouseButtonHandler;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.api.items.IMouseButtonHandler;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
@@ -116,13 +115,13 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             if (pair != null && pair.left() != null && pair.right() != null && InventoryUtility.stacksMatch(pair.right(), stack))
             {
                 GunInstance gunInstance = pair.left();
-                if (gunInstance.entity == player && gunInstance.gunData != null)
+                if (gunInstance.entity == player && gunInstance.getGunData() != null)
                 {
                     return gunInstance;
                 }
             }
         }
-        GunInstance instance = loadInstance(player, getGun(stack), stack.getTagCompound());
+        GunInstance instance = loadInstance(player, getGun(stack), stack);
         if (instance != null)
         {
             gunCache.put(player, new Pair<GunInstance, ItemStack>(instance, stack));
@@ -134,15 +133,18 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     /**
      * Loads a gun instance from a save
      *
-     * @param entity - entity who will use the weapon
-     * @param data   - gun data
-     * @param tag    - save data
+     * @param entity   - entity who will use the weapon
+     * @param data     - gun data
+     * @param gunStack - this
      * @return gun instance
      */
-    public GunInstance loadInstance(Entity entity, GunData data, NBTTagCompound tag)
+    public GunInstance loadInstance(Entity entity, GunData data, ItemStack gunStack)
     {
-        GunInstance instance = new GunInstance(entity, data);
-        instance.load(tag);
+        GunInstance instance = new GunInstance(gunStack, entity, data);
+        if (gunStack.getTagCompound() != null)
+        {
+            instance.load(gunStack.getTagCompound());
+        }
         return instance;
     }
 

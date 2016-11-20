@@ -15,9 +15,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.Stack;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -83,7 +82,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
         {
             clipStack.setTagCompound(new NBTTagCompound());
         }
-        Queue<IAmmoData> clip = getStoredAmmo(clipStack);
+        Stack<IAmmoData> clip = getStoredAmmo(clipStack);
         for (int i = 0; i < count; i++)
         {
             clip.add(data);
@@ -91,10 +90,10 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     }
 
     @Override
-    public Queue<IAmmoData> getStoredAmmo(ItemStack clipStack)
+    public Stack<IAmmoData> getStoredAmmo(ItemStack clipStack)
     {
         //TODO if array size becomes a problem with memory switch to array list
-        Queue<IAmmoData> clip = new LinkedList();
+        Stack<IAmmoData> clip = new Stack();
         if (clipStack.getTagCompound() != null)
         {
             if (clipStack.getTagCompound().hasKey("ammoData"))
@@ -124,7 +123,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
      * @param clipStack - clip
      * @param ammoData  - rounds of ammo
      */
-    public void setStoredAmmo(ItemStack clipStack, Queue<IAmmoData> ammoData)
+    public void setStoredAmmo(ItemStack clipStack, Stack<IAmmoData> ammoData)
     {
         if (clipStack.getTagCompound() == null)
         {
@@ -147,10 +146,10 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
         int ammo = getAmmoCount(clipStack);
         if (ammo > 0)
         {
-            Queue<IAmmoData> ammoData = getStoredAmmo(clipStack);
+            Stack<IAmmoData> ammoData = getStoredAmmo(clipStack);
             for (int i = 0; i < shotsFired; i++)
             {
-                ammoData.poll();
+                ammoData.pop();
                 ammo--;
                 if (ammo <= 0)
                 {

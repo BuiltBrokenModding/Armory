@@ -2,7 +2,7 @@ package com.builtbroken.armory.data.ammo;
 
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
-import com.builtbroken.mc.api.items.weapons.IAmmoType;
+import com.builtbroken.mc.api.data.weapon.IAmmoType;
 
 import java.util.ArrayList;
 import java.util.List;

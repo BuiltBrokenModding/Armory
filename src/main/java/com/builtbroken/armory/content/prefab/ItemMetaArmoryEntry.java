@@ -11,6 +11,8 @@ import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,6 +23,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -88,5 +92,21 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
     public boolean shouldReadPacket(EntityPlayer player, IWorldPosition receiveLocation, PacketType packet)
     {
         return player.worldObj.isRemote;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void getSubItems(Item item, CreativeTabs tab, List items)
+    {
+        for (Map.Entry<Integer, E> entry : metaToData.entrySet())
+        {
+            getSubItems(item, entry.getKey(), entry.getValue(), tab, items);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected void getSubItems(Item item, int meta, E armoryEntry, CreativeTabs tab, List items)
+    {
+        items.add(new ItemStack(item, 1, meta));
     }
 }

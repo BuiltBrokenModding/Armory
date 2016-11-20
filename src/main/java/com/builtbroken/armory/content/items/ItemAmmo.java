@@ -2,17 +2,16 @@ package com.builtbroken.armory.content.items;
 
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ammo.AmmoData;
-import com.builtbroken.mc.api.items.weapons.IAmmo;
-import com.builtbroken.mc.api.items.weapons.IAmmoType;
-import com.builtbroken.mc.api.items.weapons.IReloadableWeapon;
-import net.minecraft.entity.Entity;
+import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.api.items.weapons.IItemAmmo;
+import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import net.minecraft.item.ItemStack;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/19/2016.
  */
-public class ItemAmmo extends ItemMetaArmoryEntry<AmmoData> implements IAmmo
+public class ItemAmmo extends ItemMetaArmoryEntry<AmmoData> implements IItemAmmo
 {
     public ItemAmmo()
     {
@@ -44,13 +43,7 @@ public class ItemAmmo extends ItemMetaArmoryEntry<AmmoData> implements IAmmo
     }
 
     @Override
-    public void fireAmmo(IReloadableWeapon weapon, ItemStack weaponStack, ItemStack ammoStack, Entity firingEntity)
-    {
-
-    }
-
-    @Override
-    public void consumeAmmo(IReloadableWeapon weapon, ItemStack weaponStack, ItemStack ammoStack, int shotsFired)
+    public void consumeAmmo(IItemReloadableWeapon weapon, ItemStack weaponStack, ItemStack ammoStack, int shotsFired)
     {
         ammoStack.stackSize -= shotsFired;
     }

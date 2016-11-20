@@ -5,8 +5,8 @@ import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.jlib.type.Pair;
 import com.builtbroken.mc.api.items.IMouseButtonHandler;
-import com.builtbroken.mc.api.items.weapons.IAmmoType;
-import com.builtbroken.mc.api.items.weapons.IReloadableWeapon;
+import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -22,7 +22,7 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
  */
-public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButtonHandler, IReloadableWeapon
+public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButtonHandler, IItemReloadableWeapon
 {
     /** Cache of the last weapon the entity has out */
     public static final HashMap<Entity, Pair<GunInstance, ItemStack>> gunCache = new HashMap();

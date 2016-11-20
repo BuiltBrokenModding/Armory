@@ -1,14 +1,17 @@
 package com.builtbroken.armory.data.ammo;
 
 import com.builtbroken.armory.data.ArmoryEntry;
+import com.builtbroken.mc.api.data.weapon.IAmmoData;
+import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
  */
-public class AmmoData extends ArmoryEntry
+public class AmmoData extends ArmoryEntry implements IAmmoData
 {
     public final AmmoType ammoType;
     public final String damageSource;
@@ -27,14 +30,33 @@ public class AmmoData extends ArmoryEntry
         this.damage = damage;
     }
 
+    @Override
+    public IAmmoType getAmmoType()
+    {
+        return ammoType;
+    }
 
+    @Override
+    public float getBaseDamage()
+    {
+        return damage;
+    }
 
-    public void applyDamage(Entity shooter, Entity entity)
+    @Override
+    public void onImpactEntity(Entity shooter, Entity entity)
     {
         if (damageSource != null && damage > 0)
         {
             //TODO create damage source with shooter, gun data, and damage type
+            //TODO calculate armor
+            //TODO apply force
             entity.attackEntityFrom(DamageSource.generic, damage);
         }
+    }
+
+    @Override
+    public void onImpactGround(World world, int x, int y, int z, double hitX, double hitY, double hitZ)
+    {
+
     }
 }

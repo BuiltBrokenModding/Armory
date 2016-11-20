@@ -1,12 +1,21 @@
 {
   "author": {
-    "name":"${Armory}"
+    "name": "${Armory}"
   },
   "clip": {
-    "name": "9mmClip",
+    "name": "9mmClip15",
+    "id": "armory:clip.9mm.15",
     "translationKey": "9mm",
     "type": "clip",
     "ammo": "9mm",
     "maxAmmo": 15
+  },
+  "clip": {
+    "name": "9mmClip30",
+    "id": "armory:clip.9mm.30",
+    "translationKey": "9mm",
+    "type": "clip",
+    "ammo": "9mm",
+    "maxAmmo": 30
   }
 }

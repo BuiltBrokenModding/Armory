@@ -2,6 +2,8 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.data.ammo.ClipInstance;
 import com.builtbroken.mc.api.ISave;
+import com.builtbroken.mc.api.data.weapon.IGunData;
+import com.builtbroken.mc.api.modules.weapon.IGun;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
 import com.builtbroken.mc.lib.transform.vector.Location;
@@ -22,12 +24,12 @@ import java.awt.*;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
  */
-public class GunInstance implements ISave
+public class GunInstance implements ISave, IGun
 {
     /** Who is holding the weapon */
     public final Entity entity;
     /** Properties of the weapon */
-    public final GunData gun;
+    public final IGunData gunData;
 
     /** Clip that is feed into the weapon */
     public ClipInstance clip;
@@ -35,10 +37,10 @@ public class GunInstance implements ISave
     /** Last time the weapon was fired, milliseconds */
     private Long lastTimeFired = 0L;
 
-    public GunInstance(Entity entity, GunData gun)
+    public GunInstance(Entity entity, IGunData gun)
     {
         this.entity = entity;
-        this.gun = gun;
+        this.gunData = gun;
     }
 
     /**
@@ -51,7 +53,7 @@ public class GunInstance implements ISave
     public void fireWeapon(ItemStack stack, World world, int ticksFired)
     {
         Long deltaTime = System.currentTimeMillis() - lastTimeFired;
-        if (entity instanceof EntityPlayer && (lastTimeFired == 0L || deltaTime > gun.getRateOfFire()))
+        if (entity instanceof EntityPlayer && (lastTimeFired == 0L || deltaTime > gunData.getRateOfFire()))
         {
             lastTimeFired = System.currentTimeMillis();
             _doFire(world, ((EntityPlayer) entity).rotationYawHead, ((EntityPlayer) entity).rotationPitch);
@@ -182,5 +184,11 @@ public class GunInstance implements ISave
     public NBTTagCompound save(NBTTagCompound nbt)
     {
         return null;
+    }
+
+    @Override
+    public IGunData getGunData()
+    {
+        return gunData;
     }
 }

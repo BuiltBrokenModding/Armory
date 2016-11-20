@@ -2,6 +2,7 @@ package com.builtbroken.armory.data.ammo;
 
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
+import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 
 import java.util.ArrayList;
@@ -16,7 +17,8 @@ import java.util.List;
 public class AmmoType extends ArmoryEntry implements IAmmoType
 {
     /** Ammo data that is registered to this type of ammo */
-    public final List<AmmoData> ammoDataObjects = new ArrayList();
+    public final List<IAmmoData> ammoDataObjects = new ArrayList();
+
     /** Type of projectile of the ammo type */
     public final EnumProjectileTypes projectileType;
 
@@ -24,6 +26,22 @@ public class AmmoType extends ArmoryEntry implements IAmmoType
     {
         super(id, "ammoType", name);
         this.projectileType = ammoType;
+    }
+
+    @Override
+    public List<IAmmoData> getAmmoData()
+    {
+        return ammoDataObjects;
+    }
+
+    @Override
+    public boolean addAmmoData(IAmmoData data)
+    {
+        if (data.getAmmoType() == this && !ammoDataObjects.contains(data))
+        {
+            ammoDataObjects.add(data);
+        }
+        return false;
     }
 
     @Override

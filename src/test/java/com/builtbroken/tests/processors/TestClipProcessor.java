@@ -3,7 +3,7 @@ package com.builtbroken.tests.processors;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.ammo.ClipData;
-import com.builtbroken.armory.data.ammo.ClipTypes;
+import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.armory.json.processor.ClipJsonProcessor;
 import com.builtbroken.mc.testing.junit.AbstractTest;
@@ -46,7 +46,7 @@ public class TestClipProcessor extends AbstractTest
         ClipData data = processor.process(element.getAsJsonObject().get("clip"));
         assertEquals("9mmClip", data.name());
         assertEquals("clip.9mm", data.translationKey);
-        assertEquals(ClipTypes.CLIP, data.type);
+        assertEquals(ReloadType.CLIP, data.type);
         assertEquals(ammoType, data.ammoType);
         assertEquals(15, data.maxAmmo);
     }

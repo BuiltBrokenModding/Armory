@@ -1,8 +1,9 @@
 package com.builtbroken.armory.data.ranged;
 
-import com.builtbroken.armory.data.ammo.AmmoType;
-import com.builtbroken.armory.data.ammo.ClipData;
-import com.builtbroken.armory.data.ammo.ClipTypes;
+import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.api.data.weapon.IClipData;
+import com.builtbroken.mc.api.data.weapon.IGunData;
+import com.builtbroken.mc.api.data.weapon.ReloadType;
 
 /**
  * Holds all data about a gun
@@ -10,12 +11,12 @@ import com.builtbroken.armory.data.ammo.ClipTypes;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/15/2016.
  */
-public class GunData extends RangeWeaponData
+public class GunData extends RangeWeaponData implements IGunData
 {
     /** Type of reload/clip this can accept */
-    public final ClipTypes clipType;
+    public final ReloadType reloadType;
     /** Every weapon gets a single fire reload ability */
-    public final ClipData singleFireClipData;
+    public final IClipData singleFireClipData;
 
     public final String gunType;
 
@@ -27,29 +28,39 @@ public class GunData extends RangeWeaponData
 
     private int firingDelay;
 
-    public GunData(String id, String type, String name, AmmoType ammoType, ClipTypes clipType, ClipData singleFireData)
+    public GunData(String id, String type, String name, IAmmoType ammoType, ReloadType clipType, IClipData singleFireData)
     {
         super(id, "gun", name, ammoType);
         this.gunType = type;
-        this.clipType = clipType;
+        this.reloadType = clipType;
         this.singleFireClipData = singleFireData;
     }
 
-    /**
-     * Number of rounds that can be fired in
-     * a single min with the weapon ignoring
-     * max clip size.
-     */
+    @Override
+    public ReloadType getReloadType()
+    {
+        return reloadType;
+    }
+
+    @Override
+    public String getGunType()
+    {
+        return gunType;
+    }
+
+    @Override
+    public int getReloadTime()
+    {
+        return reloadTime;
+    }
+
+    @Override
     public int getRateOfFire()
     {
         return rateOfFire;
     }
 
-    /**
-     * Delay in milliseconds between rounds firing
-     *
-     * @return time milliseconds
-     */
+    @Override
     public int getFiringDelay()
     {
         return firingDelay;

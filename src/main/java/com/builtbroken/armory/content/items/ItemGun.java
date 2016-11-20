@@ -116,7 +116,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             if (pair != null && pair.left() != null && pair.right() != null && InventoryUtility.stacksMatch(pair.right(), stack))
             {
                 GunInstance gunInstance = pair.left();
-                if (gunInstance.entity == player && gunInstance.gun != null)
+                if (gunInstance.entity == player && gunInstance.gunData != null)
                 {
                     return gunInstance;
                 }

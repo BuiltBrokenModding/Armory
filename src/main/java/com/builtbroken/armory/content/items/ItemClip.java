@@ -3,7 +3,6 @@ package com.builtbroken.armory.content.items;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
-import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.ClipData;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
@@ -78,7 +77,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
      * @param data      - ammo type to load
      * @param count     - number of rounds to load
      */
-    public void loadAmmoCount(ItemStack clipStack, AmmoData data, int count)
+    public void loadAmmoCount(ItemStack clipStack, IAmmoData data, int count)
     {
         if (clipStack.getTagCompound() == null)
         {
@@ -105,9 +104,9 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
                 for (int i = 0; i < number; i++)
                 {
                     Object ammoData = ArmoryDataHandler.INSTANCE.get("ammo").get(tag.getString("round" + i));
-                    if (ammoData instanceof AmmoData)
+                    if (ammoData instanceof IAmmoData)
                     {
-                        clip.add((AmmoData) ammoData);
+                        clip.add((IAmmoData) ammoData);
                     }
                     else
                     {
@@ -167,7 +166,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     {
         final ItemStack emptyClipStack = new ItemStack(item, 1, meta);
         items.add(emptyClipStack);
-        for (AmmoData data : clip.ammoType.ammoDataObjects)
+        for (IAmmoData data : clip.ammoType.getAmmoData())
         {
             ItemStack stack = new ItemStack(item, 1, meta);
             loadAmmoCount(stack, data, clip.maxAmmo);

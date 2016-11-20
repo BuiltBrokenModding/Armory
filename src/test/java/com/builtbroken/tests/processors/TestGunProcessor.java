@@ -2,7 +2,7 @@ package com.builtbroken.tests.processors;
 
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
-import com.builtbroken.armory.data.ammo.ClipTypes;
+import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.json.processor.GunJsonProcessor;
@@ -57,7 +57,7 @@ public class TestGunProcessor extends AbstractTest
         assertEquals("gun.handgun2", data.translationKey);
         assertEquals("amory.test.hangun", data.ID);
         assertSame(ammoType, data.ammoType);
-        assertSame(ClipTypes.values()[3], data.clipType);
+        assertSame(ReloadType.values()[3], data.reloadType);
         assertEquals(40, data.reloadTime);
         assertEquals(240, data.getRateOfFire());
         assertEquals(630, data.mass);

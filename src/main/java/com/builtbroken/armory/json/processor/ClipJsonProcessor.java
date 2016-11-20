@@ -3,7 +3,7 @@ package com.builtbroken.armory.json.processor;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.ammo.ClipData;
-import com.builtbroken.armory.data.ammo.ClipTypes;
+import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -42,14 +42,14 @@ public class ClipJsonProcessor extends ArmoryEntryJsonProcessor<ClipData>
         String id = object.get("id").getAsString();
 
         JsonPrimitive clipTypeValue = object.getAsJsonPrimitive("type");
-        ClipTypes clipType;
+        ReloadType clipType;
         if (clipTypeValue.isString())
         {
-            clipType = ClipTypes.get(clipTypeValue.getAsString());
+            clipType = ReloadType.get(clipTypeValue.getAsString());
         }
         else
         {
-            clipType = ClipTypes.get(clipTypeValue.getAsInt());
+            clipType = ReloadType.get(clipTypeValue.getAsInt());
         }
 
         int maxAmmo = object.getAsJsonPrimitive("maxAmmo").getAsInt();

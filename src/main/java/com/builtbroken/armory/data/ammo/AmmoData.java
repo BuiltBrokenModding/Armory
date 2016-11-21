@@ -17,17 +17,19 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     public final String damageSource;
 
     public final float damage;
+    public final float velocity;
 
     //TODO add optional damage types
     //TODO add effect handlers
     //TODO add damage calculations
 
-    public AmmoData(String id, String name, AmmoType ammoType, String source, float damage)
+    public AmmoData(String id, String name, AmmoType ammoType, String source, float damage, float velocity)
     {
         super(id, "ammo", name);
         this.ammoType = ammoType;
         this.damageSource = source;
         this.damage = damage;
+        this.velocity = velocity;
     }
 
     @Override
@@ -40,6 +42,12 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     public float getBaseDamage()
     {
         return damage;
+    }
+
+    @Override
+    public float getProjectileVelocity()
+    {
+        return velocity;
     }
 
     @Override

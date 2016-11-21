@@ -147,7 +147,7 @@ public class TestItemClip extends AbstractTest
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "ammo"));
         for (int i = 0; i < 6; i++)
         {
-            ArmoryDataHandler.INSTANCE.get("ammo").add(new AmmoData("" + i, "ammo" + i, type, "impact", i));
+            ArmoryDataHandler.INSTANCE.get("ammo").add(new AmmoData("" + i, "ammo" + i, type, "impact", i. -1));
         }
     }
 

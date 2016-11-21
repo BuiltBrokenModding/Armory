@@ -1,4 +1,4 @@
-package com.builtbroken.armory.content.prefab;
+package com.builtbroken.armory.content.entity;
 
 import com.builtbroken.mc.api.event.TriggerCause;
 import com.builtbroken.mc.api.explosive.IExplosive;
@@ -9,11 +9,20 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
+/**
+ * Entity that handles runtime logic for throwable explosives
+ *
+ * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
+ * Created by Dark(DarkGuardsman, Robert) on ?/?/?
+ */
 public class EntityThrowableExplosive extends EntityThrowable implements IExplosive
 {
     protected IExplosiveHandler explosive;
     protected NBTTagCompound explosive_data;
     protected double size = 1;
+
+    //TODO implement triggers from ICBM
+    //TODO implement data object
 
     public EntityThrowableExplosive(World world)
     {
@@ -36,7 +45,7 @@ public class EntityThrowableExplosive extends EntityThrowable implements IExplos
     {
         if (!this.worldObj.isRemote)
         {
-            if(getExplosive() != null)
+            if (getExplosive() != null)
             {
                 TriggerCause cause = new TriggerCause.TriggerCauseEntity(getThrower() != null ? getThrower() : this);
                 getExplosive().createBlastForTrigger(worldObj, posX, posY, posZ, cause, size, explosive_data);

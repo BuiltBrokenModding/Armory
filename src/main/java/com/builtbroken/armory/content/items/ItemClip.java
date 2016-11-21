@@ -74,13 +74,24 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     @Override
     public Stack<IAmmoData> getStoredAmmo(ItemStack clipStack)
     {
-        //TODO if array size becomes a problem with memory switch to array list
+        return getAmmoDataStackFromNBT("ammoData", clipStack.getTagCompound());
+    }
+
+    /**
+     * Loads ammo data from NBT
+     *
+     * @param tagKey - key to use
+     * @param nbt    - tag to load it from, not the save tag itself but the global tag
+     * @return
+     */
+    public static Stack<IAmmoData> getAmmoDataStackFromNBT(String tagKey, NBTTagCompound nbt)
+    {
         Stack<IAmmoData> clip = new Stack();
-        if (clipStack.getTagCompound() != null)
+        if (nbt != null)
         {
-            if (clipStack.getTagCompound().hasKey("ammoData"))
+            if (nbt.hasKey(tagKey))
             {
-                NBTTagCompound tag = clipStack.getTagCompound().getCompoundTag("ammoData");
+                NBTTagCompound tag = nbt.getCompoundTag(tagKey);
                 int number = tag.getInteger("number");
                 for (int i = 0; i < number; i++)
                 {
@@ -91,12 +102,32 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
                     }
                     else
                     {
-                        Armory.INSTANCE.logger().error("Failed to load NBT ammo data tag '" + tag.getString("round" + i) + "' when loading clip data in stack " + clipStack + " this may result in loss of ammo in clip.");
+                        Armory.INSTANCE.logger().error("Failed to load NBT ammo data tag '" + tag.getString("round" + i) + "' when loading clip data");
                     }
                 }
             }
         }
         return clip;
+    }
+
+    /**
+     * Set ammo data into NBT
+     *
+     * @param tagKey   - key to use
+     * @param nbt      - tag to save the data into, not the save tag itself but the global tag
+     * @param ammoData - data to save
+     */
+    public static void setAmmoDataStackIntoNBT(String tagKey, NBTTagCompound nbt, Stack<IAmmoData> ammoData)
+    {
+        NBTTagCompound save = new NBTTagCompound();
+        int count = 0;
+        for (IAmmoData data : ammoData)
+        {
+            save.setString("round" + count, data.getUniqueID());
+            count++;
+        }
+        save.setInteger("number", count);
+        nbt.setTag(tagKey, save);
     }
 
     @Override
@@ -119,7 +150,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
                     break;
                 }
             }
-            setStoredAmmo(clipStack, clip);
+            setAmmoStored(clipStack, clip);
             return loaded;
         }
         return 0;
@@ -147,21 +178,14 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
      * @param clipStack - clip
      * @param ammoData  - rounds of ammo
      */
-    public void setStoredAmmo(ItemStack clipStack, Stack<IAmmoData> ammoData)
+    public void setAmmoStored(ItemStack clipStack, Stack<IAmmoData> ammoData)
     {
         if (clipStack.getTagCompound() == null)
         {
             clipStack.setTagCompound(new NBTTagCompound());
         }
-        NBTTagCompound save = new NBTTagCompound();
-        int count = 0;
-        for (IAmmoData data : ammoData)
-        {
-            save.setString("round" + count, data.getUniqueID());
-            count++;
-        }
-        clipStack.getTagCompound().setTag("ammoData", save);
-        setAmmoCount(clipStack, count);
+        setAmmoDataStackIntoNBT("ammoData", clipStack.getTagCompound(), ammoData);
+        setAmmoCount(clipStack, ammoData.size());
     }
 
     @Override
@@ -180,7 +204,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
                     break;
                 }
             }
-            setStoredAmmo(clipStack, ammoData);
+            setAmmoStored(clipStack, ammoData);
         }
     }
 

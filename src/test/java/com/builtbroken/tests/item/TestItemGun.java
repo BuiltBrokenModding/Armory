@@ -1,4 +1,4 @@
-package com.builtbroken.tests.gun;
+package com.builtbroken.tests.item;
 
 import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.data.ArmoryDataHandler;

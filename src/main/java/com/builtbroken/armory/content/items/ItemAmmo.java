@@ -8,6 +8,8 @@ import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import net.minecraft.item.ItemStack;
 
 /**
+ * Single round of ammo
+ *
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/19/2016.
  */

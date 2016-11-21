@@ -1,5 +1,6 @@
 package com.builtbroken.armory.data.ammo;
 
+import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IClipData;
@@ -75,13 +76,13 @@ public class ClipInstance implements IClip, ISave
     @Override
     public void load(NBTTagCompound nbt)
     {
-        //TODO implement
+        ammo = ItemClip.getAmmoDataStackFromNBT("ammoData", nbt);
     }
 
     @Override
     public NBTTagCompound save(NBTTagCompound nbt)
     {
-        //TODO implement
+        ItemClip.setAmmoDataStackIntoNBT("ammoData", nbt, ammo);
         return nbt;
     }
 }

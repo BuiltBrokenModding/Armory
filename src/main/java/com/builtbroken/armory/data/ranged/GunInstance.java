@@ -21,7 +21,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -36,6 +35,8 @@ import java.awt.*;
  */
 public class GunInstance extends AbstractModule implements ISave, IGun
 {
+    /** How fast a projectile can travel before a ray trace is used instead */
+    public static final float PROJECTILE_SPEED_LIMIT = 0.05f; // 20th of a block thickness a tick
     /** Who is holding the weapon */
     public final Entity entity;
     /** Properties of the weapon */
@@ -84,63 +85,68 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         //TODO return and allow reload animations
         if (hasAmmo())
         {
-            consumeAmmo();
-            //Figure out where the player is aiming
-            final Pos aim = getAim(yaw, pitch);
-
-            //Find our hand position so to position starting point near barrel of the gun
-            float rotationHand = MathHelper.wrapAngleTo180_float(((EntityPlayer) entity).renderYawOffset + 90);
-            final Pos hand = new Pos(
-                    Math.cos(Math.toRadians(rotationHand)) - Math.sin(Math.toRadians(rotationHand)),
-                    0,
-                    Math.sin(Math.toRadians(rotationHand)) + Math.cos(Math.toRadians(rotationHand))
-            ).multiply(0.5);
-
-            final Pos entityPos = new Pos(entity.posX, entity.posY + 1.1, entity.posZ).add(hand);
-
-            final Pos start = entityPos;
-            final Pos end = entityPos.add(aim.multiply(500));
-
-            PacketSpawnStream packet = new PacketSpawnStream(world.provider.dimensionId, start, end, 2);
-            packet.red = (Color.blue.getRed() / 255f);
-            packet.green = (Color.blue.getGreen() / 255f);
-            packet.blue = (Color.blue.getBlue() / 255f);
-            Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
-
-            MovingObjectPosition hit = start.rayTrace(world, end);
-            if (hit != null && hit.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)
+            IAmmoData nextRound = clip.getAmmo().peek();
+            if (nextRound != null)
             {
-                if (hit.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
+                if (nextRound.getProjectileVelocity() < 0 || nextRound.getProjectileVelocity() / 20f > PROJECTILE_SPEED_LIMIT)
                 {
-                    onHit(hit.entityHit);
+                    _doRayTrace(world, yaw, pitch, nextRound);
                 }
                 else
                 {
-                    onHit(hit.blockX, hit.blockY, hit.blockZ);
+                    _createAndFireEntity(world, yaw, pitch, nextRound);
                 }
+                consumeAmmo();
             }
         }
+    }
+
+    protected void _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound)
+    {
+        //Figure out where the player is aiming
+        final Pos aim = getAim(yaw, pitch);
+
+        //Find our hand position so to position starting point near barrel of the gun
+        float rotationHand = MathHelper.wrapAngleTo180_float(((EntityPlayer) entity).renderYawOffset + 90);
+        final Pos hand = new Pos(
+                Math.cos(Math.toRadians(rotationHand)) - Math.sin(Math.toRadians(rotationHand)),
+                0,
+                Math.sin(Math.toRadians(rotationHand)) + Math.cos(Math.toRadians(rotationHand))
+        ).multiply(0.5);
+
+        final Pos entityPos = new Pos(entity.posX, entity.posY + 1.1, entity.posZ).add(hand);
+
+        final Pos start = entityPos;
+        final Pos end = entityPos.add(aim.multiply(500));
+
+        PacketSpawnStream packet = new PacketSpawnStream(world.provider.dimensionId, start, end, 2);
+        packet.red = (Color.blue.getRed() / 255f);
+        packet.green = (Color.blue.getGreen() / 255f);
+        packet.blue = (Color.blue.getBlue() / 255f);
+        Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
+
+        MovingObjectPosition hit = start.rayTrace(world, end);
+        if (hit != null && hit.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)
+        {
+            if (hit.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
+            {
+                nextRound.onImpactEntity(entity, hit.entityHit, nextRound.getProjectileVelocity()); //TODO scale velocity by distance
+            }
+            else
+            {
+                nextRound.onImpactGround(entity, world, hit.blockX, hit.blockY, hit.blockZ, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity());
+            }
+        }
+    }
+
+    protected void _createAndFireEntity(World world, float yaw, float pitch, IAmmoData nextRound)
+    {
+        //TODO spawn projectile
     }
 
     protected void consumeAmmo()
     {
         clip.consumeAmmo(1);
-    }
-
-    protected void onHit(Entity entity)
-    {
-        if (entity instanceof EntityPlayer)
-        {
-            ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Hit: " + entity));
-        }
-    }
-
-    protected void onHit(int x, int y, int z)
-    {
-        if (entity instanceof EntityPlayer)
-        {
-            ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Hit: " + x + "x " + y + "y " + z + "z "));
-        }
     }
 
     protected Pos getAim(float yaw, float pitch)

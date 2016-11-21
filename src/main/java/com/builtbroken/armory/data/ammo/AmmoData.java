@@ -4,6 +4,8 @@ import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 
@@ -51,8 +53,12 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     }
 
     @Override
-    public void onImpactEntity(Entity shooter, Entity entity)
+    public boolean onImpactEntity(Entity shooter, Entity entity, float velocity)
     {
+        if (shooter instanceof EntityPlayer)
+        {
+            ((EntityPlayer) shooter).addChatComponentMessage(new ChatComponentText("Hit: " + entity));
+        }
         if (damageSource != null && damage > 0)
         {
             //TODO create damage source with shooter, gun data, and damage type
@@ -60,11 +66,16 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
             //TODO apply force
             entity.attackEntityFrom(DamageSource.generic, damage);
         }
+        return true;
     }
 
     @Override
-    public void onImpactGround(World world, int x, int y, int z, double hitX, double hitY, double hitZ)
+    public boolean onImpactGround(Entity shooter, World world, int x, int y, int z, double hitX, double hitY, double hitZ, float velocity)
     {
-
+        if (shooter instanceof EntityPlayer)
+        {
+            ((EntityPlayer) shooter).addChatComponentMessage(new ChatComponentText("Hit: " + hitX + "x " + hitY + "y " + hitZ + "z "));
+        }
+        return true;
     }
 }

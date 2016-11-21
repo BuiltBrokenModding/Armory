@@ -49,6 +49,12 @@ public class GunData extends RangeWeaponData implements IGunData
     }
 
     @Override
+    public IAmmoType getAmmoType()
+    {
+        return ammoType;
+    }
+
+    @Override
     public String getGunType()
     {
         return gunType;

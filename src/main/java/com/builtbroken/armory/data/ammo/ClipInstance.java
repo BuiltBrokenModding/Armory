@@ -17,7 +17,6 @@ import java.util.Stack;
 public class ClipInstance implements IClip, ISave
 {
     private final IClipData clipData;
-    private int ammoCount = 0;
     private Stack<IAmmoData> ammo = new Stack();
 
     public ClipInstance(IClipData clipData)
@@ -34,7 +33,7 @@ public class ClipInstance implements IClip, ISave
     @Override
     public int getAmmoCount()
     {
-        return ammoCount;
+        return ammo.size();
     }
 
     @Override
@@ -51,18 +50,38 @@ public class ClipInstance implements IClip, ISave
             ammo.pop();
             count--;
         }
-        ammoCount = ammo.size();
+    }
+
+    @Override
+    public int loadAmmo(IAmmoData data, int count)
+    {
+        if (getAmmoCount() < clipData.getMaxAmmo())
+        {
+            int loaded = 0;
+            for (int i = 0; i < count; i++)
+            {
+                getAmmo().add(data);
+                loaded++;
+                if (getAmmoCount() >= clipData.getMaxAmmo())
+                {
+                    break;
+                }
+            }
+            return loaded;
+        }
+        return 0;
     }
 
     @Override
     public void load(NBTTagCompound nbt)
     {
-
+        //TODO implement
     }
 
     @Override
     public NBTTagCompound save(NBTTagCompound nbt)
     {
+        //TODO implement
         return nbt;
     }
 }

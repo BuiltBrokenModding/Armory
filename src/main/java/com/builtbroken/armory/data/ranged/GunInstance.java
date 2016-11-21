@@ -2,14 +2,19 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.data.ammo.ClipInstance;
 import com.builtbroken.mc.api.ISave;
+import com.builtbroken.mc.api.data.weapon.IAmmoData;
+import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.IGunData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
+import com.builtbroken.mc.api.items.weapons.IItemAmmo;
+import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.modules.weapon.IClip;
 import com.builtbroken.mc.api.modules.weapon.IGun;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
 import com.builtbroken.mc.lib.transform.vector.Location;
 import com.builtbroken.mc.lib.transform.vector.Pos;
+import com.builtbroken.mc.prefab.inventory.InventoryIterator;
 import com.builtbroken.mc.prefab.module.AbstractModule;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -166,20 +171,64 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     private void loadBestClip(IInventory inventory)
     {
-        for (int i = 0; i < inventory.getSizeInventory(); i++)
+        InventoryIterator it = new InventoryIterator(inventory, true);
+        IClip bestClip = null;
+        int slot = -1;
+        for (ItemStack stack : it)
         {
-            //TODO find best clip
+            if (stack.getItem() instanceof IItemClip)
+            {
+                IItemClip itemClip = ((IItemClip) stack.getItem());
+                if (itemClip.isAmmo(stack) && itemClip.isClip(stack))
+                {
+                    IAmmoType type = itemClip.getClipData(stack).getAmmoType();
+                    if (type == gunData.getAmmoType())
+                    {
+                        if (bestClip == null || bestClip.getAmmoCount() < itemClip.getAmmoCount(stack))
+                        {
+                            IClip clip = itemClip.toClip(stack);
+                            if (clip != null)
+                            {
+                                bestClip = clip;
+                                slot = it.slot();
+                            }
+                        }
+                    }
+                }
+            }
+            if (bestClip != null)
+            {
+                unloadWeapon(inventory);
+                if (clip == null)
+                {
+                    clip = bestClip;
+                    inventory.decrStackSize(slot, 1);
+                }
+            }
         }
-        //TODO only unload if clip was found
-        unloadWeapon(inventory);
-        //TODO load clip
     }
 
     private void loadRound(IInventory inventory)
     {
-        for (int i = 0; i < inventory.getSizeInventory(); i++)
+        InventoryIterator it = new InventoryIterator(inventory, true);
+        for (ItemStack stack : it)
         {
-            //TODO find rounds to load into gun until full
+            if (stack.getItem() instanceof IItemAmmo)
+            {
+                IItemAmmo ammo = ((IItemAmmo) stack.getItem());
+                if (ammo.isAmmo(stack) && !ammo.isClip(stack))
+                {
+                    IAmmoData data = ammo.getAmmoData(stack);
+                    IAmmoType type = data.getAmmoType();
+                    if (type == gunData.getAmmoType())
+                    {
+                        if (clip.getAmmoCount() < clip.getClipData().getMaxAmmo())
+                        {
+                            clip.loadAmmo(data, ammo.getAmmoCount(stack));
+                        }
+                    }
+                }
+            }
         }
     }
 

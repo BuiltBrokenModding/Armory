@@ -10,7 +10,7 @@ import net.minecraft.item.ItemStack;
 import java.util.Stack;
 
 /**
- * Actual instance used by the player for a clip
+ * Wrapper for Item clip to make it act like a clip instance
  *
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
@@ -52,6 +52,12 @@ public class ClipInstanceItem extends AbstractModule implements IClip
     public void consumeAmmo(int count)
     {
         ((IItemClip) item.getItem()).consumeAmmo(null, null, item, count);
+    }
+
+    @Override
+    public int loadAmmo(IAmmoData data, int count)
+    {
+        return ((IItemClip) item.getItem()).loadAmmo(item, data, count);
     }
 
     @Override

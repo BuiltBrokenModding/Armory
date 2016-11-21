@@ -6,7 +6,7 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.ClipData;
 import com.builtbroken.armory.data.ammo.ClipInstanceItem;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
-import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.api.data.weapon.IClipData;
 import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import com.builtbroken.mc.api.modules.weapon.IClip;
@@ -44,9 +44,9 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     }
 
     @Override
-    public IAmmoType getAmmoType(ItemStack stack)
+    public IAmmoData getAmmoData(ItemStack stack)
     {
-        return getData(stack).ammoType;
+        return null;
     }
 
     @Override
@@ -69,26 +69,6 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
             clipStack.setTagCompound(new NBTTagCompound());
         }
         clipStack.getTagCompound().setInteger("ammo", Math.max(0, count));
-    }
-
-    /**
-     * Fills the clip with the define ammo
-     *
-     * @param clipStack - clip
-     * @param data      - ammo type to load
-     * @param count     - number of rounds to load
-     */
-    public void loadAmmoCount(ItemStack clipStack, IAmmoData data, int count)
-    {
-        if (clipStack.getTagCompound() == null)
-        {
-            clipStack.setTagCompound(new NBTTagCompound());
-        }
-        Stack<IAmmoData> clip = getStoredAmmo(clipStack);
-        for (int i = 0; i < count; i++)
-        {
-            clip.add(data);
-        }
     }
 
     @Override
@@ -120,6 +100,32 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     }
 
     @Override
+    public int loadAmmo(ItemStack clipStack, IAmmoData data, int count)
+    {
+        if (getAmmoCount(clipStack) < getData(clipStack).getMaxAmmo())
+        {
+            if (clipStack.getTagCompound() == null)
+            {
+                clipStack.setTagCompound(new NBTTagCompound());
+            }
+            Stack<IAmmoData> clip = getStoredAmmo(clipStack);
+            int loaded = 0;
+            for (int i = 0; i < count; i++)
+            {
+                clip.add(data);
+                loaded++;
+                if (getAmmoCount(clipStack) >= getData(clipStack).getMaxAmmo())
+                {
+                    break;
+                }
+            }
+            setStoredAmmo(clipStack, clip);
+            return loaded;
+        }
+        return 0;
+    }
+
+    @Override
     public IClip toClip(ItemStack clipStack)
     {
         if (clipStack == null || clipStack.getItem() != this)
@@ -127,6 +133,12 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
             return null;
         }
         return new ClipInstanceItem(clipStack, getData(clipStack));
+    }
+
+    @Override
+    public IClipData getClipData(ItemStack clipStack)
+    {
+        return getData(clipStack);
     }
 
     /**
@@ -180,7 +192,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
         for (IAmmoData data : clip.ammoType.getAmmoData())
         {
             ItemStack stack = new ItemStack(item, 1, meta);
-            loadAmmoCount(stack, data, clip.maxAmmo);
+            loadAmmo(stack, data, clip.maxAmmo);
             items.add(stack);
         }
     }

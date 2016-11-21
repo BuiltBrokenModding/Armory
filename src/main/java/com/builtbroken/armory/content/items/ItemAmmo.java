@@ -2,7 +2,7 @@ package com.builtbroken.armory.content.items;
 
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ammo.AmmoData;
-import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.items.weapons.IItemAmmo;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import net.minecraft.item.ItemStack;
@@ -31,9 +31,9 @@ public class ItemAmmo extends ItemMetaArmoryEntry<AmmoData> implements IItemAmmo
     }
 
     @Override
-    public IAmmoType getAmmoType(ItemStack stack)
+    public IAmmoData getAmmoData(ItemStack stack)
     {
-        return getData(stack).ammoType;
+        return getData(stack);
     }
 
     @Override

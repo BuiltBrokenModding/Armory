@@ -55,4 +55,10 @@ public class AmmoType extends ArmoryEntry implements IAmmoType
     {
         return name();
     }
+
+    @Override
+    public String toString()
+    {
+        return "AmmoType[" + getUniqueID() + "]@" + hashCode();
+    }
 }

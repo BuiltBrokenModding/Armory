@@ -10,9 +10,11 @@ import com.builtbroken.mc.api.data.weapon.IClipData;
 import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import com.builtbroken.mc.api.modules.weapon.IClip;
+import com.builtbroken.mc.lib.helper.LanguageUtility;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,6 +31,36 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     public ItemClip()
     {
         super("clip", "clip");
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean b)
+    {
+        IClipData data = getClipData(stack);
+        if (data != null)
+        {
+            //TODO translate
+            list.add("Type: " + LanguageUtility.capitalizeFirst(data.getReloadType().name().toLowerCase()));
+            list.add("Ammo: " + data.getAmmoType().getDisplayString());
+            if (getAmmoCount(stack) > 0)
+            {
+                IClip clip = toClip(stack);
+                if (clip != null && clip.getAmmo().peek() != null)
+                {
+                    list.add("Next: " + clip.getAmmo().peek().getDisplayString());
+                }
+                else
+                {
+                    list.add("Next: Error Reading NBT");
+                }
+            }
+            list.add("Rounds: " + getAmmoCount(stack) + "/" + data.getMaxAmmo());
+        }
+        else
+        {
+            list.add("Error: Clip data is null");
+        }
     }
 
     @Override

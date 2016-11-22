@@ -6,7 +6,7 @@
     "name": "handgun",
     "type": "handgun",
     "translationKey": "handgun",
-    "ID": "amory.test.hangun",
+    "ID": "amory.test.handgun",
     "ammo": "9mm",
     "clipType": 3,
     "fallOff": "0.05D",

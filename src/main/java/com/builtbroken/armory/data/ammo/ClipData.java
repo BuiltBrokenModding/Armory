@@ -45,4 +45,10 @@ public class ClipData extends ArmoryEntry implements IClipData
     {
         return maxAmmo;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Clip[" + getUniqueID() + ", " + getReloadType() + ", " + ammoType + ", " + maxAmmo + "]@" + hashCode();
+    }
 }

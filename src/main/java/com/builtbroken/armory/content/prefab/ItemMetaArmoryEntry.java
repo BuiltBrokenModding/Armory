@@ -9,6 +9,7 @@ import com.builtbroken.mc.core.network.IPacketReceiver;
 import com.builtbroken.mc.core.network.packet.PacketPlayerItem;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -38,8 +39,17 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
         ArmoryDataHandler.INSTANCE.get(typeName).add(this);
         this.typeName = typeName;
         this.setUnlocalizedName(Armory.PREFIX + name);
-        this.setCreativeTab(CreativeTabs.tabCombat);
         this.setHasSubtypes(true);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean b)
+    {
+        if (Engine.runningAsDev)
+        {
+            list.add("" + getData(stack));
+        }
     }
 
     public E getData(ItemStack stack)
@@ -51,6 +61,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
     public void onPostInit()
     {
         MinecraftForge.EVENT_BUS.register(this);
+        FMLCommonHandler.instance().bus().register(this);
     }
 
     @SubscribeEvent

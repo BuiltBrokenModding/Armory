@@ -35,6 +35,13 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     }
 
     @Override
+    public void register()
+    {
+        super.register();
+        ammoType.addAmmoData(this);
+    }
+
+    @Override
     public IAmmoType getAmmoType()
     {
         return ammoType;
@@ -77,5 +84,11 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
             ((EntityPlayer) shooter).addChatComponentMessage(new ChatComponentText("Hit: " + hitX + "x " + hitY + "y " + hitZ + "z "));
         }
         return true;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Ammo[" + getUniqueID() + "]@" + hashCode();
     }
 }

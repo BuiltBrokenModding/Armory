@@ -128,6 +128,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //Load next round to fire
                 chamberNextRound();
             }
+            updateEntityStack();
         }
     }
 
@@ -248,15 +249,16 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     }
                 }
             }
-            if (bestClip != null)
+        }
+        if (bestClip != null)
+        {
+            unloadWeapon(inventory);
+            if (_clip == null)
             {
-                unloadWeapon(inventory);
-                if (_clip == null)
-                {
-                    _clip = bestClip;
-                    inventory.decrStackSize(slot, 1);
-                }
+                _clip = bestClip;
+                inventory.decrStackSize(slot, 1);
             }
+            updateEntityStack();
         }
     }
 
@@ -280,6 +282,21 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                         }
                     }
                 }
+            }
+        }
+        updateEntityStack();
+    }
+
+    private void updateEntityStack()
+    {
+        if (entity instanceof EntityPlayer)
+        {
+            ItemStack stack = ((EntityPlayer) entity).getHeldItem();
+            ItemStack updated = toStack();
+            if (stack.isItemEqual(updated))
+            {
+                ((EntityPlayer) entity).inventory.setInventorySlotContents(((EntityPlayer) entity).inventory.currentItem, updated);
+                ((EntityPlayer) entity).inventoryContainer.detectAndSendChanges();
             }
         }
     }
@@ -358,6 +375,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     _clip = null;
                 }
             }
+            updateEntityStack();
         }
     }
 
@@ -486,5 +504,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public String getSaveID()
     {
         return "armory:gun";
+    }
+
+    @Override
+    public String toString()
+    {
+        return "GunInstance[" + entity + ", " + gunData + ", " + chamberedRound + ", " + _clip + "]";
     }
 }

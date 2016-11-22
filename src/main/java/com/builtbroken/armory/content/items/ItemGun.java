@@ -1,14 +1,19 @@
 package com.builtbroken.armory.content.items;
 
+import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
-import com.builtbroken.jlib.type.Pair;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.api.data.weapon.IGunData;
 import com.builtbroken.mc.api.items.IMouseButtonHandler;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
+import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,7 +31,7 @@ import java.util.Map;
 public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButtonHandler, IItemReloadableWeapon
 {
     /** Cache of the last weapon the entity has out */
-    public static final HashMap<Entity, Pair<GunInstance, ItemStack>> gunCache = new HashMap();
+    public static final HashMap<Entity, GunInstance> gunCache = new HashMap();
     /** Who has the left click held down */
     public static final Map<EntityPlayer, Integer> leftClickHeld = new HashMap();
     //TODO handle what type of gun
@@ -37,9 +43,46 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     //TODO handle firing
     //TODO handle aiming
 
+    private GunInstance clientSideGun;
+
     public ItemGun()
     {
         super("gun", "gun");
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean b)
+    {
+        IGunData data = getData(stack);
+        if (data != null)
+        {
+            GunInstance gun = getGunInstance(stack, player);
+
+            //TODO translate
+            list.add("Type: " + data.getGunType());
+            list.add("Ammo: " + data.getAmmoType().getDisplayString());
+            if (gun != null)
+            {
+                list.add("Chamber: " + (gun.getChamberedRound() != null ? gun.getChamberedRound().getDisplayString() : "null"));
+                if (gun.getLoadedClip() != null)
+                {
+                    list.add("Rounds: " + gun.getLoadedClip().getAmmoCount() + "/" + gun.getLoadedClip().getMaxAmmo());
+                }
+                else
+                {
+                    list.add("ReloadType: " + LanguageUtility.capitalizeFirst(data.getReloadType().name().toLowerCase()));
+                }
+            }
+            else
+            {
+                list.add("Error: Gun instance is null");
+            }
+        }
+        else
+        {
+            list.add("Error: Gun data is null");
+        }
     }
 
     @Override
@@ -59,6 +102,23 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                 else
                 {
                     leftClickHeld.remove(player);
+                }
+            }
+            else if (button == 1)
+            {
+                GunInstance gun = getGunInstance(stack, player);
+                if (gun != null)
+                {
+                    gun.sightWeapon(); //TODO add true/false to this for better control
+                }
+            }
+            else if (button == 2)
+            {
+                GunInstance gun = getGunInstance(stack, player);
+                if (gun != null)
+                {
+                    gun.reloadWeapon(player.inventory);
+                    player.inventoryContainer.detectAndSendChanges();
                 }
             }
         }
@@ -109,24 +169,70 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
      */
     public GunInstance getGunInstance(ItemStack stack, EntityPlayer player)
     {
-        //TODO check performance against reloaded the stack vs doing NBT check
-        if (gunCache.containsKey(player))
+        if (getData(stack) != null)
         {
-            Pair<GunInstance, ItemStack> pair = gunCache.get(player);
-            if (pair != null && pair.left() != null && pair.right() != null && InventoryUtility.stacksMatch(pair.right(), stack))
+            //TODO check performance against reloaded the stack vs doing NBT check
+            if (player.worldObj.isRemote)
             {
-                GunInstance gunInstance = pair.left();
-                if (gunInstance.entity == player && gunInstance.getGunData() != null)
+                if (clientSideGun == null || !InventoryUtility.stacksMatch(clientSideGun.toStack(), stack))
                 {
-                    return gunInstance;
+                    clientSideGun = loadInstance(player, getGun(stack), stack);
+                }
+                return clientSideGun;
+            }
+            else if (gunCache.containsKey(player))
+            {
+                GunInstance instance = gunCache.get(player);
+                if (instance != null && InventoryUtility.stacksMatch(instance.toStack(), stack))
+                {
+                    if (instance.entity != null && instance.entity == player && instance.getGunData() != null)
+                    {
+                        return instance;
+                    }
+                    else
+                    {
+                        if (Armory.INSTANCE != null)
+                        {
+                            Armory.INSTANCE.logger().error("Failed to continue using gun instance " + instance + " due to invalid data. This way cause issues with user experience and may result in data loss.", new RuntimeException());
+                        }
+                        else
+                        {
+                            throw new RuntimeException("Failed to continue using gun instance " + instance + " due to invalid data. This way cause issues with user experience and may result in data loss.");
+                        }
+                    }
+                }
+                else if (Engine.runningAsDev)
+                {
+                    if (Armory.INSTANCE != null)
+                    {
+                        if (instance == null)
+                        {
+                            Armory.INSTANCE.logger().info("Gun cache contained null value for player '" + player + "'");
+                        }
+                        else if (!InventoryUtility.stacksMatch(instance.toStack(), stack))
+                        {
+                            Armory.INSTANCE.logger().info("Gun cache contained value but it did not match player held item for player '" + player + "' stack '" + stack + "' expected '" + instance.toStack() + "'");
+                        }
+                    }
                 }
             }
+            GunInstance instance = loadInstance(player, getGun(stack), stack);
+            if (instance != null)
+            {
+                gunCache.put(player, instance);
+                return instance;
+            }
         }
-        GunInstance instance = loadInstance(player, getGun(stack), stack);
-        if (instance != null)
+        else
         {
-            gunCache.put(player, new Pair<GunInstance, ItemStack>(instance, stack));
-            return instance;
+            if (Armory.INSTANCE != null)
+            {
+                Armory.INSTANCE.logger().error("Failed to get gun instance due to gun data being null for " + stack);
+            }
+            else
+            {
+                throw new RuntimeException("Failed to get gun instance due to gun data being null for " + stack);
+            }
         }
         return null;
     }

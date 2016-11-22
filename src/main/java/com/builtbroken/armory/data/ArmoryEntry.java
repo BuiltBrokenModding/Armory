@@ -1,6 +1,7 @@
 package com.builtbroken.armory.data;
 
 import com.builtbroken.mc.api.data.weapon.IData;
+import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.lib.json.imp.IJsonGenObject;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -85,8 +86,25 @@ public abstract class ArmoryEntry implements IJsonGenObject, IData
     }
 
     @Override
+    public String getDisplayString()
+    {
+        String translation = LanguageUtility.getLocalName(translationKey);
+        if (translation != null && !translation.isEmpty())
+        {
+            return translation;
+        }
+        return name;
+    }
+
+    @Override
     public void register()
     {
         ArmoryDataHandler.INSTANCE.get(type).add(this);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "ArmoryEntry[" + name + ", " + type + "]@" + hashCode();
     }
 }

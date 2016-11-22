@@ -61,6 +61,7 @@ public final class Armory extends AbstractMod
     public void preInit(FMLPreInitializationEvent event)
     {
         super.preInit(event);
+
         Engine.requestOres();
         Engine.requestResources();
         Engine.requestSheetMetalContent();
@@ -95,7 +96,6 @@ public final class Armory extends AbstractMod
     public void postInit(FMLPostInitializationEvent event)
     {
         super.postInit(event);
-
     }
 
     @Override

@@ -4,7 +4,7 @@
   },
   "ammoType": {
     "name": "9mm",
-    "id": "armory:ammoType.9mm",
+    "id": "9mm",
     "type": 4,
     "translationKey": "9mm"
   },
@@ -16,7 +16,7 @@
     "damage": 5,
     "source": "impact"
   },
-  "ammo": {
+  "ammo:1": {
     "name": "advanced",
     "id": "armory:ammo.9mm.advanced",
     "translationKey": "9mm.advanced",
@@ -24,7 +24,7 @@
     "damage": 7,
     "source": "impact"
   },
-  "ammo": {
+  "ammo:2": {
     "name": "elite",
     "id": "armory:ammo.9mm.elite",
     "translationKey": "9mm.elite",

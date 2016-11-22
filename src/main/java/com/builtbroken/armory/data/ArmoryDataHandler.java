@@ -147,10 +147,11 @@ public class ArmoryDataHandler
                 }
                 saveDataToFile(keyToWriteTime);
 
+                //TODO rewrite the bellow to not be O(items * 32000)
                 int index = 0;
                 for (int i = 0; i < items.size(); i++)
                 {
-                    for (; index < i * 32000; index++)
+                    for (; index < (i + 1) * 32000; index++)
                     {
                         if (metaToEntry.containsKey(index))
                         {

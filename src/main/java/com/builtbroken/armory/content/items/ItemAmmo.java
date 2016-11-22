@@ -5,7 +5,12 @@ import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.items.weapons.IItemAmmo;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+
+import java.util.List;
 
 /**
  * Single round of ammo
@@ -19,6 +24,25 @@ public class ItemAmmo extends ItemMetaArmoryEntry<AmmoData> implements IItemAmmo
     {
         super("ammo", "ammo");
     }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean b)
+    {
+        IAmmoData data = getData(stack);
+        if (data != null)
+        {
+            //TODO translate
+            list.add("Type: " + data.getAmmoType().getDisplayString());
+            list.add("Damage: " + data.getAmmoType().getDisplayString());
+            list.add("Velocity: " + data.getProjectileVelocity() + "m/s");
+        }
+        else
+        {
+            list.add("Error: Clip data is null");
+        }
+    }
+
 
     @Override
     public boolean isAmmo(ItemStack stack)

@@ -84,4 +84,10 @@ public class GunData extends RangeWeaponData implements IGunData
         //Seconds in a min * millis in a second / rounds in a min
         this.firingDelay = 60 * 1000 / rateOfFire;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Gun[" + name() + ", " + getGunType() + "]@" + hashCode();
+    }
 }

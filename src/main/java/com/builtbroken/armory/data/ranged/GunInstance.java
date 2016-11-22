@@ -17,6 +17,7 @@ import com.builtbroken.mc.lib.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.InventoryIterator;
 import com.builtbroken.mc.prefab.module.AbstractModule;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -43,10 +44,12 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     protected final IGunData gunData;
 
     /** Clip that is feed into the weapon */
-    protected IClip clip;
+    protected IClip _clip;
+
+    protected IAmmoData chamberedRound;
 
     /** Last time the weapon was fired, milliseconds */
-    private Long lastTimeFired = 0L;
+    public Long lastTimeFired = 0L;
 
     public GunInstance(ItemStack gunStack, Entity entity, IGunData gun)
     {
@@ -55,7 +58,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         this.gunData = gun;
         if (isManuallyFeedClip())
         {
-            clip = new ClipInstance(gun.getBuiltInClipData());
+            _clip = new ClipInstance(gunData.getBuiltInClipData());
+        }
+        if (gunStack.getTagCompound() != null)
+        {
+            load(gunStack.getTagCompound());
         }
     }
 
@@ -69,36 +76,60 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public void fireWeapon(ItemStack stack, World world, int ticksFired)
     {
         Long deltaTime = System.currentTimeMillis() - lastTimeFired;
-        if (entity instanceof EntityPlayer && (lastTimeFired == 0L || deltaTime > gunData.getRateOfFire()))
+        if (entity instanceof EntityLivingBase && (lastTimeFired == 0L || deltaTime > gunData.getRateOfFire()))
         {
             lastTimeFired = System.currentTimeMillis();
-            _doFire(world, ((EntityPlayer) entity).rotationYawHead, ((EntityPlayer) entity).rotationPitch);
+            _doFire(world, ((EntityLivingBase) entity).rotationYawHead, ((EntityLivingBase) entity).rotationPitch);
         }
     }
 
     protected void _doFire(World world, float yaw, float pitch)
     {
+        //If no ammo reload the weapon
         if (!hasAmmo())
         {
             reloadWeapon(getInventory());
+            //TODO return if animation needs to play
         }
         //TODO return and allow reload animations
-        if (hasAmmo())
+        //TODO add safety checks
+        if (getChamberedRound() != null || hasAmmo())
         {
-            IAmmoData nextRound = clip.getAmmo().peek();
-            if (nextRound != null)
+            //Load next round to fire if empty
+            chamberNextRound();
+
+            //Only fire if we have a round in the chamber
+            if (getChamberedRound() != null)
             {
-                if (nextRound.getProjectileVelocity() < 0 || nextRound.getProjectileVelocity() / 20f > PROJECTILE_SPEED_LIMIT)
+                //TODO apply upgrades
+                if (getChamberedRound().getProjectileVelocity() < 0 || getChamberedRound().getProjectileVelocity() / 20f > PROJECTILE_SPEED_LIMIT)
                 {
-                    _doRayTrace(world, yaw, pitch, nextRound);
+                    _doRayTrace(world, yaw, pitch, getChamberedRound());
                 }
                 else
                 {
-                    _createAndFireEntity(world, yaw, pitch, nextRound);
+                    _createAndFireEntity(world, yaw, pitch, getChamberedRound());
                 }
-                consumeAmmo();
+                //Clear current round as it has been fired
+                chamberedRound = null;
+                //TODO eject brass/waste from the weapon
+                //TODO generate heat
+                //TODO apply recoil
+                //TODO damage weapon
+                //Load next round to fire
+                chamberNextRound();
             }
         }
+    }
+
+    public boolean chamberNextRound()
+    {
+        if (getChamberedRound() == null && hasAmmo())
+        {
+            chamberedRound = getLoadedClip().getAmmo().peek();
+            getLoadedClip().consumeAmmo(1);
+        }
+        return getChamberedRound() != null;
     }
 
     protected void _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound)
@@ -107,7 +138,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         final Pos aim = getAim(yaw, pitch);
 
         //Find our hand position so to position starting point near barrel of the gun
-        float rotationHand = MathHelper.wrapAngleTo180_float(((EntityPlayer) entity).renderYawOffset + 90);
+        float rotationHand = MathHelper.wrapAngleTo180_float(((EntityLivingBase) entity).renderYawOffset + 90);
         final Pos hand = new Pos(
                 Math.cos(Math.toRadians(rotationHand)) - Math.sin(Math.toRadians(rotationHand)),
                 0,
@@ -119,11 +150,14 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         final Pos start = entityPos;
         final Pos end = entityPos.add(aim.multiply(500));
 
-        PacketSpawnStream packet = new PacketSpawnStream(world.provider.dimensionId, start, end, 2);
-        packet.red = (Color.blue.getRed() / 255f);
-        packet.green = (Color.blue.getGreen() / 255f);
-        packet.blue = (Color.blue.getBlue() / 255f);
-        Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
+        if (Engine.instance != null)
+        {
+            PacketSpawnStream packet = new PacketSpawnStream(world.provider.dimensionId, start, end, 2);
+            packet.red = (Color.blue.getRed() / 255f);
+            packet.green = (Color.blue.getGreen() / 255f);
+            packet.blue = (Color.blue.getBlue() / 255f);
+            Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
+        }
 
         MovingObjectPosition hit = start.rayTrace(world, end);
         if (hit != null && hit.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)
@@ -146,7 +180,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     protected void consumeAmmo()
     {
-        clip.consumeAmmo(1);
+        getLoadedClip().consumeAmmo(1);
     }
 
     protected Pos getAim(float yaw, float pitch)
@@ -160,18 +194,21 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     public boolean hasAmmo()
     {
-        return clip != null && clip.getAmmoCount() > 0;
+        return getLoadedClip() != null && getLoadedClip().getAmmoCount() > 0;
     }
 
     public void reloadWeapon(IInventory inventory)
     {
-        if (isManuallyFeedClip())
+        if (inventory != null)
         {
-            loadRound(inventory);
-        }
-        else
-        {
-            loadBestClip(inventory);
+            if (isManuallyFeedClip())
+            {
+                loadRound(inventory);
+            }
+            else
+            {
+                loadBestClip(inventory);
+            }
         }
     }
 
@@ -205,9 +242,9 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             if (bestClip != null)
             {
                 unloadWeapon(inventory);
-                if (clip == null)
+                if (_clip == null)
                 {
-                    clip = bestClip;
+                    _clip = bestClip;
                     inventory.decrStackSize(slot, 1);
                 }
             }
@@ -228,9 +265,9 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     IAmmoType type = data.getAmmoType();
                     if (type == gunData.getAmmoType())
                     {
-                        if (clip.getAmmoCount() < clip.getClipData().getMaxAmmo())
+                        if (getLoadedClip().getAmmoCount() < getLoadedClip().getClipData().getMaxAmmo())
                         {
-                            clip.loadAmmo(data, ammo.getAmmoCount(stack));
+                            inventory.decrStackSize(it.slot(), getLoadedClip().loadAmmo(data, ammo.getAmmoCount(stack)));
                         }
                     }
                 }
@@ -240,7 +277,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     public void unloadWeapon(IInventory inventory)
     {
-        if (clip != null)
+        if (_clip != null)
         {
             if (isManuallyFeedClip())
             {
@@ -299,9 +336,15 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     }
 
     @Override
+    public IAmmoData getChamberedRound()
+    {
+        return chamberedRound;
+    }
+
+    @Override
     public IClip getLoadedClip()
     {
-        return clip;
+        return _clip;
     }
 
     @Override

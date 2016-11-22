@@ -2,6 +2,7 @@ package com.builtbroken.tests.item;
 
 import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.data.ArmoryDataHandler;
+import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.mc.testing.junit.AbstractTest;
 import com.builtbroken.mc.testing.junit.VoltzTestRunner;
@@ -31,12 +32,12 @@ public class TestItemGun extends AbstractTest
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "gun"));
         ItemGun itemGun = new ItemGun();
 
-        itemGun.metaToData.put(0, new GunData("gun0", null, null, null, null, null));
-        itemGun.metaToData.put(1, new GunData("gun1", null, null, null, null, null));
-        itemGun.metaToData.put(2, new GunData("gun2", null, null, null, null, null));
-        itemGun.metaToData.put(3, new GunData("gun3", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, new GunData("gun0", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(1, new GunData("gun1", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(2, new GunData("gun2", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(3, new GunData("gun3", null, null, null, null, null));
 
-        ArmoryDataHandler.INSTANCE.get("gun").saveDataToFile(new HashMap(), itemGun.metaToData);
+        ArmoryDataHandler.INSTANCE.get("gun").saveDataToFile(new HashMap());
         assertTrue(ArmoryDataHandler.INSTANCE.get("gun").save.exists());
 
         try (FileReader stream = new FileReader(ArmoryDataHandler.INSTANCE.get("gun").save))
@@ -73,10 +74,10 @@ public class TestItemGun extends AbstractTest
         ItemGun itemGun = new ItemGun();
 
         //Init some data into meta values for save run
-        itemGun.metaToData.put(0, new GunData("gun0", null, null, null, null, null));
-        itemGun.metaToData.put(1, new GunData("gun1", null, null, null, null, null));
-        itemGun.metaToData.put(2, new GunData("gun2", null, null, null, null, null));
-        itemGun.metaToData.put(3, new GunData("gun3", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, new GunData("gun0", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(1, new GunData("gun1", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(2, new GunData("gun2", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(3, new GunData("gun3", null, null, null, null, null));
 
         //Init data into handler so loading works correctly
         ArmoryDataHandler.INSTANCE.get("gun").add(new GunData("gun0", null, null, null, null, null));
@@ -86,20 +87,20 @@ public class TestItemGun extends AbstractTest
         assertEquals(4, ArmoryDataHandler.INSTANCE.get("gun").size());
 
         //Save data to file to test loading
-        ArmoryDataHandler.INSTANCE.get("gun").saveDataToFile(new HashMap(), itemGun.metaToData);
+        ArmoryDataHandler.INSTANCE.get("gun").saveDataToFile(new HashMap());
 
         //Ensure save worked correctly
         assertTrue(ArmoryDataHandler.INSTANCE.get("gun").save.exists());
         assertEquals(4, ArmoryDataHandler.INSTANCE.get("gun").size());
 
         //Clear meta values as we are reloading them
-        itemGun.metaToData.clear();
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.clear();
 
-        ArmoryDataHandler.INSTANCE.get("gun").loadDataFromFile(new HashMap(), itemGun.metaToData);
-        assertEquals("gun0", itemGun.metaToData.get(0).ID);
-        assertEquals("gun1", itemGun.metaToData.get(1).ID);
-        assertEquals("gun2", itemGun.metaToData.get(2).ID);
-        assertEquals("gun3", itemGun.metaToData.get(3).ID);
+        ArmoryDataHandler.INSTANCE.get("gun").loadDataFromFile(new HashMap());
+        assertEquals("gun0", ((ArmoryEntry) ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.get(0)).getUniqueID());
+        assertEquals("gun1", ((ArmoryEntry) ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.get(1)).getUniqueID());
+        assertEquals("gun2", ((ArmoryEntry) ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.get(2)).getUniqueID());
+        assertEquals("gun3", ((ArmoryEntry) ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.get(3)).getUniqueID());
 
         folder.delete();
     }

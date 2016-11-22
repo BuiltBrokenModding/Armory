@@ -43,6 +43,8 @@ public class TestGunInstance extends AbstractTest
         assertSame(gunData, instance.getGunData());
         assertNotNull(instance.getLoadedClip());
         assertEquals(0, instance.getLoadedClip().getAmmoCount());
+        assertFalse(instance.hasAmmo());
+        assertFalse(instance.hasSights());
     }
 
     public void testFireWeapon()
@@ -141,24 +143,37 @@ public class TestGunInstance extends AbstractTest
     {
         ItemStack stack = new ItemStack(itemGun, 1, 0);
         GunInstance instance = newInstance(stack, null);
+        instance.getLoadedClip().loadAmmo((IAmmoData) ArmoryDataHandler.INSTANCE.get("ammo").get("ammo" + 1), 6);
+        assertTrue(instance.hasAmmo());
+
+        IInventory inventory = new BasicInventory(30);
+        instance.unloadWeapon(inventory);
+        assertFalse(instance.hasAmmo());
+        assertNotNull(inventory.getStackInSlot(0));
+        assertSame(itemAmmo, inventory.getStackInSlot(0).getItem());
+        assertSame(1, inventory.getStackInSlot(0).getItemDamage());
+        assertSame(6, inventory.getStackInSlot(0).stackSize);
     }
 
     public void testIsManuallyFeedClip()
     {
         ItemStack stack = new ItemStack(itemGun, 1, 0);
         GunInstance instance = newInstance(stack, null);
+        assertTrue(instance.isManuallyFeedClip());
     }
 
     public void testSave()
     {
         ItemStack stack = new ItemStack(itemGun, 1, 0);
         GunInstance instance = newInstance(stack, null);
+        //TODO
     }
 
     public void testLoad()
     {
         ItemStack stack = new ItemStack(itemGun, 1, 0);
         GunInstance instance = newInstance(stack, null);
+        //TODO
     }
 
     private GunInstance newInstance(ItemStack stack, World world)
@@ -182,14 +197,16 @@ public class TestGunInstance extends AbstractTest
         ArmoryDataHandler.INSTANCE.get("ammoType").add(ammoType);
 
         gunData = new GunData("gun", "handgun", "revolver", ammoType, ReloadType.HAND_FEED, new ClipData("revolverClip", "revolverClip", ReloadType.HAND_FEED, ammoType, 6));
-        itemGun.metaToData.put(0, gunData);
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, gunData);
+        gunData.set(itemAmmo, 0);
         ArmoryDataHandler.INSTANCE.get("gun").add(gunData);
 
         for (int i = 0; i < 5; i++)
         {
             AmmoData data = new AmmoData("ammo" + i, "ammo" + i, ammoType, "impact", 5 + i, 100);
+            data.set(itemAmmo, i);
             ArmoryDataHandler.INSTANCE.get("ammo").add(data);
-            itemAmmo.metaToData.put(i, data);
+            ArmoryDataHandler.INSTANCE.get("ammo").metaToEntry.put(i, data);
         }
     }
 

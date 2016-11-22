@@ -8,6 +8,7 @@ import com.builtbroken.mc.api.data.weapon.IGunData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.mc.api.items.weapons.IItemAmmo;
 import com.builtbroken.mc.api.items.weapons.IItemClip;
+import com.builtbroken.mc.api.modules.IModule;
 import com.builtbroken.mc.api.modules.weapon.IClip;
 import com.builtbroken.mc.api.modules.weapon.IGun;
 import com.builtbroken.mc.core.Engine;
@@ -15,6 +16,7 @@ import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
 import com.builtbroken.mc.lib.transform.vector.Location;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.InventoryIterator;
+import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import com.builtbroken.mc.prefab.module.AbstractModule;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -281,11 +283,73 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             if (isManuallyFeedClip())
             {
-                //TODO place all rounds into inventory
+                int i = 0;
+                while (!getLoadedClip().getAmmo().isEmpty())
+                {
+                    ItemStack ammoStack = getLoadedClip().getAmmo().peek().toStack();
+                    for (; i < inventory.getSizeInventory(); i++)
+                    {
+                        ItemStack slotStack = inventory.getStackInSlot(i);
+                        int roomLeft = InventoryUtility.roomLeftInSlot(inventory, i);
+                        if (slotStack == null)
+                        {
+                            inventory.setInventorySlotContents(i, ammoStack);
+                            getLoadedClip().consumeAmmo(1);
+                            ammoStack = null;
+                            break;
+                        }
+                        else if (roomLeft > 0 && InventoryUtility.stacksMatch(ammoStack, slotStack))
+                        {
+                            int insert = Math.min(roomLeft, ammoStack.stackSize);
+                            slotStack.stackSize += insert;
+                            ammoStack.stackSize -= insert;
+                            inventory.setInventorySlotContents(i, slotStack);
+                            getLoadedClip().consumeAmmo(1);
+                            if (ammoStack.stackSize <= 0)
+                            {
+                                ammoStack = null;
+                                break;
+                            }
+                        }
+                    }
+                    //No space to insert so drop
+                    if (ammoStack != null && ammoStack.stackSize >= 0)
+                    {
+                        InventoryUtility.dropItemStack(new Location(entity), ammoStack);
+                    }
+                }
             }
-            else
+            else if (_clip instanceof IModule)
             {
-                //TODO place clip into inventory
+                ItemStack stack = ((IModule) _clip).toStack();
+                for (int i = 0; i < inventory.getSizeInventory(); i++)
+                {
+                    ItemStack slotStack = inventory.getStackInSlot(i);
+                    int roomLeft = InventoryUtility.roomLeftInSlot(inventory, i);
+                    if (slotStack == null)
+                    {
+                        inventory.setInventorySlotContents(i, stack);
+                        stack = null;
+                        break;
+                    }
+                    else if (roomLeft > 0 && InventoryUtility.stacksMatch(stack, slotStack))
+                    {
+                        int insert = Math.min(roomLeft, stack.stackSize);
+                        slotStack.stackSize += insert;
+                        stack.stackSize -= insert;
+                        inventory.setInventorySlotContents(i, slotStack);
+                        break;
+                    }
+                }
+                //No space to insert so drop
+                if (stack != null && stack.stackSize >= 0)
+                {
+                    InventoryUtility.dropItemStack(new Location(entity), stack);
+                }
+                else
+                {
+                    _clip = null;
+                }
             }
         }
     }

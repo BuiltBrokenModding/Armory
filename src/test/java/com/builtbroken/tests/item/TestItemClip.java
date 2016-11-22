@@ -139,11 +139,13 @@ public class TestItemClip extends AbstractTest
     public void setUpForEntireClass()
     {
         item = new ItemClip(); //TODO register item for more valid tests
-        AmmoType type = new AmmoType("9mm", "9mm", EnumProjectileTypes.BULLET);
-        item.metaToData.put(0, new ClipData("clip", "testClip", ReloadType.CLIP, type, 20));
-
 
         File folder = new File(System.getProperty("user.dir"), "tmp");
+        AmmoType type = new AmmoType("9mm", "9mm", EnumProjectileTypes.BULLET);
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "clip"));
+        ArmoryDataHandler.INSTANCE.get("clip").metaToEntry.put(0, new ClipData("clip", "testClip", ReloadType.CLIP, type, 20));
+
+
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "ammo"));
         for (int i = 0; i < 6; i++)
         {

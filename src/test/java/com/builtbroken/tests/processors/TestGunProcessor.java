@@ -25,7 +25,7 @@ public class TestGunProcessor extends AbstractTest
 {
     public void testLoading()
     {
-        AmmoType ammoType = new AmmoType("0", "9mm", EnumProjectileTypes.BULLET);
+        AmmoType ammoType = new AmmoType("9mm", "9mm", EnumProjectileTypes.BULLET);
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(new File("tmp"), "ammoType"));
         ArmoryDataHandler.INSTANCE.get("ammoType").add(ammoType);
 

@@ -3,6 +3,7 @@ package com.builtbroken.armory.data;
 import com.builtbroken.mc.api.data.weapon.IData;
 import com.builtbroken.mc.lib.json.imp.IJsonGenObject;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 /**
  * All armory objects extend this for common shared data and functions
@@ -49,6 +50,11 @@ public abstract class ArmoryEntry implements IJsonGenObject, IData
     {
         this.itemFile = item;
         this.meta = meta;
+    }
+
+    public ItemStack toStack()
+    {
+        return new ItemStack(itemFile, 1, meta % 32000);
     }
 
     /**

@@ -22,7 +22,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,13 +31,11 @@ import java.util.Map;
  */
 public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements IPacketReceiver, IPostInit
 {
-    /** Map of weapons to meta values for fast access */
-    public final HashMap<Integer, E> metaToData = new HashMap();
-
     public final String typeName;
 
     public ItemMetaArmoryEntry(String name, String typeName)
     {
+        ArmoryDataHandler.INSTANCE.get(typeName).add(this);
         this.typeName = typeName;
         this.setUnlocalizedName(Armory.PREFIX + name);
         this.setCreativeTab(CreativeTabs.tabCombat);
@@ -47,7 +44,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
 
     public E getData(ItemStack stack)
     {
-        return metaToData.get(stack.getItemDamage());
+        return (E) ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry.get(stack.getItemDamage());
     }
 
     @Override
@@ -61,7 +58,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
     {
         if (event.world.provider.dimensionId == 0)
         {
-            ArmoryDataHandler.INSTANCE.get(typeName).init(metaToData);
+            ArmoryDataHandler.INSTANCE.get(typeName).init(this);
         }
     }
 
@@ -78,13 +75,13 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
     @Override
     public void read(ByteBuf buf, EntityPlayer player, PacketType packet)
     {
-        ArmoryDataHandler.INSTANCE.get(typeName).readBytes(buf, metaToData);
+        ArmoryDataHandler.INSTANCE.get(typeName).readBytes(buf);
     }
 
     protected void sendSyncPacket(EntityPlayerMP player)
     {
         PacketPlayerItem packet = new PacketPlayerItem(Item.getIdFromItem(this) * -1);
-        ArmoryDataHandler.INSTANCE.get(typeName).writeBytes(packet.data(), metaToData);
+        ArmoryDataHandler.INSTANCE.get(typeName).writeBytes(packet.data());
         Engine.instance.packetHandler.sendToPlayer(packet, player);
     }
 
@@ -98,7 +95,8 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
     @SideOnly(Side.CLIENT)
     public void getSubItems(Item item, CreativeTabs tab, List items)
     {
-        for (Map.Entry<Integer, E> entry : metaToData.entrySet())
+        Map<Integer, E> map = ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry;
+        for (Map.Entry<Integer, E> entry : map.entrySet())
         {
             getSubItems(item, entry.getKey(), entry.getValue(), tab, items);
         }

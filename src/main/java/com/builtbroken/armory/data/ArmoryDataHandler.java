@@ -8,12 +8,15 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.item.Item;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -80,10 +83,17 @@ public class ArmoryDataHandler
      */
     public static class ArmoryData<E extends ArmoryEntry> extends HashMap<String, E>
     {
+        /** Name of the data set */
         public final String name;
+        /** Where data is saved to be loaded next time the game is loaded */
         public final File save;
 
-        private boolean hasRunInit = false;
+        /** Metadata values used to store the entries in an item stack */
+        public final HashMap<Integer, E> metaToEntry = new HashMap();
+
+        /** Items that will be used to convert the entry into item stacks */
+        private List<Item> items = new ArrayList();
+        private boolean hasInit = false;
 
         public ArmoryData(File saveFolder, String name)
         {
@@ -96,6 +106,14 @@ public class ArmoryDataHandler
             put(entry.ID, entry);
         }
 
+        public void add(Item item)
+        {
+            if (!items.contains(item))
+            {
+                items.add(item);
+            }
+        }
+
         public E get(String key)
         {
             return super.get(key);
@@ -106,19 +124,17 @@ public class ArmoryDataHandler
          * <p>
          * Not all items use this load method. Some may choose
          * not to use a meta dependent solution.
-         *
-         * @param metaToEntry - map to store the loaded data inside
          */
-        public void init(HashMap<Integer, E> metaToEntry)
+        public void init(Item item)
         {
-            if (!hasRunInit)
+            if (!hasInit)
             {
-                hasRunInit = true;
+                hasInit = true;
                 final HashMap<String, Long> keyToWriteTime = new HashMap();
 
                 if (save.exists())
                 {
-                    loadDataFromFile(keyToWriteTime, metaToEntry);
+                    loadDataFromFile(keyToWriteTime);
                 }
                 else
                 {
@@ -129,11 +145,23 @@ public class ArmoryDataHandler
                         meta += 1;
                     }
                 }
-                saveDataToFile(keyToWriteTime, metaToEntry);
+                saveDataToFile(keyToWriteTime);
+
+                int index = 0;
+                for (int i = 0; i < items.size(); i++)
+                {
+                    for (; index < i * 32000; index++)
+                    {
+                        if (metaToEntry.containsKey(index))
+                        {
+                            metaToEntry.get(index).set(item, index);
+                        }
+                    }
+                }
             }
         }
 
-        public void readBytes(ByteBuf buf, HashMap<Integer, E> metaToEntry)
+        public void readBytes(ByteBuf buf)
         {
             int size = buf.readInt();
             if (size > 0)
@@ -146,7 +174,7 @@ public class ArmoryDataHandler
             }
         }
 
-        public void writeBytes(ByteBuf buf, HashMap<Integer, E> metaToEntry)
+        public void writeBytes(ByteBuf buf)
         {
             buf.writeInt(metaToEntry.size());
             for (Map.Entry<Integer, E> entry : metaToEntry.entrySet())
@@ -163,7 +191,7 @@ public class ArmoryDataHandler
          * @param keyToWriteTime - when the keys where written last, used for legacy loading when mods are disabled
          * @return data as a json object
          */
-        public JsonObject getDataAsJson(HashMap<String, Long> keyToWriteTime, HashMap<Integer, E> metaToEntry)
+        public JsonObject getDataAsJson(HashMap<String, Long> keyToWriteTime)
         {
             JsonObject object = new JsonObject();
             JsonArray array = new JsonArray();
@@ -186,7 +214,7 @@ public class ArmoryDataHandler
          *
          * @param keyToWriteTime - when the keys where written last, used for legacy loading when mods are disabled
          */
-        public void saveDataToFile(HashMap<String, Long> keyToWriteTime, HashMap<Integer, E> metaToEntry)
+        public void saveDataToFile(HashMap<String, Long> keyToWriteTime)
         {
             if (!save.getParentFile().exists())
             {
@@ -194,7 +222,7 @@ public class ArmoryDataHandler
             }
             try (FileWriter file = new FileWriter(save))
             {
-                file.write(getDataAsJson(keyToWriteTime, metaToEntry).toString());
+                file.write(getDataAsJson(keyToWriteTime).toString());
             }
             catch (Exception e)
             {
@@ -212,7 +240,7 @@ public class ArmoryDataHandler
          *
          * @param keyToWriteTime - when the keys where written last, used for legacy loading when mods are disabled
          */
-        public void loadDataFromFile(HashMap<String, Long> keyToWriteTime, HashMap<Integer, E> metaToEntry)
+        public void loadDataFromFile(HashMap<String, Long> keyToWriteTime)
         {
             int slotSearchIndex = 0;
             HashMap<Integer, String> metaToKeyMap = new HashMap();

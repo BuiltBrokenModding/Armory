@@ -1,6 +1,7 @@
 package com.builtbroken.armory.content.items;
 
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
+import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.jlib.type.Pair;
@@ -173,7 +174,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
 
     public GunData getGun(int meta)
     {
-        return metaToData.containsKey(meta) ? metaToData.get(meta) : null;
+        return ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.containsKey(meta) ? (GunData) ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.get(meta) : null;
     }
 
     @Override

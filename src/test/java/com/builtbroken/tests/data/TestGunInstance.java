@@ -12,16 +12,15 @@ import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.mc.prefab.inventory.BasicInventory;
-import com.builtbroken.mc.testing.junit.AbstractTest;
 import com.builtbroken.mc.testing.junit.VoltzTestRunner;
 import com.builtbroken.mc.testing.junit.world.FakeWorld;
+import com.builtbroken.tests.AbstractArmoryTest;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import org.junit.runner.RunWith;
-
-import java.io.File;
 
 /**
  * Tests functionality of the gun instance with a revolver like gun
@@ -30,7 +29,7 @@ import java.io.File;
  * Created by Dark(DarkGuardsman, Robert) on 11/21/2016.
  */
 @RunWith(VoltzTestRunner.class)
-public class TestGunInstance extends AbstractTest
+public class TestGunInstance extends AbstractArmoryTest
 {
     static ItemGun itemGun;
     static ItemAmmo itemAmmo;
@@ -137,6 +136,8 @@ public class TestGunInstance extends AbstractTest
             assertNull("" + i, inventory.getStackInSlot(i));
             assertNull("" + i, inventory.getStackInSlot(i + 8));
         }
+
+        //TODO test clip load
     }
 
     public void testUnloadWeapon()
@@ -153,6 +154,8 @@ public class TestGunInstance extends AbstractTest
         assertSame(itemAmmo, inventory.getStackInSlot(0).getItem());
         assertSame(1, inventory.getStackInSlot(0).getItemDamage());
         assertSame(6, inventory.getStackInSlot(0).stackSize);
+
+        //TODO test clip unload
     }
 
     public void testIsManuallyFeedClip()
@@ -166,14 +169,39 @@ public class TestGunInstance extends AbstractTest
     {
         ItemStack stack = new ItemStack(itemGun, 1, 0);
         GunInstance instance = newInstance(stack, null);
-        //TODO
+        instance.getLoadedClip().loadAmmo((IAmmoData) ArmoryDataHandler.INSTANCE.get("ammo").get("ammo" + 2), 6);
+        instance.chamberNextRound();
+        assertTrue(instance.hasAmmo());
+
+        NBTTagCompound nbt = new NBTTagCompound();
+        instance.save(nbt);
+
+        assertEquals(2, nbt.func_150296_c().size());
+        assertTrue(nbt.hasKey("chamberedRound"));
+        assertTrue(nbt.hasKey("clip"));
+
+        //Any time this code is changed test for legacy loading of old data
     }
 
     public void testLoad()
     {
         ItemStack stack = new ItemStack(itemGun, 1, 0);
         GunInstance instance = newInstance(stack, null);
-        //TODO
+
+        instance.getLoadedClip().loadAmmo((IAmmoData) ArmoryDataHandler.INSTANCE.get("ammo").get("ammo" + 2), 6);
+        instance.chamberNextRound();
+        assertTrue(instance.hasAmmo());
+
+        NBTTagCompound nbt = new NBTTagCompound();
+        instance.save(nbt);
+
+        instance = newInstance(stack, null);
+        instance.load(nbt);
+        assertNotNull(instance.getChamberedRound());
+        assertNotNull(instance.getLoadedClip());
+        assertSame(5, instance.getLoadedClip().getAmmoCount());
+
+        //Any time this code is changed test for legacy loading of old data
     }
 
     private GunInstance newInstance(ItemStack stack, World world)
@@ -184,14 +212,9 @@ public class TestGunInstance extends AbstractTest
     @Override
     public void setUpForEntireClass()
     {
+        super.setUpForEntireClass();
         itemGun = new ItemGun();
         itemAmmo = new ItemAmmo();
-
-        File folder = new File(System.getProperty("user.dir"), "tmp");
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "ammo"));
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "ammoType"));
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "gun"));
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "clip"));
 
         AmmoType ammoType = new AmmoType("9mm", "9mm", EnumProjectileTypes.BULLET);
         ArmoryDataHandler.INSTANCE.get("ammoType").add(ammoType);
@@ -213,9 +236,6 @@ public class TestGunInstance extends AbstractTest
     @Override
     public void tearDownForEntireClass()
     {
-        ArmoryDataHandler.INSTANCE.DATA.remove("ammo");
-        ArmoryDataHandler.INSTANCE.DATA.remove("ammoType");
-        ArmoryDataHandler.INSTANCE.DATA.remove("gun");
-        ArmoryDataHandler.INSTANCE.DATA.remove("clip");
+        super.tearDownForEntireClass();
     }
 }

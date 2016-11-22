@@ -8,8 +8,8 @@ import com.builtbroken.armory.data.ammo.ClipData;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
-import com.builtbroken.mc.testing.junit.AbstractTest;
 import com.builtbroken.mc.testing.junit.VoltzTestRunner;
+import com.builtbroken.tests.AbstractArmoryTest;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import org.junit.runner.RunWith;
@@ -22,7 +22,7 @@ import java.util.Stack;
  * Created by Dark(DarkGuardsman, Robert) on 11/21/2016.
  */
 @RunWith(VoltzTestRunner.class)
-public class TestItemClip extends AbstractTest
+public class TestItemClip extends AbstractArmoryTest
 {
     private static ItemClip item;
 
@@ -138,15 +138,13 @@ public class TestItemClip extends AbstractTest
     @Override
     public void setUpForEntireClass()
     {
+        super.setUpForEntireClass();
         item = new ItemClip(); //TODO register item for more valid tests
 
         File folder = new File(System.getProperty("user.dir"), "tmp");
         AmmoType type = new AmmoType("9mm", "9mm", EnumProjectileTypes.BULLET);
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "clip"));
         ArmoryDataHandler.INSTANCE.get("clip").metaToEntry.put(0, new ClipData("clip", "testClip", ReloadType.CLIP, type, 20));
 
-
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "ammo"));
         for (int i = 0; i < 6; i++)
         {
             ArmoryDataHandler.INSTANCE.get("ammo").add(new AmmoData("" + i, "ammo" + i, type, "impact", i, -1));
@@ -156,7 +154,7 @@ public class TestItemClip extends AbstractTest
     @Override
     public void tearDownForEntireClass()
     {
+        super.tearDownForEntireClass();
         item = null;
-        ArmoryDataHandler.INSTANCE.DATA.remove("ammo");
     }
 }

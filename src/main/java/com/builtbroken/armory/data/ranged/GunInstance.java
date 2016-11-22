@@ -1,11 +1,11 @@
 package com.builtbroken.armory.data.ranged;
 
+import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.ClipInstance;
+import com.builtbroken.armory.data.ammo.ClipInstanceItem;
 import com.builtbroken.mc.api.ISave;
-import com.builtbroken.mc.api.data.weapon.IAmmoData;
-import com.builtbroken.mc.api.data.weapon.IAmmoType;
-import com.builtbroken.mc.api.data.weapon.IGunData;
-import com.builtbroken.mc.api.data.weapon.ReloadType;
+import com.builtbroken.mc.api.data.weapon.*;
 import com.builtbroken.mc.api.items.weapons.IItemAmmo;
 import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.modules.IModule;
@@ -104,6 +104,13 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             if (getChamberedRound() != null)
             {
                 //TODO apply upgrades
+                //TODO track damage by Weapon and Entity(If player) - do not store in weapon data
+                //TODO track shots fire - do not store in weapon data
+                //TODO track shots hit - do not store in weapon data
+                //TODO track kills - do not store in weapon data
+                //TODO allow data to be cleared & disabled
+                //TODO allow sorting of the data and graphing
+                //TODO allow other users to see each other's weapon data (with a permission system)
                 if (getChamberedRound().getProjectileVelocity() < 0 || getChamberedRound().getProjectileVelocity() / 20f > PROJECTILE_SPEED_LIMIT)
                 {
                     _doRayTrace(world, yaw, pitch, getChamberedRound());
@@ -383,14 +390,78 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     public void load(NBTTagCompound tag)
     {
-        //TODO implement
+        if (tag.hasKey("chamberedRound"))
+        {
+            chamberedRound = (IAmmoData) ArmoryDataHandler.INSTANCE.get("ammo").get(tag.getString("chamberedRound"));
+            if (chamberedRound == null)
+            {
+                error("Failed to load chambered round '" + tag.getShort("chamberedRound") + "' form NBT for " + this);
+            }
+        }
+        if (tag.hasKey("clip"))
+        {
+            NBTTagCompound clipTag = tag.getCompoundTag("clip");
+            if (clipTag.hasKey("data"))
+            {
+                IClipData data = (IClipData) ArmoryDataHandler.INSTANCE.get("clip").get(clipTag.getString("data"));
+                //TODO ensure clip data is valid for weapon in case unique ID changes or data changes
+                if (data != null)
+                {
+                    if (clipTag.hasKey("stack"))
+                    {
+                        //External clip loading
+                        ItemStack stack = ItemStack.loadItemStackFromNBT(clipTag.getCompoundTag("stack"));
+                        _clip = new ClipInstanceItem(stack, data);
+                    }
+
+                }
+                else
+                {
+                    error("Failed to load clip data from NBT using unique id '" + clipTag.getString("data") + "' while loading " + this);
+                }
+            }
+            else
+            {
+                //Internal clip loading
+                ((ClipInstance) _clip).load(clipTag);
+            }
+        }
     }
 
     @Override
     public NBTTagCompound save(NBTTagCompound nbt)
     {
-        //TODO implement
+        if (getChamberedRound() != null)
+        {
+            nbt.setString("chamberedRound", getChamberedRound().getUniqueID());
+        }
+        if (_clip != null)
+        {
+            NBTTagCompound clipTag = new NBTTagCompound();
+            if (_clip instanceof ClipInstance)
+            {
+                ((ClipInstance) _clip).save(clipTag);
+            }
+            else
+            {
+                clipTag.setString("data", _clip.getClipData().getUniqueID());
+                clipTag.setTag("stack", ((ClipInstanceItem) _clip).save().writeToNBT(new NBTTagCompound()));
+            }
+            nbt.setTag("clip", clipTag);
+        }
         return nbt;
+    }
+
+    private void error(String msg)
+    {
+        if (Armory.INSTANCE != null)
+        {
+            Armory.INSTANCE.logger().error(msg);
+        }
+        else
+        {
+            throw new RuntimeException(msg);
+        }
     }
 
     @Override

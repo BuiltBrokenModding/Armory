@@ -1,11 +1,10 @@
 package com.builtbroken.tests.item;
 
-import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.ranged.GunData;
-import com.builtbroken.mc.testing.junit.AbstractTest;
 import com.builtbroken.mc.testing.junit.VoltzTestRunner;
+import com.builtbroken.tests.AbstractArmoryTest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
@@ -13,7 +12,6 @@ import com.google.gson.stream.JsonReader;
 import org.junit.runner.RunWith;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
 
@@ -22,16 +20,10 @@ import java.util.HashMap;
  * Created by Dark(DarkGuardsman, Robert) on 11/19/2016.
  */
 @RunWith(VoltzTestRunner.class)
-public class TestItemGun extends AbstractTest
+public class TestItemGun extends AbstractArmoryTest
 {
     public void testDataSave()
     {
-        File folder = new File(System.getProperty("user.dir"), "tmp");
-        folder.deleteOnExit();
-
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "gun"));
-        ItemGun itemGun = new ItemGun();
-
         ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, new GunData("gun0", null, null, null, null, null));
         ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(1, new GunData("gun1", null, null, null, null, null));
         ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(2, new GunData("gun2", null, null, null, null, null));
@@ -67,12 +59,6 @@ public class TestItemGun extends AbstractTest
 
     public void testDataLoad()
     {
-        File folder = new File(System.getProperty("user.dir"), "tmp");
-        folder.deleteOnExit();
-
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(folder, "gun"));
-        ItemGun itemGun = new ItemGun();
-
         //Init some data into meta values for save run
         ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, new GunData("gun0", null, null, null, null, null));
         ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(1, new GunData("gun1", null, null, null, null, null));
@@ -103,5 +89,17 @@ public class TestItemGun extends AbstractTest
         assertEquals("gun3", ((ArmoryEntry) ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.get(3)).getUniqueID());
 
         folder.delete();
+    }
+
+    @Override
+    public void setUpForEntireClass()
+    {
+        super.setUpForEntireClass();
+    }
+
+    @Override
+    public void tearDownForEntireClass()
+    {
+        super.setUpForEntireClass();
     }
 }

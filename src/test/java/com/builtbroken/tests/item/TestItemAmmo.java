@@ -1,8 +1,8 @@
 package com.builtbroken.tests.item;
 
 import com.builtbroken.armory.content.items.ItemAmmo;
-import com.builtbroken.mc.testing.junit.AbstractTest;
 import com.builtbroken.mc.testing.junit.VoltzTestRunner;
+import com.builtbroken.tests.AbstractArmoryTest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.junit.runner.RunWith;
@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
  * Created by Dark(DarkGuardsman, Robert) on 11/21/2016.
  */
 @RunWith(VoltzTestRunner.class)
-public class TestItemAmmo extends AbstractTest
+public class TestItemAmmo extends AbstractArmoryTest
 {
     public void testInit()
     {
@@ -37,5 +37,17 @@ public class TestItemAmmo extends AbstractTest
     {
         ItemAmmo item = new ItemAmmo(); //TODO register item for more valid tests
         assertEquals(5, item.getAmmoCount(new ItemStack((Item) null, 5)));
+    }
+
+    @Override
+    public void setUpForEntireClass()
+    {
+        super.setUpForEntireClass();
+    }
+
+    @Override
+    public void tearDownForEntireClass()
+    {
+        super.setUpForEntireClass();
     }
 }

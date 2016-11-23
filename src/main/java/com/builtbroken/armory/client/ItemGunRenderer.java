@@ -1,7 +1,9 @@
 package com.builtbroken.armory.client;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.client.data.RenderData;
 import com.builtbroken.armory.content.items.ItemGun;
+import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.render.model.loader.EngineModelLoader;
 import cpw.mods.fml.client.FMLClientHandler;
@@ -44,18 +46,38 @@ public class ItemGunRenderer implements IItemRenderer
     @Override
     public boolean handleRenderType(ItemStack item, ItemRenderType type)
     {
-        return item.getItem() instanceof ItemGun && type != ItemRenderType.INVENTORY;
+        if (item.getItem() instanceof ItemGun && ((ItemGun) item.getItem()).getData(item) != null)
+        {
+            RenderData data = ClientDataHandler.INSTANCE.getRenderData(((ItemGun) item.getItem()).getData(item).getUniqueID());
+            if (data != null)
+            {
+                return data.shouldRenderType(type);
+            }
+            return type != ItemRenderType.INVENTORY;
+        }
+        return false;
     }
 
     @Override
     public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper)
     {
-        return item.getItem() instanceof ItemGun && type != ItemRenderType.INVENTORY;
+        //TODO see if we can return true as we really don't need to check this twice
+        if (item.getItem() instanceof ItemGun && ((ItemGun) item.getItem()).getData(item) != null)
+        {
+            RenderData data = ClientDataHandler.INSTANCE.getRenderData(((ItemGun) item.getItem()).getData(item).getUniqueID());
+            if (data != null)
+            {
+                return data.shouldRenderType(type);
+            }
+            return type != ItemRenderType.INVENTORY;
+        }
+        return false;
     }
 
     @Override
-    public void renderItem(ItemRenderType type, ItemStack item, Object... data)
+    public void renderItem(ItemRenderType type, ItemStack item, Object... dataArray)
     {
+        GunData gunData = ((ItemGun) item.getItem()).getData(item);
         GL11.glPushMatrix();
         switch (type)
         {
@@ -76,8 +98,12 @@ public class ItemGunRenderer implements IItemRenderer
                 GL11.glScaled(1.8f, 1.8f, 1.8f);
                 break;
         }
-        FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
-        handgun.renderAll();
+        RenderData data = ClientDataHandler.INSTANCE.getRenderData(gunData.getUniqueID());
+        if (data == null || !data.render(type))
+        {
+            FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
+            handgun.renderAll();
+        }
         GL11.glPopMatrix();
     }
 }

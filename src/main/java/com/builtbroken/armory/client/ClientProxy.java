@@ -2,6 +2,10 @@ package com.builtbroken.armory.client;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.CommonProxy;
+import com.builtbroken.armory.json.graphics.ModelJsonProcessor;
+import com.builtbroken.armory.json.graphics.RenderJsonProcessor;
+import com.builtbroken.armory.json.graphics.TextureJsonProcessor;
+import com.builtbroken.mc.lib.json.JsonContentLoader;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
@@ -14,6 +18,14 @@ public class ClientProxy extends CommonProxy
     public int addArmor(String armor)
     {
         return RenderingRegistry.addNewArmourRendererPrefix(armor);
+    }
+
+    public void preInit()
+    {
+        super.preInit();
+        JsonContentLoader.INSTANCE.add(new TextureJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new ModelJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new RenderJsonProcessor());
     }
 
     @Override

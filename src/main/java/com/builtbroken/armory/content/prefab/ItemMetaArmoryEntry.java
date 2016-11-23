@@ -1,6 +1,9 @@
 package com.builtbroken.armory.content.prefab;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.client.ClientDataHandler;
+import com.builtbroken.armory.client.data.RenderData;
+import com.builtbroken.armory.client.data.RenderState;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.IWorldPosition;
@@ -15,11 +18,14 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -32,6 +38,7 @@ import java.util.Map;
  */
 public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements IPacketReceiver, IPostInit
 {
+    /** Type of the item @see {@link ArmoryDataHandler} */
     public final String typeName;
 
     public ItemMetaArmoryEntry(String name, String typeName)
@@ -52,9 +59,110 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
         }
     }
 
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister reg)
+    {
+        this.itemIcon = reg.registerIcon(this.getIconString());
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIconFromDamage(int meta)
+    {
+        E data = getData(meta);
+        if (data != null)
+        {
+            RenderData renderData = ClientDataHandler.INSTANCE.getRenderData(data.getUniqueID());
+            if (renderData != null)
+            {
+                RenderState state = renderData.getState(RenderData.INVENTORY_RENDER_ID);
+                if (state != null && !state.isModelRenderer())
+                {
+                    IIcon icon = state.getIcon();
+                    if (icon != null)
+                    {
+                        return icon;
+                    }
+                }
+                IIcon icon = getIconFromState(renderData, "meta" + meta);
+                if (icon != null)
+                {
+                    return icon;
+                }
+            }
+        }
+        return Items.stick.getIconFromDamage(meta);
+    }
+
+    @Override
+    public IIcon getIcon(ItemStack stack, int pass)
+    {
+        E data = getData(stack);
+        if (data != null)
+        {
+            RenderData renderData = ClientDataHandler.INSTANCE.getRenderData(data.getUniqueID());
+            if (renderData != null)
+            {
+                String[] keys = getIconStringKeys(stack, pass);
+                if (keys != null)
+                {
+                    for (String key : keys)
+                    {
+                        IIcon icon = getIconFromState(renderData, key);
+                        if (icon != null)
+                        {
+                            return icon;
+                        }
+                    }
+                }
+            }
+        }
+        return getIconFromDamageForRenderPass(stack.getItemDamage(), pass);
+    }
+
+    @Override
+    public int getRenderPasses(int metadata)
+    {
+        //TODO add override for this in the render data
+        return 1;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean requiresMultipleRenderPasses()
+    {
+        return true;
+    }
+
+    protected String[] getIconStringKeys(ItemStack stack, int pass)
+    {
+        return null;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private IIcon getIconFromState(RenderData renderData, String key)
+    {
+        RenderState state = renderData.getState(key);
+        if (state != null && !state.isModelRenderer())
+        {
+            IIcon icon = state.getIcon();
+            if (icon != null)
+            {
+                return icon;
+            }
+        }
+        return null;
+    }
+
     public E getData(ItemStack stack)
     {
-        return (E) ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry.get(stack.getItemDamage());
+        return getData(stack.getItemDamage());
+    }
+
+    public E getData(int meta)
+    {
+        return (E) ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry.get(meta);
     }
 
     @Override

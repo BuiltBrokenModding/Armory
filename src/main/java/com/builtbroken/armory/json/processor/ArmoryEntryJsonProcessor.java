@@ -85,15 +85,4 @@ public abstract class ArmoryEntryJsonProcessor<E extends ArmoryEntry> extends Js
         }
         return e;
     }
-
-    public void ensureValuesExist(JsonObject object, String... values)
-    {
-        for (String value : values)
-        {
-            if (!object.has("name"))
-            {
-                throw new IllegalArgumentException("File is missing " + value + " value " + object);
-            }
-        }
-    }
 }

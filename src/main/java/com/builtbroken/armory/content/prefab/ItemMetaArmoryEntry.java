@@ -4,6 +4,7 @@ import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.client.ClientDataHandler;
 import com.builtbroken.armory.client.data.RenderData;
 import com.builtbroken.armory.client.data.RenderState;
+import com.builtbroken.armory.client.data.TextureData;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.IWorldPosition;
@@ -29,6 +30,7 @@ import net.minecraft.util.IIcon;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +65,25 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister reg)
     {
-        this.itemIcon = reg.registerIcon(this.getIconString());
+        Collection<E> values = ArmoryDataHandler.INSTANCE.get(typeName).values();
+        for (E data : values)
+        {
+            RenderData renderData = ClientDataHandler.INSTANCE.getRenderData(data.getUniqueID());
+            if (renderData != null)
+            {
+                for (RenderState state : renderData.renderStates.values())
+                {
+                    if (!state.isModelRenderer())
+                    {
+                        TextureData textureData = state.getTextureData();
+                        if (textureData != null)
+                        {
+                            textureData.register(reg);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -92,6 +112,12 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
                 }
             }
         }
+        return getDefaultIcon(meta);
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected IIcon getDefaultIcon(int meta)
+    {
         return Items.stick.getIconFromDamage(meta);
     }
 

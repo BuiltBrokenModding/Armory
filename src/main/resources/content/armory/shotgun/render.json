@@ -10,6 +10,7 @@
         "id": 1,
         "modelID": "armory:shotgunTestModel",
         "textureID": "armory:shotgunTestTexture",
+        "parts": "all",
         "offset": {
           "x": 0,
           "y": 0,
@@ -25,6 +26,7 @@
         "id": 2,
         "modelID": "armory:shotgunTestModel",
         "textureID": "armory:shotgunTestTexture",
+        "parts": "all",
         "offset": {
           "x": 0,
           "y": 0,
@@ -40,6 +42,7 @@
         "id": 3,
         "modelID": "armory:shotgunTestModel",
         "textureID": "armory:shotgunTestTexture",
+        "parts": "all",
         "offset": {
           "x": 0,
           "y": 0,
@@ -56,7 +59,7 @@
   "texture": {
     "key": "armory:shotgunTestTexture",
     "domain": "armory",
-    "name": "shotgunTestTexture",
+    "name": "blackTexture",
     "type": "model"
   },
   "texture:1": {

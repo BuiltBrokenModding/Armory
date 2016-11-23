@@ -14,10 +14,12 @@ import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
@@ -42,6 +44,9 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     //TODO handle reloading
     //TODO handle firing
     //TODO handle aiming
+
+    @SideOnly(Side.CLIENT)
+    private IIcon[] defaultGunIcons;
 
     private GunInstance clientSideGun;
 
@@ -294,5 +299,31 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     public boolean canContainAmmo(ItemStack weapon)
     {
         return true;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister reg)
+    {
+        super.registerIcons(reg);
+        defaultGunIcons = new IIcon[3];
+        defaultGunIcons[0] = reg.registerIcon(Armory.PREFIX + "shotgun");
+        defaultGunIcons[1] = reg.registerIcon(Armory.PREFIX + "assaultRifle");
+        defaultGunIcons[2] = reg.registerIcon(Armory.PREFIX + "sniperRifle");
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected IIcon getDefaultIcon(int meta)
+    {
+        GunData data = getData(meta);
+        if ("assaultRifle".equalsIgnoreCase(data.getGunType()))
+        {
+            return defaultGunIcons[1];
+        }
+        else if ("sniperRifle".equalsIgnoreCase(data.getGunType()))
+        {
+            return defaultGunIcons[2];
+        }
+        return defaultGunIcons[0];
     }
 }

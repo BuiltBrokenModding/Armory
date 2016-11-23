@@ -1,5 +1,6 @@
 package com.builtbroken.armory.content.items;
 
+import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
@@ -7,8 +8,10 @@ import com.builtbroken.mc.api.items.weapons.IItemAmmo;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 
 import java.util.List;
 
@@ -72,5 +75,19 @@ public class ItemAmmo extends ItemMetaArmoryEntry<AmmoData> implements IItemAmmo
     public void consumeAmmo(IItemReloadableWeapon weapon, ItemStack weaponStack, ItemStack ammoStack, int shotsFired)
     {
         ammoStack.stackSize -= shotsFired;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister reg)
+    {
+        super.registerIcons(reg);
+        itemIcon = reg.registerIcon(Armory.PREFIX + "bullet");
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected IIcon getDefaultIcon(int meta)
+    {
+        return itemIcon;
     }
 }

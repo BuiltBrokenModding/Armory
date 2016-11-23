@@ -9,6 +9,7 @@
     "ID": "armory.test.shotgun",
     "ammo": "12g",
     "clipType": 2,
+    "clipSize": 10,
     "fallOff": "0.05D",
     "mass": 630,
     "rateOfFire": 30,

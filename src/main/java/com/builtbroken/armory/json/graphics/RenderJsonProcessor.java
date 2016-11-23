@@ -53,6 +53,7 @@ public class RenderJsonProcessor extends JsonProcessor<RenderData>
             {
                 ensureValuesExist(obj, "offset", "rotation", "parts");
                 String model = obj.get("modelID").getAsString();
+                String parts = obj.get("parts").getAsString();
                 String texture = null;
 
                 JsonObject offsetObject = obj.get("offset").getAsJsonObject();
@@ -62,6 +63,10 @@ public class RenderJsonProcessor extends JsonProcessor<RenderData>
                 EulerAngle rotation = new EulerAngle(rotationObject.getAsJsonPrimitive("yaw").getAsDouble(), rotationObject.getAsJsonPrimitive("pitch").getAsDouble(), rotationObject.getAsJsonPrimitive("roll").getAsDouble());
 
                 RenderState state = new RenderState(model, texture, offset, rotation);
+                if (!parts.equals("all"))
+                {
+                    state.parts = parts.split(",");
+                }
                 if (stateID.isNumber())
                 {
                     data.add(stateID.getAsInt(), state);

@@ -38,12 +38,17 @@ public class RenderState
 
     public IIcon getIcon()
     {
-        TextureData textureData = ClientDataHandler.INSTANCE.getTexture(textureID);
+        TextureData textureData = getTextureData();
         if (textureData != null && textureData.getIcon() != null)
         {
             return textureData.getIcon();
         }
         return null;
+    }
+
+    public TextureData getTextureData()
+    {
+        return textureID != null ? ClientDataHandler.INSTANCE.getTexture(textureID) : null;
     }
 
     /**

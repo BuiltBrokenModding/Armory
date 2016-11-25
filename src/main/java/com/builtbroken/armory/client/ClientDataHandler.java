@@ -3,6 +3,8 @@ package com.builtbroken.armory.client;
 import com.builtbroken.armory.client.data.ModelData;
 import com.builtbroken.armory.client.data.RenderData;
 import com.builtbroken.armory.client.data.TextureData;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 
 import java.util.HashMap;
 
@@ -46,5 +48,23 @@ public class ClientDataHandler
     public TextureData getTexture(String key)
     {
         return textures.get(key);
+    }
+
+    @SubscribeEvent
+    public void textureEvent(TextureStitchEvent.Pre event)
+    {
+        /** 0 = terrain.png, 1 = items.png */
+        final int textureType = event.map.getTextureType();
+        for (TextureData data : textures.values())
+        {
+            if (textureType == 0 && data.type == TextureData.Type.BLOCK)
+            {
+                data.register(event.map);
+            }
+            else if (textureType == 1 && data.type == TextureData.Type.ITEM)
+            {
+                data.register(event.map);
+            }
+        }
     }
 }

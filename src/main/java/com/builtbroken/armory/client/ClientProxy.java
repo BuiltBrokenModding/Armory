@@ -20,12 +20,16 @@ public class ClientProxy extends CommonProxy
         return RenderingRegistry.addNewArmourRendererPrefix(armor);
     }
 
+    @Override
     public void preInit()
     {
         super.preInit();
         JsonContentLoader.INSTANCE.add(new TextureJsonProcessor());
         JsonContentLoader.INSTANCE.add(new ModelJsonProcessor());
         JsonContentLoader.INSTANCE.add(new RenderJsonProcessor());
+
+        JsonContentLoader.INSTANCE.process("texture");
+        MinecraftForge.EVENT_BUS.register(ClientDataHandler.INSTANCE);
     }
 
     @Override

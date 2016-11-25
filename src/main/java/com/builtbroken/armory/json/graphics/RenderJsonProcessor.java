@@ -56,6 +56,11 @@ public class RenderJsonProcessor extends JsonProcessor<RenderData>
                 String parts = obj.get("parts").getAsString();
                 String texture = null;
 
+                if (obj.has("textureID"))
+                {
+                    texture = obj.get("textureID").getAsString();
+                }
+
                 JsonObject offsetObject = obj.get("offset").getAsJsonObject();
                 Pos offset = new Pos(offsetObject.getAsJsonPrimitive("x").getAsDouble(), offsetObject.getAsJsonPrimitive("y").getAsDouble(), offsetObject.getAsJsonPrimitive("z").getAsDouble());
 

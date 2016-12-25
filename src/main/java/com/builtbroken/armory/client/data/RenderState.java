@@ -1,7 +1,7 @@
 package com.builtbroken.armory.client.data;
 
 import com.builtbroken.armory.client.ClientDataHandler;
-import com.builtbroken.mc.core.References;
+import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.lib.transform.rotation.EulerAngle;
 import com.builtbroken.mc.lib.transform.vector.Pos;
 import cpw.mods.fml.client.FMLClientHandler;
@@ -79,7 +79,7 @@ public class RenderState
                 }
                 else
                 {
-                    FMLClientHandler.instance().getClient().renderEngine.bindTexture(References.GREY_TEXTURE);
+                    FMLClientHandler.instance().getClient().renderEngine.bindTexture(SharedAssets.GREY_TEXTURE);
                 }
                 if (rotation != null)
                 {

@@ -26,6 +26,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import java.awt.*;
@@ -148,12 +149,13 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         final Pos aim = getAim(yaw, pitch);
 
         //Find our hand position so to position starting point near barrel of the gun
-        float rotationHand = MathHelper.wrapAngleTo180_float(((EntityLivingBase) entity).renderYawOffset + 90);
-        final Pos hand = new Pos(
-                Math.cos(Math.toRadians(rotationHand)) - Math.sin(Math.toRadians(rotationHand)),
+        final float rotationHand = MathHelper.wrapAngleTo180_float(yaw + 90);
+        final double r = Math.toRadians(rotationHand);
+        final Vec3 hand = Vec3.createVectorHelper(
+                (Math.cos(r) - Math.sin(r)) * 0.5,
                 0,
-                Math.sin(Math.toRadians(rotationHand)) + Math.cos(Math.toRadians(rotationHand))
-        ).multiply(0.5);
+                (Math.sin(r) + Math.cos(r)) * 0.5
+        );
 
         final Pos entityPos = new Pos(entity.posX, entity.posY + 1.1, entity.posZ).add(hand);
 

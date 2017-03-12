@@ -23,7 +23,7 @@ import net.minecraft.item.Item;
 /**
  * Created by robert on 11/18/2014.
  */
-@Mod(modid = Armory.DOMAIN, name = "Armory", version = Armory.VERSION, dependencies = "required-after:VoltzEngine")
+@Mod(modid = Armory.DOMAIN, name = "Armory", version = Armory.VERSION, dependencies = Armory.DEPENDENCIES)
 public final class Armory extends AbstractMod
 {
     /** Name of the channel and mod ID. */
@@ -36,6 +36,7 @@ public final class Armory extends AbstractMod
     public static final String REVISION_VERSION = "@REVIS@";
     public static final String BUILD_VERSION = "@BUILD@";
     public static final String VERSION = MAJOR_VERSION + "." + MINOR_VERSION + "." + REVISION_VERSION + "." + BUILD_VERSION;
+    public static final String DEPENDENCIES = "required-after:VoltzEngine;";
 
     @Mod.Instance(DOMAIN)
     public static Armory INSTANCE;

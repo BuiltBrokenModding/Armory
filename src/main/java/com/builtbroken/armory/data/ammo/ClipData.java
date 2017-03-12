@@ -4,6 +4,7 @@ import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.IClipData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
+import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 
 /**
  * Holds data about the clip
@@ -20,9 +21,9 @@ public class ClipData extends ArmoryEntry implements IClipData
     /** Max size of the clip */
     public final int maxAmmo;
 
-    public ClipData(String id, String name, ReloadType clip, IAmmoType ammo, int maxAmmo)
+    public ClipData(IJsonProcessor processor, String id, String name, ReloadType clip, IAmmoType ammo, int maxAmmo)
     {
-        super(id, "clip", name);
+        super(processor, id, "clip", name);
         this.type = clip;
         this.ammoType = ammo;
         this.maxAmmo = maxAmmo;

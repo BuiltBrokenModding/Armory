@@ -1,7 +1,8 @@
 package com.builtbroken.armory.client.data;
 
 import com.builtbroken.armory.client.ClientDataHandler;
-import com.builtbroken.mc.lib.json.imp.IJsonGenObject;
+import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
+import com.builtbroken.mc.lib.json.processors.JsonGenData;
 import net.minecraftforge.client.IItemRenderer;
 
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import java.util.HashMap;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
  */
-public class RenderData implements IJsonGenObject
+public class RenderData extends JsonGenData
 {
     public static final int INVENTORY_RENDER_ID = 0;
     public static final int EQUIPPED_RENDER_ID = 1;
@@ -26,8 +27,9 @@ public class RenderData implements IJsonGenObject
     /** Map for quickly looking up name of the state with it's render ID */
     private HashMap<String, RenderState> renderStatesByName = new HashMap();
 
-    public RenderData(String contentID)
+    public RenderData(IJsonProcessor processor, String contentID)
     {
+        super(processor);
         this.contentID = contentID;
     }
 

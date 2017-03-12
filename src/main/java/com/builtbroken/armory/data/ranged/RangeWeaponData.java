@@ -2,6 +2,7 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.data.Weapon;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 
 /**
  * Any kind of weapon that is based on a ranged attack
@@ -14,9 +15,9 @@ public abstract class RangeWeaponData extends Weapon
     /** Type of ammo this weapon uses for firing */
     public final IAmmoType ammoType;
 
-    public RangeWeaponData(String id, String type, String name, IAmmoType ammoType)
+    public RangeWeaponData(IJsonProcessor processor, String id, String type, String name, IAmmoType ammoType)
     {
-        super(id, type, name);
+        super(processor, id, type, name);
         this.ammoType = ammoType;
     }
 }

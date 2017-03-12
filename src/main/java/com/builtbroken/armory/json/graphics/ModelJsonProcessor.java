@@ -40,6 +40,6 @@ public class ModelJsonProcessor extends JsonProcessor<ModelData>
         String name = object.get("name").getAsString();
         String key = object.get("key").getAsString();
 
-        return new ModelData(key, domain, name);
+        return new ModelData(this, key, domain, name);
     }
 }

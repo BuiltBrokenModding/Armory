@@ -216,17 +216,17 @@ public class TestGunInstance extends AbstractArmoryTest
         itemGun = new ItemGun();
         itemAmmo = new ItemAmmo();
 
-        AmmoType ammoType = new AmmoType("9mm", "9mm", EnumProjectileTypes.BULLET);
+        AmmoType ammoType = new AmmoType(null, "9mm", "9mm", EnumProjectileTypes.BULLET);
         ArmoryDataHandler.INSTANCE.get("ammoType").add(ammoType);
 
-        gunData = new GunData("gun", "handgun", "revolver", ammoType, ReloadType.HAND_FEED, new ClipData("revolverClip", "revolverClip", ReloadType.HAND_FEED, ammoType, 6));
+        gunData = new GunData(null, "gun", "handgun", "revolver", ammoType, ReloadType.HAND_FEED, new ClipData(null, "revolverClip", "revolverClip", ReloadType.HAND_FEED, ammoType, 6));
         ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, gunData);
         gunData.set(itemAmmo, 0);
         ArmoryDataHandler.INSTANCE.get("gun").add(gunData);
 
         for (int i = 0; i < 5; i++)
         {
-            AmmoData data = new AmmoData("ammo" + i, "ammo" + i, ammoType, "impact", 5 + i, 100);
+            AmmoData data = new AmmoData(null, "ammo" + i, "ammo" + i, ammoType, "impact", 5 + i, 100);
             data.set(itemAmmo, i);
             ArmoryDataHandler.INSTANCE.get("ammo").add(data);
             ArmoryDataHandler.INSTANCE.get("ammo").metaToEntry.put(i, data);

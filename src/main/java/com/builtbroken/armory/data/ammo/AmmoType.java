@@ -4,6 +4,7 @@ import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,9 @@ public class AmmoType extends ArmoryEntry implements IAmmoType
     /** Type of projectile of the ammo type */
     public final EnumProjectileTypes projectileType;
 
-    public AmmoType(String id, String name, EnumProjectileTypes ammoType)
+    public AmmoType(IJsonProcessor processor, String id, String name, EnumProjectileTypes ammoType)
     {
-        super(id, "ammoType", name);
+        super(processor, id, "ammoType", name);
         this.projectileType = ammoType;
     }
 

@@ -42,7 +42,7 @@ public class RenderJsonProcessor extends JsonProcessor<RenderData>
         ensureValuesExist(object, "contentID", "states");
 
         String id = object.get("contentID").getAsString();
-        RenderData data = new RenderData(id);
+        RenderData data = new RenderData(this, id);
         JsonArray array = object.get("states").getAsJsonArray();
         for (JsonElement e : array)
         {

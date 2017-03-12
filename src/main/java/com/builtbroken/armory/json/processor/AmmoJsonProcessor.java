@@ -39,7 +39,7 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
         {
             velocity = object.getAsJsonPrimitive("velocity").getAsFloat();
         }
-        AmmoData data = new AmmoData(id, name, (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(type), source, damage, velocity);
+        AmmoData data = new AmmoData(this, id, name, (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(type), source, damage, velocity);
         processExtraData(object, data);
         return data;
     }

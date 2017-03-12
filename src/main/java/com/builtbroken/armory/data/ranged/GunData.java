@@ -4,6 +4,7 @@ import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.IClipData;
 import com.builtbroken.mc.api.data.weapon.IGunData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
+import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 
 /**
  * Holds all data about a gun
@@ -28,9 +29,9 @@ public class GunData extends RangeWeaponData implements IGunData
 
     private int firingDelay;
 
-    public GunData(String id, String type, String name, IAmmoType ammoType, ReloadType clipType, IClipData singleFireData)
+    public GunData(IJsonProcessor processor, String id, String type, String name, IAmmoType ammoType, ReloadType clipType, IClipData singleFireData)
     {
-        super(id, "gun", name, ammoType);
+        super(processor, id, "gun", name, ammoType);
         this.gunType = type;
         this.reloadType = clipType;
         this.builtInClip = singleFireData;

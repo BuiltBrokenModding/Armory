@@ -63,20 +63,20 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
         final ClipData builtInClip;
         if (clipType == ReloadType.FRONT_LOADED)
         {
-            builtInClip = new ClipData(ID, name + "@frontLoaded", ReloadType.FRONT_LOADED, ammoType, 1);
+            builtInClip = new ClipData(this, ID, name + "@frontLoaded", ReloadType.FRONT_LOADED, ammoType, 1);
         }
         else if (clipType == ReloadType.HAND_FEED)
         {
             ensureValuesExist(object, "clipSize");
-            builtInClip = new ClipData(ID, name + "@handFeed", ReloadType.HAND_FEED, ammoType, object.getAsJsonPrimitive("clipSize").getAsInt());
+            builtInClip = new ClipData(this, ID, name + "@handFeed", ReloadType.HAND_FEED, ammoType, object.getAsJsonPrimitive("clipSize").getAsInt());
         }
         else
         {
-            builtInClip = new ClipData(ID, name + "@singleFire", ReloadType.BREACH_LOADED, ammoType, 1);
+            builtInClip = new ClipData(this, ID, name + "@singleFire", ReloadType.BREACH_LOADED, ammoType, 1);
         }
 
         //Make gun object
-        final GunData data = new GunData(ID, type, name, ammoType, clipType, builtInClip);
+        final GunData data = new GunData(this, ID, type, name, ammoType, clipType, builtInClip);
 
         //Process extra data that all objects share
         processExtraData(object, data);

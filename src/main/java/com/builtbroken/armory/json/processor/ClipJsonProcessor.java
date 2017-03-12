@@ -53,7 +53,7 @@ public class ClipJsonProcessor extends ArmoryEntryJsonProcessor<ClipData>
         }
 
         int maxAmmo = object.getAsJsonPrimitive("maxAmmo").getAsInt();
-        ClipData data = new ClipData(id, name, clipType, (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammo), maxAmmo);
+        ClipData data = new ClipData(this, id, name, clipType, (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammo), maxAmmo);
         processExtraData(object, data);
         return data;
     }

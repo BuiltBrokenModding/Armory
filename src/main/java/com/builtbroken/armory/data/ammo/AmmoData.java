@@ -3,6 +3,7 @@ package com.builtbroken.armory.data.ammo;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
@@ -25,9 +26,9 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     //TODO add effect handlers
     //TODO add damage calculations
 
-    public AmmoData(String id, String name, AmmoType ammoType, String source, float damage, float velocity)
+    public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType, String source, float damage, float velocity)
     {
-        super(id, "ammo", name);
+        super(processor, id, "ammo", name);
         this.ammoType = ammoType;
         this.damageSource = source;
         this.damage = damage;

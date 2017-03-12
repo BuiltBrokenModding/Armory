@@ -2,7 +2,8 @@ package com.builtbroken.armory.data;
 
 import com.builtbroken.mc.api.data.weapon.IData;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
-import com.builtbroken.mc.lib.json.imp.IJsonGenObject;
+import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
+import com.builtbroken.mc.lib.json.processors.JsonGenData;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -12,7 +13,7 @@ import net.minecraft.item.ItemStack;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/15/2016.
  */
-public abstract class ArmoryEntry implements IJsonGenObject, IData
+public abstract class ArmoryEntry extends JsonGenData implements IData
 {
     /** Simple name for the item, used as translation key as backup */
     private String name;
@@ -40,8 +41,9 @@ public abstract class ArmoryEntry implements IJsonGenObject, IData
      * @param type - Type of the item {ammo, ammoType, clip, gun}
      * @param name - simple name of the item
      */
-    public ArmoryEntry(String id, String type, String name)
+    public ArmoryEntry(IJsonProcessor processor, String id, String type, String name)
     {
+        super(processor);
         this.type = type;
         this.name = name;
         this.ID = id;

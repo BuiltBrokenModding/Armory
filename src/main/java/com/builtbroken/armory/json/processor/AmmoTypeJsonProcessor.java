@@ -35,7 +35,7 @@ public class AmmoTypeJsonProcessor extends ArmoryEntryJsonProcessor<AmmoType>
         {
             throw new IllegalArgumentException("Invalid projectile type " + type + " while reading " + element);
         }
-        AmmoType data = new AmmoType(object.get("id").getAsString(), object.get("name").getAsString(), EnumProjectileTypes.get(type));
+        AmmoType data = new AmmoType(this, object.get("id").getAsString(), object.get("name").getAsString(), EnumProjectileTypes.get(type));
         processExtraData(object, data);
         return data;
     }

@@ -24,10 +24,10 @@ public class TestItemGun extends AbstractArmoryTest
 {
     public void testDataSave()
     {
-        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, new GunData("gun0", null, null, null, null, null));
-        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(1, new GunData("gun1", null, null, null, null, null));
-        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(2, new GunData("gun2", null, null, null, null, null));
-        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(3, new GunData("gun3", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, new GunData(null, "gun0", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(1, new GunData(null, "gun1", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(2, new GunData(null, "gun2", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(3, new GunData(null, "gun3", null, null, null, null, null));
 
         ArmoryDataHandler.INSTANCE.get("gun").saveDataToFile(new HashMap());
         assertTrue(ArmoryDataHandler.INSTANCE.get("gun").save.exists());
@@ -60,16 +60,16 @@ public class TestItemGun extends AbstractArmoryTest
     public void testDataLoad()
     {
         //Init some data into meta values for save run
-        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, new GunData("gun0", null, null, null, null, null));
-        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(1, new GunData("gun1", null, null, null, null, null));
-        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(2, new GunData("gun2", null, null, null, null, null));
-        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(3, new GunData("gun3", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(0, new GunData(null, "gun0", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(1, new GunData(null, "gun1", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(2, new GunData(null, "gun2", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").metaToEntry.put(3, new GunData(null, "gun3", null, null, null, null, null));
 
         //Init data into handler so loading works correctly
-        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData("gun0", null, null, null, null, null));
-        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData("gun1", null, null, null, null, null));
-        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData("gun2", null, null, null, null, null));
-        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData("gun3", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData(null, "gun0", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData(null, "gun1", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData(null, "gun2", null, null, null, null, null));
+        ArmoryDataHandler.INSTANCE.get("gun").add(new GunData(null, "gun3", null, null, null, null, null));
         assertEquals(4, ArmoryDataHandler.INSTANCE.get("gun").size());
 
         //Save data to file to test loading

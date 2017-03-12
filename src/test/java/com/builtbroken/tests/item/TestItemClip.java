@@ -142,12 +142,12 @@ public class TestItemClip extends AbstractArmoryTest
         item = new ItemClip(); //TODO register item for more valid tests
 
         File folder = new File(System.getProperty("user.dir"), "tmp");
-        AmmoType type = new AmmoType("9mm", "9mm", EnumProjectileTypes.BULLET);
-        ArmoryDataHandler.INSTANCE.get("clip").metaToEntry.put(0, new ClipData("clip", "testClip", ReloadType.CLIP, type, 20));
+        AmmoType type = new AmmoType(null, "9mm", "9mm", EnumProjectileTypes.BULLET);
+        ArmoryDataHandler.INSTANCE.get("clip").metaToEntry.put(0, new ClipData(null, "clip", "testClip", ReloadType.CLIP, type, 20));
 
         for (int i = 0; i < 6; i++)
         {
-            ArmoryDataHandler.INSTANCE.get("ammo").add(new AmmoData("" + i, "ammo" + i, type, "impact", i, -1));
+            ArmoryDataHandler.INSTANCE.get("ammo").add(new AmmoData(null, "" + i, "ammo" + i, type, "impact", i, -1));
         }
     }
 

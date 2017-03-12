@@ -46,6 +46,6 @@ public class TextureJsonProcessor extends JsonProcessor<TextureData>
         {
             throw new IllegalArgumentException("Invalid texture type while loading " + element);
         }
-        return new TextureData(key, domain, name, type);
+        return new TextureData(this, key, domain, name, type);
     }
 }

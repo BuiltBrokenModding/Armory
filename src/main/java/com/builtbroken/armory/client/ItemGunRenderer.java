@@ -1,10 +1,11 @@
 package com.builtbroken.armory.client;
 
 import com.builtbroken.armory.Armory;
-import com.builtbroken.armory.client.data.RenderData;
 import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.mc.client.SharedAssets;
+import com.builtbroken.mc.client.json.ClientDataHandler;
+import com.builtbroken.mc.client.json.render.RenderData;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.render.model.loader.EngineModelLoader;
 import cpw.mods.fml.client.FMLClientHandler;

@@ -1,9 +1,9 @@
 package com.builtbroken.armory.content.prefab;
 
 import com.builtbroken.armory.Armory;
-import com.builtbroken.armory.client.ClientDataHandler;
-import com.builtbroken.armory.client.data.RenderData;
-import com.builtbroken.armory.client.data.RenderState;
+import com.builtbroken.mc.client.json.ClientDataHandler;
+import com.builtbroken.mc.client.json.render.RenderData;
+import com.builtbroken.mc.client.json.render.RenderState;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.IWorldPosition;

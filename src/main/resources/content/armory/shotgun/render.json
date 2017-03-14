@@ -1,6 +1,7 @@
 {
   "render": {
     "contentID": "armory.test.shotgun",
+    "type":"gun",
     "states": [
       {
         "id": 0,

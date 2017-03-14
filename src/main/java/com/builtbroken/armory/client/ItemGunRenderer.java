@@ -53,7 +53,7 @@ public class ItemGunRenderer implements IItemRenderer
             RenderData data = ClientDataHandler.INSTANCE.getRenderData(((ItemGun) item.getItem()).getData(item).getUniqueID());
             if (data != null)
             {
-                return data.shouldRenderType(type);
+                return data.shouldRenderType(type, item);
             }
             return type != ItemRenderType.INVENTORY;
         }
@@ -69,7 +69,7 @@ public class ItemGunRenderer implements IItemRenderer
             RenderData data = ClientDataHandler.INSTANCE.getRenderData(((ItemGun) item.getItem()).getData(item).getUniqueID());
             if (data != null)
             {
-                return data.shouldRenderType(type);
+                return data.shouldRenderType(type, item);
             }
             return type != ItemRenderType.INVENTORY;
         }
@@ -101,7 +101,7 @@ public class ItemGunRenderer implements IItemRenderer
                 break;
         }
         RenderData data = ClientDataHandler.INSTANCE.getRenderData(gunData.getUniqueID());
-        if (data == null || !data.render(type))
+        if (data == null || !data.render(type, item))
         {
             FMLClientHandler.instance().getClient().renderEngine.bindTexture(SharedAssets.GREY_TEXTURE);
             handgun.renderAll();

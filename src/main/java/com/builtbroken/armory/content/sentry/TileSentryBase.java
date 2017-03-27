@@ -1,10 +1,13 @@
 package com.builtbroken.armory.content.sentry;
 
 import com.builtbroken.armory.data.sentry.SentryData;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.prefab.inventory.ExternalInventory;
 import com.builtbroken.mc.prefab.tile.Tile;
 import com.builtbroken.mc.prefab.tile.TileModuleMachine;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 
 /**
@@ -17,6 +20,8 @@ public class TileSentryBase extends TileModuleMachine<ExternalInventory>
 {
     protected SentryData sentryData;
     protected EntitySentry sentry;
+
+    protected ItemStack sentryStack;
 
     protected boolean running = false;
     protected boolean turnedOn = false;
@@ -47,6 +52,40 @@ public class TileSentryBase extends TileModuleMachine<ExternalInventory>
                     //      TODO if bellow 40% start to check for brown out damage
                 }
             }
+
+            if (sentryData == null)
+            {
+                Engine.logger().error("Removing corrupted sentry tile from world, " + this);
+                world().setBlockToAir(xCoord, yCoord, zCoord);
+            }
+        }
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        running = nbt.getBoolean("running");
+        turnedOn = nbt.getBoolean("enabled");
+        if (nbt.hasKey("sentryStack"))
+        {
+            sentryStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("sentryStack"));
+            if (sentryStack.getItem() instanceof ItemBlockSentry)
+            {
+                sentryData = ((ItemBlockSentry) sentryStack.getItem()).getData(sentryStack);
+            }
+        }
+        super.readFromNBT(nbt);
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+        nbt.setBoolean("running", running);
+        nbt.setBoolean("enabled", turnedOn);
+        if (sentryStack != null)
+        {
+            nbt.setTag("sentryStack", sentryStack.writeToNBT(new NBTTagCompound()));
         }
     }
 
@@ -74,5 +113,11 @@ public class TileSentryBase extends TileModuleMachine<ExternalInventory>
     public Tile newTile()
     {
         return new TileSentryBase();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "TileSentryBase[" + (world() != null && world().provider != null ? world().provider.dimensionId : "?") + "w, " + xCoord + "x, " + yCoord + "y, " + zCoord + "z, " + sentryData + "]@" + hashCode();
     }
 }

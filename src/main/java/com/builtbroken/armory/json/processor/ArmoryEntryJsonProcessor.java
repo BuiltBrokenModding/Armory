@@ -63,7 +63,7 @@ public abstract class ArmoryEntryJsonProcessor<E extends ArmoryEntry> extends Js
         {
             if (contentGroup.isJsonPrimitive())
             {
-                e.contentGroup = mass.getAsString();
+                e.contentGroup = contentGroup.getAsString();
             }
             else
             {

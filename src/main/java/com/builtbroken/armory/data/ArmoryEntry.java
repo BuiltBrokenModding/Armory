@@ -20,8 +20,6 @@ public abstract class ArmoryEntry extends JsonGenData implements IData
     /** Type of the item {ammo, ammoType, clip, gun} */
     private String type;
 
-    /** Person or group that created the object */
-    public String author;
     /** Weight of the object in grams */
     public int mass = -1;
     /** Translation key used for langauge files */

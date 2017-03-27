@@ -1,12 +1,12 @@
 package com.builtbroken.armory.content.prefab;
 
 import com.builtbroken.armory.Armory;
-import com.builtbroken.mc.client.json.ClientDataHandler;
-import com.builtbroken.mc.client.json.render.RenderData;
-import com.builtbroken.mc.client.json.render.RenderState;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.IWorldPosition;
+import com.builtbroken.mc.client.json.ClientDataHandler;
+import com.builtbroken.mc.client.json.render.RenderData;
+import com.builtbroken.mc.client.json.render.RenderState;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketReceiver;
 import com.builtbroken.mc.core.network.packet.PacketPlayerItem;
@@ -57,6 +57,17 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
         {
             list.add("" + getData(stack));
         }
+    }
+
+    @Override
+    public String getUnlocalizedName(ItemStack stack)
+    {
+        E data = getData(stack);
+        if (data != null)
+        {
+            return data.getUnlocalizedName();
+        }
+        return "item." + this.unlocalizedName;
     }
 
     @Override

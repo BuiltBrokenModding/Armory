@@ -37,7 +37,7 @@ public class TestItemClip extends AbstractArmoryTest
         ItemStack stack = new ItemStack(item, 1, 0);
 
         stack.setTagCompound(new NBTTagCompound());
-        stack.getTagCompound().setInteger("ammo", 5);
+        stack.getTagCompound().setInteger("ammoCount", 5);
 
         assertEquals(5, item.getAmmoCount(stack));
     }

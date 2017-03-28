@@ -27,7 +27,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import java.awt.*;
@@ -83,7 +82,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         if (entity instanceof EntityLivingBase && (lastTimeFired == 0L || deltaTime > gunData.getFiringDelay()))
         {
             lastTimeFired = System.currentTimeMillis();
-            _doFire(world, ((EntityLivingBase) entity).rotationYawHead, ((EntityLivingBase) entity).rotationPitch);
+            float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch);
+            float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw);
+
+            _doFire(world, yaw, pitch);
         }
     }
 
@@ -116,7 +118,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //TODO allow sorting of the data and graphing
                 //TODO allow other users to see each other's weapon data (with a permission system)
 
-                final Pos bulletStartPoint = getBulletSpawnPoint(yaw, pitch);
+                final Pos entityPos = getEntityPosition();
+                final Pos bulletStartPoint = entityPos.add(getBulletSpawnOffset(yaw, pitch));
                 final Pos aim = getAim(yaw, pitch);
 
                 //Send effect packet to client to render shot was taken
@@ -149,7 +152,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //Fire round out of gun
                 if (getChamberedRound().getProjectileVelocity() < 0 || getChamberedRound().getProjectileVelocity() / 20f > PROJECTILE_SPEED_LIMIT)
                 {
-                    _doRayTrace(world, yaw, pitch, getChamberedRound(), bulletStartPoint, aim);
+                    final Pos end = entityPos.add(aim.multiply(500));
+                    _doRayTrace(world, yaw, pitch, getChamberedRound(), entityPos.add(aim), end, aim);
                 }
                 else
                 {
@@ -180,10 +184,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         return getChamberedRound() != null;
     }
 
-    protected void _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos aim)
+    protected void _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos end, Pos aim)
     {
-        final Pos end = start.add(aim.multiply(500));
-
         //Debug ray trace
         if (Engine.instance != null && Engine.runningAsDev)
         {
@@ -194,7 +196,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
         }
 
-        MovingObjectPosition hit = start.rayTrace(world, end);
+        MovingObjectPosition hit = start.rayTrace(world, end, false, true, false);
         if (hit != null && hit.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)
         {
             if (hit.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
@@ -220,18 +222,37 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      * @param pitch - player rotation pitch
      * @return position in the world
      */
-    protected Pos getBulletSpawnPoint(float yaw, float pitch)
+    protected Pos getBulletSpawnOffset(float yaw, float pitch)
     {
         //Find our hand position so to position starting point near barrel of the gun
         final float rotationHand = MathHelper.wrapAngleTo180_float(yaw + 90);
         final double r = Math.toRadians(rotationHand);
-        final Vec3 hand = Vec3.createVectorHelper(
+        final Pos hand = new Pos(
                 (Math.cos(r) - Math.sin(r)) * 0.5,
-                0,
+                -0.5,
                 (Math.sin(r) + Math.cos(r)) * 0.5
         );
 
-        return new Pos(entity.posX, entity.posY + 1.1, entity.posZ).add(hand);
+        return hand;
+    }
+
+    protected Pos getEntityPosition()
+    {
+        double x = entity.posX;
+        double y = entity.posY;
+        double z = entity.posZ;
+
+        if (entity instanceof EntityPlayer)
+        {
+            // isRemote check to revert changes to ray trace position due to adding the eye height clientside and entity yOffset differences
+            y += (double) (entity.worldObj.isRemote ? entity.getEyeHeight() - ((EntityPlayer) entity).getDefaultEyeHeight() : entity.getEyeHeight());
+        }
+        else
+        {
+            y += entity.getEyeHeight();
+        }
+
+        return new Pos(x, y, z);
     }
 
     protected void consumeAmmo()
@@ -241,11 +262,17 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     protected Pos getAim(float yaw, float pitch)
     {
-        float f1 = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
-        float f2 = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
-        float f3 = -MathHelper.cos(-pitch * 0.017453292F);
-        float f4 = MathHelper.sin(-pitch * 0.017453292F);
-        return new Pos((double) (f2 * f3), (double) f4, (double) (f1 * f3));
+        //Used to calculate x and z position
+        float f3 = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
+        float f4 = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
+        float f5 = -MathHelper.cos(-pitch * 0.017453292F);
+
+        //used to calculate aim y
+        float aimY = MathHelper.sin(-pitch * 0.017453292F);
+
+        float aimX = f4 * f5;
+        float aimZ = f3 * f5;
+        return new Pos(aimX, aimY, aimZ);
     }
 
     public boolean hasAmmo()

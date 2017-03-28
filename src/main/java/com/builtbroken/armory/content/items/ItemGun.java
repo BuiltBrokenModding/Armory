@@ -136,7 +136,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
         {
             if (entity instanceof EntityPlayer)
             {
-                if (leftClickHeld.containsKey(entity))
+                if (leftClickHeld.containsKey(entity) && slot == ((EntityPlayer) entity).inventory.currentItem)
                 {
                     int ticks = leftClickHeld.get(entity) + 1;
                     leftClickHeld.put((EntityPlayer) entity, ticks);

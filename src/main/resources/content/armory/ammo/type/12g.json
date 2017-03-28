@@ -1,0 +1,10 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "ammoType": {
+    "name": "12g",
+    "id": "12g",
+    "projectileType": "bullet"
+  }
+}

@@ -1,21 +1,19 @@
 {
   "author": {
-    "name": "${Armory}"
+    "name": "armory"
   },
   "clip": {
-    "name": "9mmClip15",
+    "name": "9mm.clip.15",
     "id": "armory:clip.9mm.15",
-    "translationKey": "9mm",
-    "type": "clip",
-    "ammo": "9mm",
+    "reloadType": "clip",
+    "ammoType": "9mm",
     "maxAmmo": 15
   },
-  "clip": {
-    "name": "9mmClip30",
+  "clip:1": {
+    "name": "9mm.clip.30",
     "id": "armory:clip.9mm.30",
-    "translationKey": "9mm",
-    "type": "clip",
-    "ammo": "9mm",
+    "reloadType": "clip",
+    "ammoType": "9mm",
     "maxAmmo": 30
   }
 }

@@ -1,4 +1,7 @@
 {
+  "author": {
+    "name": "armory"
+  },
   "render": {
     "contentID": "armory.test.shotgun",
     "type":"gun",

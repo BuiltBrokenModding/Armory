@@ -29,16 +29,15 @@ public class TestAmmoProcessor extends AbstractTest
         ArmoryDataHandler.INSTANCE.get("ammoType").add(ammoType);
 
         JsonReader jsonReader = new JsonReader(new StringReader(
-                "{\n" +
-                        "\"ammo\": {\n" +
-                        "    \"name\": \"basic\",\n" +
-                        "    \"id\": \"basic\",\n" +
-                        "    \"translationKey\": \"9mm.basic\",\n" +
-                        "    \"type\": \"9mm\",\n" +
-                        "    \"damage\": 5,\n" +
-                        "    \"source\": \"impact\"\n" +
-                        "  }\n" +
-                        "}"
+                "{ \"ammo\": {\n" +
+                        "    \"name\": \"9mm.basic\",\n" +
+                        "    \"id\": \"armory:ammo.9mm.basic\",\n" +
+                        "    \"ammoType\": \"9mm\",\n" +
+                        "    \"damage\": {\n" +
+                        "      \"value\": 5,\n" +
+                        "      \"type\": \"impact\"\n" +
+                        "    }\n" +
+                        "  }}"
         ));
         JsonElement element = Streams.parse(jsonReader);
         AmmoJsonProcessor processor = new AmmoJsonProcessor();

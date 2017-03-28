@@ -15,7 +15,7 @@ import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 public class ClipData extends ArmoryEntry implements IClipData
 {
     /** Type of clip */
-    public final ReloadType type;
+    public final ReloadType reloadType;
     /** What type of ammo can the clip hold */
     public final IAmmoType ammoType;
     /** Max size of the clip */
@@ -24,7 +24,7 @@ public class ClipData extends ArmoryEntry implements IClipData
     public ClipData(IJsonProcessor processor, String id, String name, ReloadType clip, IAmmoType ammo, int maxAmmo)
     {
         super(processor, id, "clip", name);
-        this.type = clip;
+        this.reloadType = clip;
         this.ammoType = ammo;
         this.maxAmmo = maxAmmo;
     }
@@ -32,7 +32,7 @@ public class ClipData extends ArmoryEntry implements IClipData
     @Override
     public ReloadType getReloadType()
     {
-        return type;
+        return reloadType;
     }
 
     @Override

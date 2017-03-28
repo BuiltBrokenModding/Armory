@@ -1,6 +1,7 @@
 package com.builtbroken.tests.processors;
 
 import com.builtbroken.armory.data.ammo.AmmoType;
+import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.armory.json.processor.AmmoTypeJsonProcessor;
 import com.builtbroken.mc.testing.junit.AbstractTest;
 import com.builtbroken.mc.testing.junit.VoltzTestRunner;
@@ -22,18 +23,21 @@ public class TestAmmoTypeProcessor extends AbstractTest
     {
         JsonReader jsonReader = new JsonReader(new StringReader(
                 "{\n" +
+                        "  \"author\": {\n" +
+                        "    \"name\": \"armory\"\n" +
+                        "  },\n" +
                         "  \"ammoType\": {\n" +
-                        "    \"id\": \"9mm\",\n" +
                         "    \"name\": \"9mm\",\n" +
-                        "    \"type\": 4,\n" +
-                        "    \"translationKey\": \"9mm\"\n" +
+                        "    \"id\": \"9mm\",\n" +
+                        "    \"projectileType\": \"bullet\"\n" +
                         "  }\n" +
                         "}"
         ));
         JsonElement element = Streams.parse(jsonReader);
         AmmoTypeJsonProcessor processor = new AmmoTypeJsonProcessor();
         AmmoType data = processor.process(element.getAsJsonObject().get("ammoType"));
-        assertEquals("ammoType.9mm", data.translationKey);
         assertEquals("9mm", data.name());
+        assertEquals("9mm", data.getUniqueID());
+        assertEquals(EnumProjectileTypes.BULLET, data.projectileType);
     }
 }

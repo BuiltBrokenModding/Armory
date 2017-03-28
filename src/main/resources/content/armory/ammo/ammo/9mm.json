@@ -1,0 +1,32 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "ammo": {
+    "name": "9mm.basic",
+    "id": "armory:ammo.9mm.basic",
+    "ammoType": "9mm",
+    "damage": {
+      "value": 5,
+      "type": "impact"
+    }
+  },
+  "ammo:1": {
+    "name": "9mm.advanced",
+    "id": "armory:ammo.9mm.advanced",
+    "ammoType": "9mm",
+    "damage": {
+      "value": 7,
+      "type": "impact"
+    }
+  },
+  "ammo:2": {
+    "name": "9mm.elite",
+    "id": "armory:ammo.9mm.elite",
+    "ammoType": "9mm",
+    "damage": {
+      "value": 10,
+      "type": "impact"
+    }
+  }
+}

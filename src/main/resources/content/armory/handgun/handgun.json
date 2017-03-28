@@ -1,14 +1,13 @@
 {
   "author": {
-    "name": "${Armory}"
+    "name": "armory"
   },
   "gun": {
-    "name": "handgun",
-    "type": "handgun",
-    "translationKey": "handgun",
-    "ID": "armory.test.handgun",
-    "ammo": "9mm",
-    "clipType": 3,
+    "name": "handgun.9mm.test",
+    "gunType": "handgun",
+    "ID": "armory:handgun.9mm.test",
+    "ammoType": "9mm",
+    "reloadType": "clip",
     "fallOff": "0.05D",
     "mass": 630,
     "rateOfFire": 240,

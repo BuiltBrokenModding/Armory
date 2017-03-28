@@ -1,14 +1,13 @@
 {
   "author": {
-    "name": "${Armory}"
+    "name": "armory"
   },
   "gun": {
     "name": "shotgun",
-    "type": "shotgun",
-    "translationKey": "shotgun",
-    "ID": "armory.test.shotgun",
-    "ammo": "12g",
-    "clipType": 2,
+    "gunType": "shotgun",
+    "ID": "armory:shotgun.12g.test",
+    "ammoType": "12g",
+    "reloadType": "HAND_FEED",
     "clipSize": 10,
     "fallOff": "0.05D",
     "mass": 630,

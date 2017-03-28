@@ -30,23 +30,19 @@ public class TestClipProcessor extends AbstractTest
         ArmoryDataHandler.INSTANCE.get("ammoType").add(ammoType);
 
         JsonReader jsonReader = new JsonReader(new StringReader(
-                "{\n" +
-                        "  \"clip\": {\n" +
-                        "    \"id\": \"9mmClip\",\n" +
-                        "    \"name\": \"9mmClip\",\n" +
-                        "    \"translationKey\": \"9mm\",\n" +
-                        "    \"type\": \"clip\",\n" +
-                        "    \"ammo\": \"9mm\",\n" +
+                "{\"clip\": {\n" +
+                        "    \"name\": \"9mm.clip.15\",\n" +
+                        "    \"id\": \"armory:clip.9mm.15\",\n" +
+                        "    \"reloadType\": \"clip\",\n" +
+                        "    \"ammoType\": \"9mm\",\n" +
                         "    \"maxAmmo\": 15\n" +
-                        "  }\n" +
-                        "}"
+                        "  }}"
         ));
         JsonElement element = Streams.parse(jsonReader);
         ClipJsonProcessor processor = new ClipJsonProcessor();
         ClipData data = processor.process(element.getAsJsonObject().get("clip"));
-        assertEquals("9mmClip", data.name());
-        assertEquals("clip.9mm", data.translationKey);
-        assertEquals(ReloadType.CLIP, data.type);
+        assertEquals("9mm.clip.15", data.name());
+        assertEquals(ReloadType.CLIP, data.reloadType);
         assertEquals(ammoType, data.ammoType);
         assertEquals(15, data.maxAmmo);
     }

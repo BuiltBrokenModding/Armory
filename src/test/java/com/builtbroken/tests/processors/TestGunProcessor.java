@@ -32,15 +32,14 @@ public class TestGunProcessor extends AbstractTest
         JsonReader jsonReader = new JsonReader(new StringReader(
                 "{\n" +
                         "  \"author\": {\n" +
-                        "    \"name\": \"${Armory}\"\n" +
+                        "    \"name\": \"armory\"\n" +
                         "  },\n" +
                         "  \"gun\": {\n" +
-                        "    \"name\": \"handgun\",\n" +
-                        "    \"type\": \"handgun1\",\n" +
-                        "    \"translationKey\": \"handgun2\",\n" +
-                        "    \"ID\": \"amory.test.hangun\",\n" +
-                        "    \"ammo\": \"9mm\",\n" +
-                        "    \"clipType\": 3,\n" +
+                        "    \"name\": \"handgun.9mm.test\",\n" +
+                        "    \"gunType\": \"handgun\",\n" +
+                        "    \"ID\": \"armory:handgun.9mm.test\",\n" +
+                        "    \"ammoType\": \"9mm\",\n" +
+                        "    \"reloadType\": \"clip\",\n" +
                         "    \"fallOff\": \"0.05D\",\n" +
                         "    \"mass\": 630,\n" +
                         "    \"rateOfFire\": 240,\n" +
@@ -52,12 +51,11 @@ public class TestGunProcessor extends AbstractTest
         GunJsonProcessor processor = new GunJsonProcessor();
         GunData data = processor.process(element.getAsJsonObject().get("gun"));
         //At this point we have tested what we need but lets do 100%
-        assertEquals("handgun", data.name());
-        assertEquals("handgun1", data.gunType);
-        assertEquals("gun.handgun2", data.translationKey);
-        assertEquals("amory.test.hangun", data.ID);
+        assertEquals("handgun.9mm.test", data.name());
+        assertEquals("handgun", data.gunType);
+        assertEquals("armory:handgun.9mm.test", data.ID);
         assertSame(ammoType, data.ammoType);
-        assertSame(ReloadType.values()[3], data.reloadType);
+        assertSame(ReloadType.CLIP, data.reloadType);
         assertEquals(40, data.reloadTime);
         assertEquals(240, data.getRateOfFire());
         assertEquals(630, data.mass);

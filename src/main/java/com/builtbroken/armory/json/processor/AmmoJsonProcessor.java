@@ -27,14 +27,14 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
     public AmmoData process(JsonElement element)
     {
         final JsonObject object = element.getAsJsonObject();
-        ensureValuesExist(object, "id", "name", "type", "damage");
+        ensureValuesExist(object, "id", "name", "ammoType", "damage");
 
         //Get common data
         String id = object.get("id").getAsString();
         String name = object.get("name").getAsString();
 
         //Get ammo type
-        String ammoTypeString = object.get("AmmoType").getAsString();
+        String ammoTypeString = object.get("ammoType").getAsString();
         AmmoType ammoType = (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammoTypeString);
 
         //Get damage

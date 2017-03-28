@@ -80,7 +80,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public void fireWeapon(ItemStack stack, World world, int ticksFired)
     {
         Long deltaTime = System.currentTimeMillis() - lastTimeFired;
-        if (entity instanceof EntityLivingBase && (lastTimeFired == 0L || deltaTime > gunData.getRateOfFire()))
+        if (entity instanceof EntityLivingBase && (lastTimeFired == 0L || deltaTime > gunData.getFiringDelay()))
         {
             lastTimeFired = System.currentTimeMillis();
             _doFire(world, ((EntityLivingBase) entity).rotationYawHead, ((EntityLivingBase) entity).rotationPitch);

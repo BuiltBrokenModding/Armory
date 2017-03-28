@@ -82,6 +82,15 @@ public abstract class ArmoryEntry extends JsonGenData implements IData
 
     public final String getUnlocalizedName()
     {
+        if (translationKey == null)
+        {
+            String group = (contentGroup != null && !contentGroup.isEmpty() ? contentGroup + ":" : "");
+            if (group.isEmpty())
+            {
+                group = (author != null && !author.isEmpty() ? author + ":" : "");
+            }
+            translationKey = type + "." + group + name();
+        }
         return translationKey;
     }
 

@@ -7,6 +7,7 @@ import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -35,37 +36,34 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
     public GunData process(JsonElement element)
     {
         final JsonObject object = element.getAsJsonObject();
-        ensureValuesExist(object, "ID", "name", "type", "ID", "clipType", "ammo");
+        ensureValuesExist(object, "ID", "name", "gunType", "reloadType", "ammoType");
 
-        //Required data
+        //common data
         final String name = object.get("name").getAsString();
-        final String type = object.get("type").getAsString();
         final String ID = object.get("ID").getAsString();
 
-        //Get and validate clip type values
-        final int clipTypeValue = object.getAsJsonPrimitive("clipType").getAsInt();
-        if (clipTypeValue <= 0 || clipTypeValue >= ReloadType.values().length)
-        {
-            throw new IllegalArgumentException("Invalid clip type " + clipTypeValue + " while reading " + element);
-        }
+        //Gun type
+        final String type = object.get("gunType").getAsString();
+
+        //Get the reload type of the gun
+        JsonPrimitive clipTypeValue = object.getAsJsonPrimitive("reloadType");
+        ReloadType reloadType = ReloadType.get(clipTypeValue.getAsString());
 
         //Get and validate ammo type
-        final String ammoTypeValue = object.get("ammo").getAsString();
+        final String ammoTypeValue = object.get("ammoType").getAsString();
         final AmmoType ammoType = (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammoTypeValue);
         if (ammoType == null)
         {
             throw new IllegalArgumentException("Invalid ammo type " + ammoType + " while reading " + element);
         }
 
-        final ReloadType clipType = ReloadType.get(clipTypeValue);
-
         //Build single fire clip type used to breach load the weapon, also doubles as the clip type for muskets & bold action rifles
         final ClipData builtInClip;
-        if (clipType == ReloadType.FRONT_LOADED)
+        if (reloadType == ReloadType.FRONT_LOADED)
         {
             builtInClip = new ClipData(this, ID, name + "@frontLoaded", ReloadType.FRONT_LOADED, ammoType, 1);
         }
-        else if (clipType == ReloadType.HAND_FEED)
+        else if (reloadType == ReloadType.HAND_FEED)
         {
             ensureValuesExist(object, "clipSize");
             builtInClip = new ClipData(this, ID, name + "@handFeed", ReloadType.HAND_FEED, ammoType, object.getAsJsonPrimitive("clipSize").getAsInt());
@@ -76,7 +74,7 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
         }
 
         //Make gun object
-        final GunData data = new GunData(this, ID, type, name, ammoType, clipType, builtInClip);
+        final GunData data = new GunData(this, ID, type, name, ammoType, reloadType, builtInClip);
 
         //Process extra data that all objects share
         processExtraData(object, data);

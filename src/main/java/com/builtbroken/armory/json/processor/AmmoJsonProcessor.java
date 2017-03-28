@@ -27,20 +27,37 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
     public AmmoData process(JsonElement element)
     {
         final JsonObject object = element.getAsJsonObject();
-        ensureValuesExist(object, "id", "name", "type", "source", "damage");
+        ensureValuesExist(object, "id", "name", "type", "damage");
 
+        //Get common data
         String id = object.get("id").getAsString();
         String name = object.get("name").getAsString();
-        String type = object.get("type").getAsString();
-        String source = object.get("source").getAsString();
-        float damage = object.getAsJsonPrimitive("damage").getAsFloat();
+
+        //Get ammo type
+        String ammoTypeString = object.get("AmmoType").getAsString();
+        AmmoType ammoType = (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammoTypeString);
+
+        //Get damage
+        JsonObject damageObject = object.get("damage").getAsJsonObject();
+        ensureValuesExist(damageObject, "value", "type");
+
+        String source = damageObject.get("type").getAsString();
+        float damage = damageObject.getAsJsonPrimitive("value").getAsFloat();
+
+        //Get velocity
         float velocity = -1;
-        if(object.has("velocity"))
+        if (object.has("velocity"))
         {
             velocity = object.getAsJsonPrimitive("velocity").getAsFloat();
         }
-        AmmoData data = new AmmoData(this, id, name, (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(type), source, damage, velocity);
+
+        //Create object
+        AmmoData data = new AmmoData(this, id, name, ammoType, source, damage, velocity);
+
+        //Process shared data
         processExtraData(object, data);
+
+
         return data;
     }
 }

@@ -6,6 +6,7 @@ package com.builtbroken.armory.data.projectiles;
  */
 public enum EnumProjectileTypes
 {
+    //Do not change the names of these types, they are used for json loading
     ARROW("arrow"),
     BOLT("bolt"),
     ROCKET("rocket"),
@@ -25,6 +26,18 @@ public enum EnumProjectileTypes
         if (type >= 0 && type < values().length)
         {
             return values()[type];
+        }
+        return BULLET;
+    }
+
+    public static EnumProjectileTypes get(String name)
+    {
+        for (EnumProjectileTypes type : values())
+        {
+            if (type.catName.equals(name))
+            {
+                return type;
+            }
         }
         return BULLET;
     }

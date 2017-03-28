@@ -35,26 +35,29 @@ public class ClipJsonProcessor extends ArmoryEntryJsonProcessor<ClipData>
     public ClipData process(JsonElement element)
     {
         final JsonObject object = element.getAsJsonObject();
-        ensureValuesExist(object, "id", "name", "type", "maxAmmo", "ammo");
+        ensureValuesExist(object, "id", "name", "reloadType", "maxAmmo", "ammoType");
 
-        String name = object.get("name").getAsString();
-        String ammo = object.get("ammo").getAsString();
+        //Load common data
         String id = object.get("id").getAsString();
+        String name = object.get("name").getAsString();
 
-        JsonPrimitive clipTypeValue = object.getAsJsonPrimitive("type");
-        ReloadType clipType;
-        if (clipTypeValue.isString())
-        {
-            clipType = ReloadType.get(clipTypeValue.getAsString());
-        }
-        else
-        {
-            clipType = ReloadType.get(clipTypeValue.getAsInt());
-        }
+        //Get ammo Type
+        String ammo = object.get("ammoType").getAsString();
+        AmmoType ammoType = (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammo);
 
-        int maxAmmo = object.getAsJsonPrimitive("maxAmmo").getAsInt();
-        ClipData data = new ClipData(this, id, name, clipType, (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammo), maxAmmo);
+        //Get reload type
+        JsonPrimitive clipTypeValue = object.getAsJsonPrimitive("reloadType");
+        ReloadType reloadType = ReloadType.get(clipTypeValue.getAsString());
+
+        //Get max ammo
+        int maxAmmo = Math.max(1, object.getAsJsonPrimitive("maxAmmo").getAsInt());
+
+        //Create object
+        ClipData data = new ClipData(this, id, name, reloadType, ammoType, maxAmmo);
+
+        //Load shared data
         processExtraData(object, data);
+
         return data;
     }
 }

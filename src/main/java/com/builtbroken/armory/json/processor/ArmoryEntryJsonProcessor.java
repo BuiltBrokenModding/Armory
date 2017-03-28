@@ -70,19 +70,6 @@ public abstract class ArmoryEntryJsonProcessor<E extends ArmoryEntry> extends Js
                 throw new IllegalArgumentException("Invalid content group value " + contentGroup + " when reading " + object);
             }
         }
-
-        final JsonElement translation = object.get("translationKey");
-        if (translation != null)
-        {
-            if (translation.isJsonPrimitive())
-            {
-                e.translationKey = jsonKey + "." + (e.contentGroup != null && !e.contentGroup.isEmpty() ? e.contentGroup + ":" : "") + translation.getAsString();
-            }
-            else
-            {
-                throw new IllegalArgumentException("Invalid translation value " + translation + " when reading " + object);
-            }
-        }
         return e;
     }
 }

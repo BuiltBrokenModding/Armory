@@ -86,7 +86,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     @Override
     public int getAmmoCount(ItemStack clipStack)
     {
-        return clipStack.getTagCompound() != null ? clipStack.getTagCompound().getInteger("ammo") : 0;
+        return clipStack.getTagCompound() != null ? clipStack.getTagCompound().getInteger("ammoCount") : 0;
     }
 
     /**
@@ -102,7 +102,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
         {
             clipStack.setTagCompound(new NBTTagCompound());
         }
-        clipStack.getTagCompound().setInteger("ammo", Math.max(0, count));
+        clipStack.getTagCompound().setInteger("ammoCount", Math.max(0, count));
     }
 
     @Override
@@ -197,7 +197,9 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
         {
             return null;
         }
-        return new ClipInstanceItem(clipStack, getData(clipStack));
+        ItemStack stack = clipStack.copy();
+        stack.stackSize = 1;
+        return new ClipInstanceItem(stack, getData(clipStack));
     }
 
     @Override

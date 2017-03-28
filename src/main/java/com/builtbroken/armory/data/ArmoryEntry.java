@@ -97,7 +97,7 @@ public abstract class ArmoryEntry extends JsonGenData implements IData
     @Override
     public String getDisplayString()
     {
-        String translation = LanguageUtility.getLocalName(translationKey);
+        String translation = LanguageUtility.getLocalName(getUnlocalizedName());
         if (translation != null && !translation.isEmpty())
         {
             return translation;

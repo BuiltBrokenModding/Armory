@@ -12,6 +12,7 @@ import com.builtbroken.mc.api.modules.IModule;
 import com.builtbroken.mc.api.modules.weapon.IClip;
 import com.builtbroken.mc.api.modules.weapon.IGun;
 import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.core.network.packet.PacketSpawnParticle;
 import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
 import com.builtbroken.mc.lib.transform.vector.Location;
 import com.builtbroken.mc.lib.transform.vector.Pos;
@@ -105,23 +106,59 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             if (getChamberedRound() != null)
             {
                 //TODO apply upgrades
+
+                //Notes for player statistics to add
                 //TODO track damage by Weapon and Entity(If player) - do not store in weapon data
-                //TODO track shots fire - do not store in weapon data
+                //TODO track shots fired - do not store in weapon data
                 //TODO track shots hit - do not store in weapon data
                 //TODO track kills - do not store in weapon data
                 //TODO allow data to be cleared & disabled
                 //TODO allow sorting of the data and graphing
                 //TODO allow other users to see each other's weapon data (with a permission system)
+
+                final Pos bulletStartPoint = getBulletSpawnPoint(yaw, pitch);
+                final Pos aim = getAim(yaw, pitch);
+
+                //Send effect packet to client to render shot was taken
+                if (Engine.instance != null)
+                {
+                    //TODO spawn smoke based on weapon data
+                    //TODO send effect packet so all effects are client generator (reduces packets)
+                    int flames = world.rand.nextInt(5);
+                    int smoke = world.rand.nextInt(10);
+
+                    for (int i = 0; i < flames; i++)
+                    {
+                        Pos vel = aim.multiply(0.2f).addRandom(world.rand, 0.05f);
+                        PacketSpawnParticle packet = new PacketSpawnParticle("flame", world.provider.dimensionId,
+                                bulletStartPoint.x() + aim.x(), bulletStartPoint.y() + aim.y(), bulletStartPoint.z() + aim.z(),
+                                vel.xf(), vel.yf(), vel.zf());
+                        Engine.instance.packetHandler.sendToAllAround(packet, new Location(world, bulletStartPoint), 100);
+                    }
+
+                    for (int i = 0; i < smoke; i++)
+                    {
+                        Pos vel = aim.multiply(0.2f).addRandom(world.rand, 0.05f);
+                        PacketSpawnParticle packet = new PacketSpawnParticle("smoke", world.provider.dimensionId,
+                                bulletStartPoint.x(), bulletStartPoint.y(), bulletStartPoint.z(),
+                                vel.xf(), vel.yf(), vel.zf());
+                        Engine.instance.packetHandler.sendToAllAround(packet, new Location(world, bulletStartPoint), 100);
+                    }
+                }
+
+                //Fire round out of gun
                 if (getChamberedRound().getProjectileVelocity() < 0 || getChamberedRound().getProjectileVelocity() / 20f > PROJECTILE_SPEED_LIMIT)
                 {
-                    _doRayTrace(world, yaw, pitch, getChamberedRound());
+                    _doRayTrace(world, yaw, pitch, getChamberedRound(), bulletStartPoint, aim);
                 }
                 else
                 {
-                    _createAndFireEntity(world, yaw, pitch, getChamberedRound());
+                    _createAndFireEntity(world, yaw, pitch, getChamberedRound(), bulletStartPoint, aim);
                 }
+
                 //Clear current round as it has been fired
                 chamberedRound = null;
+
                 //TODO eject brass/waste from the weapon
                 //TODO generate heat
                 //TODO apply recoil
@@ -143,26 +180,12 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         return getChamberedRound() != null;
     }
 
-    protected void _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound)
+    protected void _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos aim)
     {
-        //Figure out where the player is aiming
-        final Pos aim = getAim(yaw, pitch);
+        final Pos end = start.add(aim.multiply(500));
 
-        //Find our hand position so to position starting point near barrel of the gun
-        final float rotationHand = MathHelper.wrapAngleTo180_float(yaw + 90);
-        final double r = Math.toRadians(rotationHand);
-        final Vec3 hand = Vec3.createVectorHelper(
-                (Math.cos(r) - Math.sin(r)) * 0.5,
-                0,
-                (Math.sin(r) + Math.cos(r)) * 0.5
-        );
-
-        final Pos entityPos = new Pos(entity.posX, entity.posY + 1.1, entity.posZ).add(hand);
-
-        final Pos start = entityPos;
-        final Pos end = entityPos.add(aim.multiply(500));
-
-        if (Engine.instance != null)
+        //Debug ray trace
+        if (Engine.instance != null && Engine.runningAsDev)
         {
             PacketSpawnStream packet = new PacketSpawnStream(world.provider.dimensionId, start, end, 2);
             packet.red = (Color.blue.getRed() / 255f);
@@ -185,9 +208,30 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
     }
 
-    protected void _createAndFireEntity(World world, float yaw, float pitch, IAmmoData nextRound)
+    protected void _createAndFireEntity(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos aim)
     {
         //TODO spawn projectile
+    }
+
+    /**
+     * Calculates the point that the bullet or ray traces starts at
+     *
+     * @param yaw   - player rotation yaw
+     * @param pitch - player rotation pitch
+     * @return position in the world
+     */
+    protected Pos getBulletSpawnPoint(float yaw, float pitch)
+    {
+        //Find our hand position so to position starting point near barrel of the gun
+        final float rotationHand = MathHelper.wrapAngleTo180_float(yaw + 90);
+        final double r = Math.toRadians(rotationHand);
+        final Vec3 hand = Vec3.createVectorHelper(
+                (Math.cos(r) - Math.sin(r)) * 0.5,
+                0,
+                (Math.sin(r) + Math.cos(r)) * 0.5
+        );
+
+        return new Pos(entity.posX, entity.posY + 1.1, entity.posZ).add(hand);
     }
 
     protected void consumeAmmo()
@@ -219,6 +263,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             }
             else
             {
+                unloadWeapon(inventory);
                 loadBestClip(inventory);
             }
         }
@@ -254,7 +299,6 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         if (bestClip != null)
         {
-            unloadWeapon(inventory);
             if (_clip == null)
             {
                 _clip = bestClip;
@@ -347,6 +391,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             }
             else if (_clip instanceof IModule)
             {
+                //TODO send to inventory first, not hotbar
                 ItemStack stack = ((IModule) _clip).toStack();
                 for (int i = 0; i < inventory.getSizeInventory(); i++)
                 {
@@ -372,10 +417,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 {
                     InventoryUtility.dropItemStack(new Location(entity), stack);
                 }
-                else
-                {
-                    _clip = null;
-                }
+                _clip = null;
             }
             updateEntityStack();
         }

@@ -1,13 +1,12 @@
 package com.builtbroken.armory.data.ammo;
 
 import com.builtbroken.armory.data.ArmoryEntry;
+import com.builtbroken.armory.data.damage.DamageData;
+import com.builtbroken.armory.data.damage.DamageSimple;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 
 /**
@@ -17,22 +16,25 @@ import net.minecraft.world.World;
 public class AmmoData extends ArmoryEntry implements IAmmoData
 {
     public final AmmoType ammoType;
-    public final String damageSource;
 
-    public final float damage;
+    public DamageData damageData;
     public final float velocity;
 
     //TODO add optional damage types
     //TODO add effect handlers
     //TODO add damage calculations
 
-    public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType, String source, float damage, float velocity)
+    public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType, DamageData damageData, float velocity)
     {
         super(processor, id, "ammo", name);
         this.ammoType = ammoType;
-        this.damageSource = source;
-        this.damage = damage;
+        this.damageData = damageData;
         this.velocity = velocity;
+    }
+
+    public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType, String source, float damage, float velocity)
+    {
+        this(processor, id, name, ammoType, new DamageSimple(source, damage), velocity);
     }
 
     @Override
@@ -51,7 +53,7 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     @Override
     public float getBaseDamage()
     {
-        return damage;
+        return damageData != null ? damageData.getBaseDamage() : -1;
     }
 
     @Override
@@ -63,16 +65,9 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     @Override
     public boolean onImpactEntity(Entity shooter, Entity entity, float velocity)
     {
-        if (shooter instanceof EntityPlayer)
+        if (damageData != null)
         {
-            ((EntityPlayer) shooter).addChatComponentMessage(new ChatComponentText("Hit: " + entity));
-        }
-        if (damageSource != null && damage > 0)
-        {
-            //TODO create damage source with shooter, gun data, and damage type
-            //TODO calculate armor
-            //TODO apply force
-            entity.attackEntityFrom(DamageSource.generic, damage);
+            return damageData.onImpact(shooter, entity, velocity);
         }
         return true;
     }
@@ -80,9 +75,9 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     @Override
     public boolean onImpactGround(Entity shooter, World world, int x, int y, int z, double hitX, double hitY, double hitZ, float velocity)
     {
-        if (shooter instanceof EntityPlayer)
+        if (damageData != null)
         {
-            ((EntityPlayer) shooter).addChatComponentMessage(new ChatComponentText("Hit: " + hitX + "x " + hitY + "y " + hitZ + "z "));
+            return damageData.onImpact(shooter, world, x, y, z, hitX, hitY, hitZ, velocity);
         }
         return true;
     }

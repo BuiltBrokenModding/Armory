@@ -28,5 +28,19 @@
       "value": 10,
       "type": "impact"
     }
+  },
+  "ammo:3": {
+    "name": "12g.he",
+    "id": "armory:ammo.12g.he",
+    "ammoType": "12g",
+    "velocity": 10,
+    "damage": {
+      "range": 10,
+      "type": "aoe",
+      "damage": {
+        "value": 2,
+        "type": "impact"
+      }
+    }
   }
 }

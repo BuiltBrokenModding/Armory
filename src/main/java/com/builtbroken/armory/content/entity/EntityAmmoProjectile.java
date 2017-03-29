@@ -36,32 +36,38 @@ public class EntityAmmoProjectile extends EntityProjectile
     @Override
     protected void onImpactTile()
     {
-        if (data.onImpactGround(shootingEntity, worldObj, xTile, yTile, zTile, posX, posY, posZ, getVelocity()))
+        if(data != null)
         {
-            this.setDead();
-        }
-        else
-        {
-            //TODO figure out how to handle based on projectile
+            if (data.onImpactGround(shootingEntity, worldObj, xTile, yTile, zTile, posX, posY, posZ, getVelocity()))
+            {
+                this.setDead();
+            }
+            else
+            {
+                //TODO figure out how to handle based on projectile
+            }
         }
     }
 
     @Override
     protected void onImpactEntity(Entity entityHit, float velocity)
     {
-        if (entityHit instanceof EntityProjectile)
+        if(data != null)
         {
-            //TODO implement special handling for impacting bullets
-            //TODO for now ignore bullet collisions
-            return;
-        }
-        if (data.onImpactEntity(entityHit, shootingEntity, posX, posY, posZ, velocity))
-        {
-            this.setDead();
-        }
-        else
-        {
-            //TODO figure out how to handle based on projectile
+            if (entityHit instanceof EntityProjectile)
+            {
+                //TODO implement special handling for impacting bullets
+                //TODO for now ignore bullet collisions
+                return;
+            }
+            if (data.onImpactEntity(entityHit, shootingEntity, posX, posY, posZ, velocity))
+            {
+                this.setDead();
+            }
+            else
+            {
+                //TODO figure out how to handle based on projectile
+            }
         }
     }
 

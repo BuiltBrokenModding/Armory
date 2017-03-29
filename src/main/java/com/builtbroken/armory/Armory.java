@@ -1,5 +1,6 @@
 package com.builtbroken.armory;
 
+import com.builtbroken.armory.content.entity.EntityAmmoProjectile;
 import com.builtbroken.armory.content.items.ItemAmmo;
 import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.armory.content.items.ItemGun;
@@ -18,6 +19,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.item.Item;
 
 /**
@@ -91,6 +93,7 @@ public final class Armory extends AbstractMod
     public void init(FMLInitializationEvent event)
     {
         super.init(event);
+        EntityRegistry.registerModEntity(EntityAmmoProjectile.class, "ArmoryProjectile", 0, this, 500, 1, true);
     }
 
     @Mod.EventHandler

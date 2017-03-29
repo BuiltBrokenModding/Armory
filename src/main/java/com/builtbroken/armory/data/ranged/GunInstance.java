@@ -41,7 +41,7 @@ import java.awt.*;
 public class GunInstance extends AbstractModule implements ISave, IGun
 {
     /** How fast a projectile can travel before a ray trace is used instead */
-    public static final float PROJECTILE_SPEED_LIMIT = 0.05f; // 20th of a block thickness a tick
+    public static final float PROJECTILE_SPEED_LIMIT = 100;
     /** Who is holding the weapon */
     public final Entity entity;
     /** Properties of the weapon */
@@ -152,7 +152,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 }
 
                 //Fire round out of gun
-                if (getChamberedRound().getProjectileVelocity() < 0 || getChamberedRound().getProjectileVelocity() / 20f > PROJECTILE_SPEED_LIMIT)
+                if (getChamberedRound().getProjectileVelocity() < 0 || getChamberedRound().getProjectileVelocity() > PROJECTILE_SPEED_LIMIT)
                 {
                     _doRayTrace(world, yaw, pitch, getChamberedRound(), entityPos.add(aim), target, aim);
                 }
@@ -234,6 +234,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         //projectile.rotationPitch = pitchProjectile;
 
         projectile.setThrowableHeading(deltaX, deltaY, deltaZ, nextRound.getProjectileVelocity(), 0);
+
+        world.spawnEntityInWorld(projectile);
 
     }
 

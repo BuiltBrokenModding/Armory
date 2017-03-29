@@ -2,7 +2,7 @@ package com.builtbroken.armory.json.processor;
 
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
-import com.builtbroken.armory.data.ammo.ClipData;
+import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

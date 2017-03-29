@@ -5,7 +5,7 @@ import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
-import com.builtbroken.armory.data.ammo.ClipData;
+import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;

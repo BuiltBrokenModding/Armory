@@ -4,7 +4,7 @@ import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
-import com.builtbroken.armory.data.ammo.ClipData;
+import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;

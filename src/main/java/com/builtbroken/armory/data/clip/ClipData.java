@@ -1,4 +1,4 @@
-package com.builtbroken.armory.data.ammo;
+package com.builtbroken.armory.data.clip;
 
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;

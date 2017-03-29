@@ -1,4 +1,4 @@
-package com.builtbroken.armory.data.ammo;
+package com.builtbroken.armory.data.clip;
 
 import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.mc.api.ISave;

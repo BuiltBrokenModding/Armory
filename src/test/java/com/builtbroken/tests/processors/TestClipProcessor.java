@@ -2,7 +2,7 @@ package com.builtbroken.tests.processors;
 
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
-import com.builtbroken.armory.data.ammo.ClipData;
+import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.armory.json.processor.ClipJsonProcessor;

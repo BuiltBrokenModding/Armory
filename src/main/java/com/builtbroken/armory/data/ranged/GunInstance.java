@@ -2,8 +2,8 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.ArmoryDataHandler;
-import com.builtbroken.armory.data.ammo.ClipInstance;
-import com.builtbroken.armory.data.ammo.ClipInstanceItem;
+import com.builtbroken.armory.data.clip.ClipInstance;
+import com.builtbroken.armory.data.clip.ClipInstanceItem;
 import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.data.weapon.*;
 import com.builtbroken.mc.api.items.weapons.IItemAmmo;

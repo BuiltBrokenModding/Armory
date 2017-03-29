@@ -55,7 +55,7 @@ public class EntityAmmoProjectile extends EntityProjectile
             //TODO for now ignore bullet collisions
             return;
         }
-        if (data.onImpactEntity(entityHit, shootingEntity, velocity))
+        if (data.onImpactEntity(entityHit, shootingEntity, posX, posY, posZ, velocity))
         {
             this.setDead();
         }

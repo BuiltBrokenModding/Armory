@@ -63,11 +63,11 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     }
 
     @Override
-    public boolean onImpactEntity(Entity shooter, Entity entity, float velocity)
+    public boolean onImpactEntity(Entity shooter, Entity entity, double hitX, double hitY, double hitZ, float velocity)
     {
         if (damageData != null)
         {
-            return damageData.onImpact(shooter, entity, velocity);
+            return damageData.onImpact(shooter, entity, hitX, hitY, hitZ, velocity, 1);
         }
         return true;
     }
@@ -77,7 +77,7 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     {
         if (damageData != null)
         {
-            return damageData.onImpact(shooter, world, x, y, z, hitX, hitY, hitZ, velocity);
+            return damageData.onImpact(shooter, world, x, y, z, hitX, hitY, hitZ, velocity, 1);
         }
         return true;
     }

@@ -19,7 +19,7 @@ public abstract class DamageData
      * @param velocity - how fast the projectile is going per second
      * @return true if the projectile should stop or die
      */
-    public boolean onImpact(Entity attacker, Entity entity, float velocity)
+    public boolean onImpact(Entity attacker, Entity entity, double hitX, double hitY, double hitZ, float velocity, float scale)
     {
         return true;
     }
@@ -38,7 +38,7 @@ public abstract class DamageData
      * @param velocity - how fast the projectile is going per second
      * @return true if the projectile should stop or die
      */
-    public boolean onImpact(Entity attacker, World world, int x, int y, int z, double hitX, double hitY, double hitZ, float velocity)
+    public boolean onImpact(Entity attacker, World world, int x, int y, int z, double hitX, double hitY, double hitZ, float velocity, float scale)
     {
         return true;
     }

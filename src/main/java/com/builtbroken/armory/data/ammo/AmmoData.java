@@ -2,12 +2,14 @@ package com.builtbroken.armory.data.ammo;
 
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.damage.DamageData;
-import com.builtbroken.armory.data.damage.DamageSimple;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -17,24 +19,20 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
 {
     public final AmmoType ammoType;
 
-    public DamageData damageData;
+    public final List<DamageData> damageData = new ArrayList();
     public final float velocity;
+
+    private float damageCached = -1;
 
     //TODO add optional damage types
     //TODO add effect handlers
     //TODO add damage calculations
 
-    public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType, DamageData damageData, float velocity)
+    public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType, float velocity)
     {
         super(processor, id, "ammo", name);
         this.ammoType = ammoType;
-        this.damageData = damageData;
         this.velocity = velocity;
-    }
-
-    public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType, String source, float damage, float velocity)
-    {
-        this(processor, id, name, ammoType, new DamageSimple(source, damage), velocity);
     }
 
     @Override
@@ -53,7 +51,15 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     @Override
     public float getBaseDamage()
     {
-        return damageData != null ? damageData.getBaseDamage() : -1;
+        if (damageCached == -1)
+        {
+            damageCached = 0;
+            for (DamageData data : damageData)
+            {
+                damageCached += data.getBaseDamage();
+            }
+        }
+        return damageCached;
     }
 
     @Override
@@ -65,21 +71,29 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     @Override
     public boolean onImpactEntity(Entity shooter, Entity entity, double hitX, double hitY, double hitZ, float velocity)
     {
-        if (damageData != null)
+        boolean destroy = false;
+        for (DamageData data : damageData)
         {
-            return damageData.onImpact(shooter, entity, hitX, hitY, hitZ, velocity, 1);
+            if (data.onImpact(shooter, entity, hitX, hitY, hitZ, velocity, 1))
+            {
+                destroy = true;
+            }
         }
-        return true;
+        return destroy;
     }
 
     @Override
     public boolean onImpactGround(Entity shooter, World world, int x, int y, int z, double hitX, double hitY, double hitZ, float velocity)
     {
-        if (damageData != null)
+        boolean destroy = false;
+        for (DamageData data : damageData)
         {
-            return damageData.onImpact(shooter, world, x, y, z, hitX, hitY, hitZ, velocity, 1);
+            if (data.onImpact(shooter, world, x, y, z, hitX, hitY, hitZ, velocity, 1))
+            {
+                destroy = true;
+            }
         }
-        return true;
+        return destroy;
     }
 
     @Override

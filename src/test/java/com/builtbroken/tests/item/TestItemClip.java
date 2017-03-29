@@ -5,6 +5,7 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.clip.ClipData;
+import com.builtbroken.armory.data.damage.DamageSimple;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
@@ -147,7 +148,10 @@ public class TestItemClip extends AbstractArmoryTest
 
         for (int i = 0; i < 6; i++)
         {
-            ArmoryDataHandler.INSTANCE.get("ammo").add(new AmmoData(null, "" + i, "ammo" + i, type, "impact", i, -1));
+            AmmoData data = new AmmoData(null, "" + i, "ammo" + i, type, -1);
+            data.damageData.add(new DamageSimple("impact", i));
+            ArmoryDataHandler.INSTANCE.get("ammo").add(data);
+
         }
     }
 

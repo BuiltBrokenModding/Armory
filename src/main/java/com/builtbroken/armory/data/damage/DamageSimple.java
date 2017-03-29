@@ -19,12 +19,12 @@ public class DamageSimple extends DamageData
     }
 
     @Override
-    public boolean onImpact(Entity attacker, Entity entity, float velocity)
+    public boolean onImpact(Entity attacker, Entity entity, double hitX, double hitY, double hitZ, float velocity, float scale)
     {
         //TODO create damage source with shooter, gun data, and damage type
         //TODO calculate armor
         //TODO apply force
-        entity.attackEntityFrom(DamageSource.generic, damage); //TODO replace with exact type
+        entity.attackEntityFrom(DamageSource.generic, damage * scale); //TODO replace with exact type
 
         return true;
     }

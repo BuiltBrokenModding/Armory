@@ -201,7 +201,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             if (hit.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
             {
-                nextRound.onImpactEntity(entity, hit.entityHit, nextRound.getProjectileVelocity()); //TODO scale velocity by distance
+                nextRound.onImpactEntity(entity, hit.entityHit, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity()); //TODO scale velocity by distance
             }
             else
             {

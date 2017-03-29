@@ -3,6 +3,7 @@ package com.builtbroken.tests.processors;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
+import com.builtbroken.armory.data.damage.DamageSimple;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.armory.json.processor.AmmoJsonProcessor;
 import com.builtbroken.mc.testing.junit.AbstractTest;
@@ -42,8 +43,10 @@ public class TestAmmoProcessor extends AbstractTest
         JsonElement element = Streams.parse(jsonReader);
         AmmoJsonProcessor processor = new AmmoJsonProcessor();
         AmmoData data = processor.process(element.getAsJsonObject().get("ammo"));
-        assertEquals("impact", data.damageSource);
-        assertEquals(5f, data.damage);
+        assertEquals(1, data.damageData.size());
+        assertTrue(data.damageData.get(0) instanceof DamageSimple);
+        assertEquals("impact", ((DamageSimple) data.damageData.get(0)).damageSource);
+        assertEquals(5f, ((DamageSimple) data.damageData.get(0)).damage);
         assertSame(ammoType, data.ammoType);
     }
 }

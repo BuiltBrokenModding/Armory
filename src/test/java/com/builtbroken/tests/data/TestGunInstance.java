@@ -6,6 +6,7 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.clip.ClipData;
+import com.builtbroken.armory.data.damage.DamageSimple;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
@@ -226,7 +227,8 @@ public class TestGunInstance extends AbstractArmoryTest
 
         for (int i = 0; i < 5; i++)
         {
-            AmmoData data = new AmmoData(null, "ammo" + i, "ammo" + i, ammoType, "impact", 5 + i, 100);
+            AmmoData data = new AmmoData(null, "ammo" + i, "ammo" + i, ammoType, 100);
+            data.damageData.add(new DamageSimple("impact", 5 + i));
             data.set(itemAmmo, i);
             ArmoryDataHandler.INSTANCE.get("ammo").add(data);
             ArmoryDataHandler.INSTANCE.get("ammo").metaToEntry.put(i, data);

@@ -2,6 +2,8 @@ package com.builtbroken.armory.client;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.CommonProxy;
+import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
+import com.builtbroken.armory.content.entity.projectile.RenderEntityProjectile;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
@@ -30,5 +32,6 @@ public class ClientProxy extends CommonProxy
         ItemGunRenderer renderer = new ItemGunRenderer();
         MinecraftForgeClient.registerItemRenderer(Armory.itemGun, renderer);
         MinecraftForge.EVENT_BUS.register(renderer);
+        RenderingRegistry.registerEntityRenderingHandler(EntityAmmoProjectile.class, new RenderEntityProjectile());
     }
 }

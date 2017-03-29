@@ -1,0 +1,32 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "render": {
+    "contentID": "armory:ammo.12g.he",
+    "type":"item",
+    "states": [
+      {
+        "id": 0,
+        "textureID": "armory:shotgunTestIcon.he"
+      }
+    ]
+  },
+  "texture": {
+    "key": "armory:shotgunTestTexture.he",
+    "domain": "armory",
+    "name": "blackTexture",
+    "type": "model"
+  },
+  "texture:1": {
+    "key": "armory:shotgunTestIcon.he",
+    "domain": "armory",
+    "name": "shotgun.shell.he",
+    "type": "item"
+  },
+  "model": {
+    "key": "armory:shotgunTestModel.he",
+    "domain": "armory",
+    "name": "shotgun.tcn"
+  }
+}

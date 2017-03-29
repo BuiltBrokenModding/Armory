@@ -31,15 +31,21 @@ public class DamageAOE extends DamageData
     @Override
     public boolean onImpact(Entity attacker, World world, int x, int y, int z, double hitX, double hitY, double hitZ, float velocity, float scale)
     {
-        doAOE(attacker, world, hitX, hitY, hitZ, velocity, scale);
+        if (!world.isRemote)
+        {
+            doAOE(attacker, world, hitX, hitY, hitZ, velocity, scale);
+        }
         return true;
     }
 
     @Override
     public boolean onImpact(Entity attacker, Entity entity, double hitX, double hitY, double hitZ, float velocity, float scale)
     {
-        //TODO apply impact damage to hit entity
-        doAOE(attacker, entity.worldObj, hitX, hitY, hitZ, velocity, scale);
+        if (entity != null)
+        {
+            //TODO apply impact damage to hit entity
+            doAOE(attacker, entity.worldObj, hitX, hitY, hitZ, velocity, scale);
+        }
         return true;
     }
 

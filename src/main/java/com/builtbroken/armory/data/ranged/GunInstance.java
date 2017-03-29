@@ -1,7 +1,7 @@
 package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.Armory;
-import com.builtbroken.armory.content.entity.EntityAmmoProjectile;
+import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.clip.ClipInstance;
 import com.builtbroken.armory.data.clip.ClipInstanceItem;
@@ -223,17 +223,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         double deltaX = end.x() - start.x();
         double deltaY = end.y() - start.y();
         double deltaZ = end.z() - start.z();
-        //double distance = (double) MathHelper.sqrt_double(deltaX * deltaX + deltaZ * deltaZ);
 
-        //Calculate yaw and pitch to aim towards target
-        //float yawProjectile = (float) (Math.atan2(deltaZ, deltaX) * 180.0D / Math.PI) - 90.0F;
-       // float pitchProjectile = (float) (-(Math.atan2(deltaY, distance) * 180.0D / Math.PI));
-
-        //Set projectile yaw and pitch
-        //projectile.rotationYaw = yawProjectile;
-        //projectile.rotationPitch = pitchProjectile;
-
-        projectile.setThrowableHeading(deltaX, deltaY, deltaZ, nextRound.getProjectileVelocity(), 0);
+        projectile.setThrowableHeading(deltaX, deltaY, deltaZ, 10, 0);
 
         world.spawnEntityInWorld(projectile);
 

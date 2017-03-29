@@ -1,6 +1,6 @@
 package com.builtbroken.armory;
 
-import com.builtbroken.armory.content.entity.EntityAmmoProjectile;
+import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.content.items.ItemAmmo;
 import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.armory.content.items.ItemGun;

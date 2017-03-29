@@ -1,6 +1,7 @@
 package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.content.entity.EntityAmmoProjectile;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.clip.ClipInstance;
 import com.builtbroken.armory.data.clip.ClipInstanceItem;
@@ -121,6 +122,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 final Pos entityPos = getEntityPosition();
                 final Pos bulletStartPoint = entityPos.add(getBulletSpawnOffset(yaw, pitch));
                 final Pos aim = getAim(yaw, pitch);
+                final Pos target = entityPos.add(aim.multiply(500));
 
                 //Send effect packet to client to render shot was taken
                 if (Engine.instance != null)
@@ -152,12 +154,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //Fire round out of gun
                 if (getChamberedRound().getProjectileVelocity() < 0 || getChamberedRound().getProjectileVelocity() / 20f > PROJECTILE_SPEED_LIMIT)
                 {
-                    final Pos end = entityPos.add(aim.multiply(500));
-                    _doRayTrace(world, yaw, pitch, getChamberedRound(), entityPos.add(aim), end, aim);
+                    _doRayTrace(world, yaw, pitch, getChamberedRound(), entityPos.add(aim), target, aim);
                 }
                 else
                 {
-                    _createAndFireEntity(world, yaw, pitch, getChamberedRound(), bulletStartPoint, aim);
+                    _createAndFireEntity(world, yaw, pitch, getChamberedRound(), bulletStartPoint, target, aim);
                 }
 
                 //Clear current round as it has been fired
@@ -210,9 +211,30 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
     }
 
-    protected void _createAndFireEntity(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos aim)
+    protected void _createAndFireEntity(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos end, Pos aim)
     {
+        Pos spawnPoint = getEntityPosition().add(getBulletSpawnOffset(yaw, pitch));
         //TODO spawn projectile
+        EntityAmmoProjectile projectile = new EntityAmmoProjectile(world, nextRound, this, entity);
+
+        projectile.setPosition(spawnPoint.x(), spawnPoint.y(), spawnPoint.z());
+
+        //Calculate deltas
+        double deltaX = end.x() - start.x();
+        double deltaY = end.y() - start.y();
+        double deltaZ = end.z() - start.z();
+        //double distance = (double) MathHelper.sqrt_double(deltaX * deltaX + deltaZ * deltaZ);
+
+        //Calculate yaw and pitch to aim towards target
+        //float yawProjectile = (float) (Math.atan2(deltaZ, deltaX) * 180.0D / Math.PI) - 90.0F;
+       // float pitchProjectile = (float) (-(Math.atan2(deltaY, distance) * 180.0D / Math.PI));
+
+        //Set projectile yaw and pitch
+        //projectile.rotationYaw = yawProjectile;
+        //projectile.rotationPitch = pitchProjectile;
+
+        projectile.setThrowableHeading(deltaX, deltaY, deltaZ, nextRound.getProjectileVelocity(), 0);
+
     }
 
     /**

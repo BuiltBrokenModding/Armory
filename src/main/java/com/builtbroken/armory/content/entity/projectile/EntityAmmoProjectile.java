@@ -45,7 +45,7 @@ public class EntityAmmoProjectile extends EntityProjectile implements IEntityAdd
         {
             if (ammoData.onImpactGround(shootingEntity, worldObj, xTile, yTile, zTile, posX, posY, posZ, getVelocity()))
             {
-                //this.setDead();
+                this.setDead();
             }
             else
             {
@@ -67,7 +67,7 @@ public class EntityAmmoProjectile extends EntityProjectile implements IEntityAdd
             }
             if (ammoData.onImpactEntity(entityHit, shootingEntity, posX, posY, posZ, velocity))
             {
-                //this.setDead();
+                this.setDead();
             }
             else
             {

@@ -25,8 +25,8 @@ public class DamageJsonProcessorBlast extends DamageJsonProcessor
         ensureValuesExist(blastObject, "id", "size");
 
         //Load blast data
-        String blast = blastObject .get("id").getAsJsonPrimitive().getAsString();
-        float size = blastObject .get("size").getAsJsonPrimitive().getAsFloat();
+        String blast = blastObject.get("id").getAsJsonPrimitive().getAsString();
+        float size = blastObject.get("size").getAsJsonPrimitive().getAsFloat();
 
         //Get handler and check if is not null
         IExplosiveHandler handler = ExplosiveRegistry.get(blast);

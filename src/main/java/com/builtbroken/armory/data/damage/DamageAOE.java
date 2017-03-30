@@ -1,6 +1,7 @@
 package com.builtbroken.armory.data.damage;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
@@ -22,8 +23,9 @@ public class DamageAOE extends DamageData
     /** Max range in meters */
     public final float range;
 
-    public DamageAOE(DamageData damageToApply, float range)
+    public DamageAOE(IJsonProcessor processor, DamageData damageToApply, float range)
     {
+        super(processor);
         this.damageToApply = damageToApply;
         this.range = range;
     }

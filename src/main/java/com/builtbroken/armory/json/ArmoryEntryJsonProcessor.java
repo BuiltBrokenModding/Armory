@@ -1,4 +1,4 @@
-package com.builtbroken.armory.json.processor;
+package com.builtbroken.armory.json;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.ArmoryEntry;

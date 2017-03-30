@@ -1,5 +1,7 @@
 package com.builtbroken.armory.data.damage;
 
+import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
+import com.builtbroken.mc.lib.json.processors.JsonGenData;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
@@ -9,8 +11,13 @@ import net.minecraft.world.World;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/28/2017.
  */
-public abstract class DamageData
+public abstract class DamageData extends JsonGenData
 {
+    public DamageData(IJsonProcessor processor)
+    {
+        super(processor);
+    }
+
     /**
      * Called when the projectile hits the entity
      *

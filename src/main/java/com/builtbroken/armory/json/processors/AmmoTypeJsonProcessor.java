@@ -1,7 +1,8 @@
-package com.builtbroken.armory.json.processor;
+package com.builtbroken.armory.json.processors;
 
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
+import com.builtbroken.armory.json.ArmoryEntryJsonProcessor;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

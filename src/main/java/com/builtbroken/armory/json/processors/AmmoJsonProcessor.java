@@ -1,12 +1,11 @@
-package com.builtbroken.armory.json.processor;
+package com.builtbroken.armory.json.processors;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
-import com.builtbroken.armory.data.damage.DamageAOE;
-import com.builtbroken.armory.data.damage.DamageData;
-import com.builtbroken.armory.data.damage.DamageSimple;
+import com.builtbroken.armory.json.ArmoryEntryJsonProcessor;
+import com.builtbroken.armory.json.damage.DamageJsonProcessor;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -59,7 +58,7 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
         {
             if (entry.getKey().startsWith("damage"))
             {
-                data.damageData.add(loadDamageData(entry.getValue().getAsJsonObject()));
+                DamageJsonProcessor.processor.process(entry.getValue());
                 damageDetected = true;
             }
         }
@@ -73,32 +72,5 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
         processExtraData(object, data);
 
         return data;
-    }
-
-    /**
-     * Called to load damage data from json
-     *
-     * @param damageObject
-     * @return
-     */
-    protected DamageData loadDamageData(JsonObject damageObject)
-    {
-        ensureValuesExist(damageObject, "type");
-        final String source = damageObject.get("type").getAsString();
-
-        //TODO replace with json loaders to allow more damage types
-        if (source.equalsIgnoreCase("aoe"))
-        {
-            ensureValuesExist(damageObject, "damage", "range");
-            DamageData damageData = loadDamageData(damageObject.get("damage").getAsJsonObject());
-            float range = damageObject.get("range").getAsJsonPrimitive().getAsFloat();
-            return new DamageAOE(damageData, range);
-        }
-        else
-        {
-            ensureValuesExist(damageObject, "value");
-            float damage = damageObject.getAsJsonPrimitive("value").getAsFloat();
-            return new DamageSimple(source, damage);
-        }
     }
 }

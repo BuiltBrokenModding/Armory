@@ -5,7 +5,7 @@ import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.damage.DamageSimple;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
-import com.builtbroken.armory.json.processor.AmmoJsonProcessor;
+import com.builtbroken.armory.json.processors.AmmoJsonProcessor;
 import com.builtbroken.mc.testing.junit.AbstractTest;
 import com.builtbroken.mc.testing.junit.VoltzTestRunner;
 import com.google.gson.JsonElement;

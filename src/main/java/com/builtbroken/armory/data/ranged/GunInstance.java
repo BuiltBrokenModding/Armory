@@ -32,6 +32,8 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The actual gun instance used for data accessing and handling
@@ -161,6 +163,17 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 else
                 {
                     _createAndFireEntity(world, yaw, pitch, getChamberedRound(), bulletStartPoint, target, aim);
+                }
+
+                List<ItemStack> droppedItems = new ArrayList();
+                chamberedRound.getEjectedItems(droppedItems);
+                if (droppedItems != null && droppedItems.size() > 0)
+                {
+                    //TODO get eject point and direction on gun to make a more realistic drop
+                    for (ItemStack stack : droppedItems)
+                    {
+                        InventoryUtility.dropItemStack(world, bulletStartPoint.sub(aim.multiply(0.2f)), stack, 20, 0.1f);
+                    }
                 }
 
                 //Clear current round as it has been fired
@@ -373,12 +386,12 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             Armory.INSTANCE.logger().error("Reload was called on '" + entity + "' but it had no inventory.");
         }
-        if(doAction)
+        if (doAction)
         {
             //Mark that reload was processed
             doReload = false;
         }
-        if(reloaded && doAction)
+        if (reloaded && doAction)
         {
             updateEntityStack();
         }
@@ -657,7 +670,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             NBTTagCompound clipTag = new NBTTagCompound();
             if (_clip instanceof ClipInstance)
             {
-                if(_clip.getAmmoCount() > 0)
+                if (_clip.getAmmoCount() > 0)
                 {
                     ((ClipInstance) _clip).save(clipTag);
                     nbt.setTag(NBT_CLIP, clipTag);

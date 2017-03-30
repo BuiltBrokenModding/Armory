@@ -21,6 +21,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
@@ -141,11 +142,24 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
         {
             if (entity instanceof EntityPlayer)
             {
-                if (leftClickHeld.containsKey(entity) && slot == ((EntityPlayer) entity).inventory.currentItem)
+                GunInstance gun = getGunInstance(stack, (EntityPlayer) entity);
+                //Detect if we have ammo to fire
+                if (gun.getChamberedRound() != null || gun.hasAmmo())
                 {
-                    int ticks = leftClickHeld.get(entity) + 1;
-                    leftClickHeld.put((EntityPlayer) entity, ticks);
-                    onLeftClickHeld(stack, getGunInstance(stack, (EntityPlayer) entity), world, (EntityPlayer) entity, slot, ticks);
+                    if (leftClickHeld.containsKey(entity) && slot == ((EntityPlayer) entity).inventory.currentItem)
+                    {
+                        int ticks = leftClickHeld.get(entity) + 1;
+                        leftClickHeld.put((EntityPlayer) entity, ticks);
+                        onLeftClickHeld(stack, gun, world, (EntityPlayer) entity, slot, ticks);
+                    }
+                }
+                else
+                {
+                    if (entity instanceof EntityPlayer)
+                    {
+                        ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Reloading weapon.... eta: " + gun.getGunData().getReloadTime() + "s")); //TODO translate
+                    }
+                    gun.doReloadTick();
                 }
             }
         }

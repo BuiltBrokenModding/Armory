@@ -26,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -58,6 +59,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     /** Last time the weapon was fired, milliseconds */
     public Long lastTimeFired = 0L;
+    /** Toggle to do reload */
+    public boolean doReload = false;
+    /** Delay before reloading */
+    protected int reloadDelay = 0;
 
     public GunInstance(ItemStack gunStack, Entity entity, IGunData gun)
     {
@@ -171,17 +176,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             updateEntityStack();
         }
 
-        //If no ammo reload the weapon
         if (!hasAmmo())
         {
-            boolean singleShot = gunData.getReloadType() == ReloadType.BREACH_LOADED || gunData.getReloadType() == ReloadType.FRONT_LOADED;
-            if(!singleShot || chamberedRound == null)
-            {
-                reloadWeapon(getInventory());
-                chamberNextRound();
-                updateEntityStack();
-            }
-            //TODO return if animation needs to play
+            doReload = true;
+            //TODO play empty gun click
         }
     }
 
@@ -300,11 +298,60 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         return new Pos(aimX, aimY, aimZ);
     }
 
+    /**
+     * Called to see if the gun has an ammo item inserted.
+     * Does not check chambered round, so will not work
+     * for single shot weapons.
+     *
+     * @return true if has ammo inserted
+     */
     public boolean hasAmmo()
     {
         return getLoadedClip() != null && getLoadedClip().getAmmoCount() > 0;
     }
 
+    /**
+     * Called to tick the gun for reload.
+     */
+    public void doReloadTick()
+    {
+        //If first tick set reload time
+        if (reloadDelay == -1)
+        {
+            reloadDelay = gunData.getReloadTime() * 20; //20 ticks a second, Reload time is in seconds, we update in ticks
+        }
+        //Tick reload timer
+        if (reloadDelay-- <= 0)
+        {
+            //Reset timer
+            reloadDelay = -1;
+
+            //Detect if single shot weapon
+            boolean singleShot = gunData.getReloadType() == ReloadType.BREACH_LOADED || gunData.getReloadType() == ReloadType.FRONT_LOADED;
+
+            //If not single shot (clip) or single shot & no round, do reload
+            if (!singleShot || chamberedRound == null)
+            {
+                //Reload weapon
+                reloadWeapon(getInventory());
+                //Chamber next round
+                chamberNextRound();
+                //Update item in entity inventory
+                updateEntityStack();
+            }
+        }
+        //Play animation or audio while reloading
+        else
+        {
+            //TODO run animation
+        }
+    }
+
+    /**
+     * Called to reload the weapon from inventory
+     *
+     * @param inventory - inventory of the entity
+     */
     public void reloadWeapon(IInventory inventory)
     {
         if (inventory != null)
@@ -319,6 +366,12 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 loadBestClip(inventory);
             }
         }
+        else if (Armory.INSTANCE != null)
+        {
+            Armory.INSTANCE.logger().error("Reload was called on '" + entity + "' but it had no inventory.");
+        }
+        //Mark that reload was processed
+        doReload = false;
     }
 
     private void loadBestClip(IInventory inventory)
@@ -358,10 +411,15 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             }
             updateEntityStack();
         }
+        else if (entity instanceof EntityPlayer)
+        {
+            ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("There is no ammo of type '" + gunData.getAmmoType() + "' to load into the gun.")); //TODO translate
+        }
     }
 
     private void loadRound(IInventory inventory)
     {
+        int roundsLoad = 0;
         InventoryIterator it = new InventoryIterator(inventory, true);
         for (ItemStack stack : it)
         {
@@ -376,13 +434,29 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     {
                         if (getLoadedClip().getAmmoCount() < getLoadedClip().getClipData().getMaxAmmo())
                         {
-                            inventory.decrStackSize(it.slot(), getLoadedClip().loadAmmo(data, ammo.getAmmoCount(stack)));
+                            //Decrease stack and load gun
+                            int l = getLoadedClip().loadAmmo(data, ammo.getAmmoCount(stack));
+                            inventory.decrStackSize(it.slot(), l);
+                            roundsLoad += l;
                         }
                     }
                 }
             }
+
+            //Exit loop if full
+            if (getLoadedClip().getAmmoCount() >= getLoadedClip().getMaxAmmo())
+            {
+                break;
+            }
         }
-        updateEntityStack();
+        if (roundsLoad > 0)
+        {
+            updateEntityStack();
+        }
+        else if (entity instanceof EntityPlayer)
+        {
+            ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("There is no ammo of type '" + gunData.getAmmoType() + "' to load into the gun."));  //TODO translate
+        }
     }
 
     private void updateEntityStack()

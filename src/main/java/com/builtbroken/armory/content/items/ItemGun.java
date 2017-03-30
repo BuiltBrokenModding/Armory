@@ -141,13 +141,15 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     {
         if (!world.isRemote)
         {
-            if (entity instanceof EntityPlayer)
+            //Only update if we are a player, the slot is the held item, and the held item is a gun
+            if (entity instanceof EntityPlayer && slot == ((EntityPlayer) entity).inventory.currentItem
+                    && ((EntityPlayer) entity).inventory.getCurrentItem() != null && ((EntityPlayer) entity).inventory.getCurrentItem().getItem() instanceof ItemGun)
             {
                 GunInstance gun = getGunInstance(stack, (EntityPlayer) entity);
                 //Detect if we have ammo to fire
                 if (gun.getChamberedRound() != null || gun.hasAmmo())
                 {
-                    if (leftClickHeld.containsKey(entity) && slot == ((EntityPlayer) entity).inventory.currentItem)
+                    if (leftClickHeld.containsKey(entity))
                     {
                         int ticks = leftClickHeld.get(entity) + 1;
                         leftClickHeld.put((EntityPlayer) entity, ticks);

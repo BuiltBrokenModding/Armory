@@ -189,6 +189,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             chamberedRound = getLoadedClip().getAmmo().peek();
             getLoadedClip().consumeAmmo(1);
+            updateEntityStack();
         }
         return getChamberedRound() != null;
     }
@@ -336,8 +337,6 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 reloadWeapon(getInventory(), true);
                 //Chamber next round
                 chamberNextRound();
-                //Update item in entity inventory
-                updateEntityStack();
             }
         }
         //Play animation or audio while reloading
@@ -379,6 +378,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             //Mark that reload was processed
             doReload = false;
         }
+        if(reloaded && doAction)
+        {
+            updateEntityStack();
+        }
         return reloaded;
     }
 
@@ -419,7 +422,6 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     _clip = bestClip;
                     inventory.decrStackSize(slot, 1);
                 }
-                updateEntityStack();
             }
             return true;
         }
@@ -471,10 +473,6 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         if (roundsLoad > 0)
         {
-            if (doAction)
-            {
-                updateEntityStack();
-            }
             return true;
         }
         else if (entity instanceof EntityPlayer)
@@ -494,6 +492,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             {
                 ((EntityPlayer) entity).inventory.setInventorySlotContents(((EntityPlayer) entity).inventory.currentItem, updated);
                 ((EntityPlayer) entity).inventoryContainer.detectAndSendChanges();
+                System.out.println("Updated gun stack");
             }
         }
     }
@@ -641,6 +640,12 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     }
 
     @Override
+    protected boolean saveTag()
+    {
+        return false;
+    }
+
+    @Override
     public NBTTagCompound save(NBTTagCompound nbt)
     {
         if (getChamberedRound() != null)
@@ -652,14 +657,18 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             NBTTagCompound clipTag = new NBTTagCompound();
             if (_clip instanceof ClipInstance)
             {
-                ((ClipInstance) _clip).save(clipTag);
+                if(_clip.getAmmoCount() > 0)
+                {
+                    ((ClipInstance) _clip).save(clipTag);
+                    nbt.setTag(NBT_CLIP, clipTag);
+                }
             }
             else
             {
                 clipTag.setString("data", _clip.getClipData().getUniqueID());
                 clipTag.setTag("stack", ((ClipInstanceItem) _clip).save().writeToNBT(new NBTTagCompound()));
+                nbt.setTag(NBT_CLIP, clipTag);
             }
-            nbt.setTag(NBT_CLIP, clipTag);
         }
         return nbt;
     }

@@ -24,7 +24,10 @@ public class DamageSimple extends DamageData
         //TODO create damage source with shooter, gun data, and damage type
         //TODO calculate armor
         //TODO apply force
-        entity.attackEntityFrom(DamageSource.generic, damage * scale); //TODO replace with exact type
+        if(entity != null)
+        {
+            entity.attackEntityFrom(DamageSource.generic, damage * scale); //TODO replace with exact type
+        }
 
         return true;
     }

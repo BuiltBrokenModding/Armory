@@ -8,6 +8,7 @@ import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.IGunData;
 import com.builtbroken.mc.api.items.IMouseButtonHandler;
+import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
@@ -19,6 +20,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
@@ -69,10 +71,13 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             list.add("Ammo: " + data.getAmmoType().getDisplayString());
             if (gun != null)
             {
-                list.add("Chamber: " + (gun.getChamberedRound() != null ? gun.getChamberedRound().getDisplayString() : "null"));
+                list.add("Chamber: " + (gun.getChamberedRound() != null ? gun.getChamberedRound().getDisplayString() : "empty"));
                 if (gun.getLoadedClip() != null)
                 {
-                    list.add("Rounds: " + gun.getLoadedClip().getAmmoCount() + "/" + gun.getLoadedClip().getMaxAmmo());
+                    if (gun.getLoadedClip().getMaxAmmo() > 1)
+                    {
+                        list.add("Rounds: " + gun.getLoadedClip().getAmmoCount() + "/" + gun.getLoadedClip().getMaxAmmo());
+                    }
                 }
                 else
                 {
@@ -310,6 +315,53 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
         defaultGunIcons[0] = reg.registerIcon(Armory.PREFIX + "shotgun");
         defaultGunIcons[1] = reg.registerIcon(Armory.PREFIX + "assaultRifle");
         defaultGunIcons[2] = reg.registerIcon(Armory.PREFIX + "sniperRifle");
+    }
+
+    @Override
+    protected String[] getIconStringKeys(ItemStack stack, int pass)
+    {
+        if (stack.getTagCompound() != null)
+        {
+            NBTTagCompound nbt = stack.getTagCompound();
+            boolean hasChamberedRound = nbt.hasKey(GunInstance.NBT_ROUND);
+            boolean hasClipLoaded = nbt.hasKey(GunInstance.NBT_CLIP);
+            boolean hasAmmo = false;
+            if (hasClipLoaded)
+            {
+                NBTTagCompound clipTag = nbt.getCompoundTag(GunInstance.NBT_CLIP);
+                if (clipTag.hasKey("stack"))
+                {
+                    ItemStack clipStack = ItemStack.loadItemStackFromNBT(clipTag.getCompoundTag("stack"));
+                    if (clipStack.getItem() instanceof IItemClip)
+                    {
+                        hasAmmo = ((IItemClip) clipStack.getItem()).getAmmoCount(clipStack) > 0;
+                    }
+                }
+                //Built in clip, has ammo and has clip are the same
+                else
+                {
+                    hasAmmo = hasClipLoaded = clipTag.hasKey("ammoData");
+                }
+            }
+            //TODO add more types
+            if (!hasChamberedRound && !hasAmmo)
+            {
+                return new String[]{"gun.empty"};
+            }
+            else if (!hasChamberedRound)
+            {
+                return new String[]{"gun.chamber.none"};
+            }
+            else if (!hasClipLoaded)
+            {
+                return new String[]{"gun.clip.none"};
+            }
+            else if (!hasAmmo)
+            {
+                return new String[]{"gun.clip.empty"};
+            }
+        }
+        return null;
     }
 
     @SideOnly(Side.CLIENT)

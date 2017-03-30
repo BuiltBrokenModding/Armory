@@ -40,6 +40,10 @@ import java.awt.*;
  */
 public class GunInstance extends AbstractModule implements ISave, IGun
 {
+    public static final String NBT_ROUND = "chamberedRound";
+    public static final String NBT_CLIP = "clip";
+
+
     /** How fast a projectile can travel before a ray trace is used instead */
     public static final float PROJECTILE_SPEED_LIMIT = 100;
     /** Who is holding the weapon */
@@ -91,14 +95,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     }
 
     protected void _doFire(World world, float yaw, float pitch)
-    {
-        //If no ammo reload the weapon
-        if (!hasAmmo())
-        {
-            reloadWeapon(getInventory());
-            //TODO return if animation needs to play
-        }
-        //TODO return and allow reload animations
+    {        //TODO return and allow reload animations
         //TODO add safety checks
         if (getChamberedRound() != null || hasAmmo())
         {
@@ -152,7 +149,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 }
 
                 //Fire round out of gun
-                if (getChamberedRound().getProjectileVelocity() < 0 || getChamberedRound().getProjectileVelocity() > PROJECTILE_SPEED_LIMIT)
+                if (getChamberedRound().getProjectileVelocity() <= 0 || getChamberedRound().getProjectileVelocity() > PROJECTILE_SPEED_LIMIT)
                 {
                     _doRayTrace(world, yaw, pitch, getChamberedRound(), entityPos.add(aim), target, aim);
                 }
@@ -172,6 +169,19 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 chamberNextRound();
             }
             updateEntityStack();
+        }
+
+        //If no ammo reload the weapon
+        if (!hasAmmo())
+        {
+            boolean singleShot = gunData.getReloadType() == ReloadType.BREACH_LOADED || gunData.getReloadType() == ReloadType.FRONT_LOADED;
+            if(!singleShot || chamberedRound == null)
+            {
+                reloadWeapon(getInventory());
+                chamberNextRound();
+                updateEntityStack();
+            }
+            //TODO return if animation needs to play
         }
     }
 
@@ -494,17 +504,17 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     public void load(NBTTagCompound tag)
     {
-        if (tag.hasKey("chamberedRound"))
+        if (tag.hasKey(NBT_ROUND))
         {
-            chamberedRound = (IAmmoData) ArmoryDataHandler.INSTANCE.get("ammo").get(tag.getString("chamberedRound"));
+            chamberedRound = (IAmmoData) ArmoryDataHandler.INSTANCE.get("ammo").get(tag.getString(NBT_ROUND));
             if (chamberedRound == null)
             {
-                error("Failed to load chambered round '" + tag.getShort("chamberedRound") + "' form NBT for " + this);
+                error("Failed to load chambered round '" + tag.getString(NBT_ROUND) + "' form NBT for " + this);
             }
         }
-        if (tag.hasKey("clip"))
+        if (tag.hasKey(NBT_CLIP))
         {
-            NBTTagCompound clipTag = tag.getCompoundTag("clip");
+            NBTTagCompound clipTag = tag.getCompoundTag(NBT_CLIP);
             if (clipTag.hasKey("data"))
             {
                 IClipData data = (IClipData) ArmoryDataHandler.INSTANCE.get("clip").get(clipTag.getString("data"));
@@ -517,7 +527,6 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                         ItemStack stack = ItemStack.loadItemStackFromNBT(clipTag.getCompoundTag("stack"));
                         _clip = new ClipInstanceItem(stack, data);
                     }
-
                 }
                 else
                 {
@@ -537,7 +546,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     {
         if (getChamberedRound() != null)
         {
-            nbt.setString("chamberedRound", getChamberedRound().getUniqueID());
+            nbt.setString(NBT_ROUND, getChamberedRound().getUniqueID());
         }
         if (_clip != null)
         {
@@ -551,7 +560,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 clipTag.setString("data", _clip.getClipData().getUniqueID());
                 clipTag.setTag("stack", ((ClipInstanceItem) _clip).save().writeToNBT(new NBTTagCompound()));
             }
-            nbt.setTag("clip", clipTag);
+            nbt.setTag(NBT_CLIP, clipTag);
         }
         return nbt;
     }

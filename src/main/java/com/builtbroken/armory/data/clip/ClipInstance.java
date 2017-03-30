@@ -82,7 +82,10 @@ public class ClipInstance implements IClip, ISave
     @Override
     public NBTTagCompound save(NBTTagCompound nbt)
     {
-        ItemClip.setAmmoDataStackIntoNBT("ammoData", nbt, ammo);
+        if(ammo.size() > 0)
+        {
+            ItemClip.setAmmoDataStackIntoNBT("ammoData", nbt, ammo);
+        }
         return nbt;
     }
 }

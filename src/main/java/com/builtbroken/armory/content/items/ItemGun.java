@@ -128,8 +128,9 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                 GunInstance gun = getGunInstance(stack, player);
                 if (gun != null)
                 {
-                    gun.reloadWeapon(player.inventory);
-                    player.inventoryContainer.detectAndSendChanges();
+                    gun.doReload = true;
+                    gun.reloadDelay = -1;
+                    gun.unloadWeapon(player.inventory);
                 }
             }
         }
@@ -153,13 +154,21 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                         onLeftClickHeld(stack, gun, world, (EntityPlayer) entity, slot, ticks);
                     }
                 }
-                else
+                else if (gun.doReload)
                 {
-                    if (entity instanceof EntityPlayer)
+                    if (gun.reloadDelay == -1 && entity instanceof EntityPlayer)
                     {
-                        ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Reloading weapon.... eta: " + gun.getGunData().getReloadTime() + "s")); //TODO translate
+                        if (gun.reloadWeapon(((EntityPlayer) entity).inventory, false))
+                        {
+                            ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Reloading weapon.... eta: " + gun.getGunData().getReloadTime() + "s")); //TODO translate
+                        }
                     }
                     gun.doReloadTick();
+                    if (gun.reloadDelay % 20 == 0)
+                    {
+                        int time = gun.getGunData().getReloadTime() - (gun.reloadDelay / 20);
+                        ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("" + time));
+                    }
                 }
             }
         }

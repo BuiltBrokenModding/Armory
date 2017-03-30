@@ -91,7 +91,7 @@ public class TestGunInstance extends AbstractArmoryTest
             IInventory inventory = new BasicInventory(30);
             inventory.setInventorySlotContents(i, new ItemStack(itemAmmo, 64, 0));
             assertEquals("" + i, 64, inventory.getStackInSlot(i).stackSize);
-            instance.reloadWeapon(inventory);
+            instance.reloadWeapon(inventory, true);
 
             assertTrue("" + i, instance.hasAmmo());
             assertTrue("" + i, instance.getLoadedClip().getAmmoCount() == instance.getLoadedClip().getMaxAmmo());
@@ -110,7 +110,7 @@ public class TestGunInstance extends AbstractArmoryTest
             inventory.setInventorySlotContents(i + 4, new ItemStack(itemAmmo, 1, 0));
             inventory.setInventorySlotContents(i + 6, new ItemStack(itemAmmo, 1, 0));
             inventory.setInventorySlotContents(i + 8, new ItemStack(itemAmmo, 1, 0));
-            instance.reloadWeapon(inventory);
+            instance.reloadWeapon(inventory, true);
 
             assertTrue("" + i, instance.hasAmmo());
             assertTrue("" + i, instance.getLoadedClip().getAmmoCount() == 5);
@@ -130,7 +130,7 @@ public class TestGunInstance extends AbstractArmoryTest
             IInventory inventory = new BasicInventory(30);
             inventory.setInventorySlotContents(i, new ItemStack(itemAmmo, 2, 0));
             inventory.setInventorySlotContents(i + 8, new ItemStack(itemAmmo, 3, 0));
-            instance.reloadWeapon(inventory);
+            instance.reloadWeapon(inventory, true);
 
             assertTrue("" + i, instance.hasAmmo());
             assertTrue("" + i, instance.getLoadedClip().getAmmoCount() == 5);

@@ -62,7 +62,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     /** Toggle to do reload */
     public boolean doReload = false;
     /** Delay before reloading */
-    protected int reloadDelay = 0;
+    public int reloadDelay = 0;
 
     public GunInstance(ItemStack gunStack, Entity entity, IGunData gun)
     {
@@ -333,7 +333,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             if (!singleShot || chamberedRound == null)
             {
                 //Reload weapon
-                reloadWeapon(getInventory());
+                reloadWeapon(getInventory(), true);
                 //Chamber next round
                 chamberNextRound();
                 //Update item in entity inventory
@@ -352,29 +352,37 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      *
      * @param inventory - inventory of the entity
      */
-    public void reloadWeapon(IInventory inventory)
+    public boolean reloadWeapon(IInventory inventory, boolean doAction)
     {
+        boolean reloaded = false;
         if (inventory != null)
         {
             if (isManuallyFeedClip())
             {
-                loadRound(inventory);
+                reloaded = loadRound(inventory, doAction);
             }
             else
             {
-                unloadWeapon(inventory);
-                loadBestClip(inventory);
+                if (doAction)
+                {
+                    unloadWeapon(inventory);
+                }
+                reloaded = loadBestClip(inventory, doAction);
             }
         }
         else if (Armory.INSTANCE != null)
         {
             Armory.INSTANCE.logger().error("Reload was called on '" + entity + "' but it had no inventory.");
         }
-        //Mark that reload was processed
-        doReload = false;
+        if(doAction)
+        {
+            //Mark that reload was processed
+            doReload = false;
+        }
+        return reloaded;
     }
 
-    private void loadBestClip(IInventory inventory)
+    private boolean loadBestClip(IInventory inventory, boolean doAction)
     {
         InventoryIterator it = new InventoryIterator(inventory, true);
         IClip bestClip = null;
@@ -404,20 +412,25 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         if (bestClip != null)
         {
-            if (_clip == null)
+            if (doAction)
             {
-                _clip = bestClip;
-                inventory.decrStackSize(slot, 1);
+                if (_clip == null)
+                {
+                    _clip = bestClip;
+                    inventory.decrStackSize(slot, 1);
+                }
+                updateEntityStack();
             }
-            updateEntityStack();
+            return true;
         }
         else if (entity instanceof EntityPlayer)
         {
             ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("There is no ammo of type '" + gunData.getAmmoType() + "' to load into the gun.")); //TODO translate
         }
+        return false;
     }
 
-    private void loadRound(IInventory inventory)
+    private boolean loadRound(IInventory inventory, boolean doAction)
     {
         int roundsLoad = 0;
         InventoryIterator it = new InventoryIterator(inventory, true);
@@ -435,9 +448,16 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                         if (getLoadedClip().getAmmoCount() < getLoadedClip().getClipData().getMaxAmmo())
                         {
                             //Decrease stack and load gun
-                            int l = getLoadedClip().loadAmmo(data, ammo.getAmmoCount(stack));
-                            inventory.decrStackSize(it.slot(), l);
-                            roundsLoad += l;
+                            if (doAction)
+                            {
+                                int l = getLoadedClip().loadAmmo(data, ammo.getAmmoCount(stack));
+                                inventory.decrStackSize(it.slot(), l);
+                                roundsLoad += l;
+                            }
+                            else
+                            {
+                                roundsLoad += 1;
+                            }
                         }
                     }
                 }
@@ -451,12 +471,17 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         if (roundsLoad > 0)
         {
-            updateEntityStack();
+            if (doAction)
+            {
+                updateEntityStack();
+            }
+            return true;
         }
         else if (entity instanceof EntityPlayer)
         {
             ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("There is no ammo of type '" + gunData.getAmmoType() + "' to load into the gun."));  //TODO translate
         }
+        return false;
     }
 
     private void updateEntityStack()

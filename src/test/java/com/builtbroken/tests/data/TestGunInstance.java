@@ -228,7 +228,7 @@ public class TestGunInstance extends AbstractArmoryTest
         for (int i = 0; i < 5; i++)
         {
             AmmoData data = new AmmoData(null, "ammo" + i, "ammo" + i, ammoType, 100);
-            data.damageData.add(new DamageSimple("impact", 5 + i));
+            data.damageData.add(new DamageSimple(null, "impact", 5 + i));
             data.set(itemAmmo, i);
             ArmoryDataHandler.INSTANCE.get("ammo").add(data);
             ArmoryDataHandler.INSTANCE.get("ammo").metaToEntry.put(i, data);

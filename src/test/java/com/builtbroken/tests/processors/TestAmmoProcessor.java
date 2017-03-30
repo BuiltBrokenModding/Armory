@@ -45,7 +45,7 @@ public class TestAmmoProcessor extends AbstractTest
         AmmoData data = processor.process(element.getAsJsonObject().get("ammo"));
         assertEquals(1, data.damageData.size());
         assertTrue(data.damageData.get(0) instanceof DamageSimple);
-        assertEquals("impact", ((DamageSimple) data.damageData.get(0)).damageSource);
+        assertEquals("impact", ((DamageSimple) data.damageData.get(0)).damageName);
         assertEquals(5f, ((DamageSimple) data.damageData.get(0)).damage);
         assertSame(ammoType, data.ammoType);
     }

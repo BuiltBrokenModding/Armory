@@ -4,6 +4,7 @@ import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
+import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.armory.json.ArmoryEntryJsonProcessor;
 import com.builtbroken.armory.json.damage.DamageJsonProcessor;
 import com.google.gson.JsonElement;
@@ -58,8 +59,12 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
         {
             if (entry.getKey().startsWith("damage"))
             {
-                DamageJsonProcessor.processor.process(entry.getValue());
-                damageDetected = true;
+                DamageData damageData = DamageJsonProcessor.processor.process(entry.getValue());
+                if(damageData != null)
+                {
+                    data.damageData.add(damageData);
+                    damageDetected = true;
+                }
             }
         }
 

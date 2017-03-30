@@ -18,9 +18,17 @@ public class DamageJsonProcessorBlast extends DamageJsonProcessor
     public DamageData process(JsonElement element)
     {
         JsonObject damageObject = element.getAsJsonObject();
-        ensureValuesExist(damageObject, "blast", "size");
-        float size = damageObject.get("size").getAsJsonPrimitive().getAsFloat();
-        String blast = damageObject.get("blast").getAsJsonPrimitive().getAsString();
+        ensureValuesExist(damageObject, "blast");
+
+        //Get blast object TODO move blast code to its own loader
+        JsonObject blastObject = damageObject.getAsJsonObject("blast");
+        ensureValuesExist(blastObject, "id", "size");
+
+        //Load blast data
+        String blast = blastObject .get("id").getAsJsonPrimitive().getAsString();
+        float size = blastObject .get("size").getAsJsonPrimitive().getAsFloat();
+
+        //Get handler and check if is not null
         IExplosiveHandler handler = ExplosiveRegistry.get(blast);
         if (handler == null)
         {

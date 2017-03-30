@@ -3,10 +3,7 @@ package com.builtbroken.armory.data.damage.simple;
 import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSourceIndirect;
 
 import java.util.HashMap;
 
@@ -24,29 +21,27 @@ public class DamageSimple extends DamageData
     }
 
     public final float damage;
-    public final String damageSource;
+    public final String damageName;
 
 
     public DamageSimple(IJsonProcessor processor, String type, float damage)
     {
         super(processor);
-        this.damageSource = type.toLowerCase();
+        this.damageName = type.toLowerCase();
         this.damage = damage;
     }
 
     @Override
     public boolean onImpact(Entity attacker, Entity entity, double hitX, double hitY, double hitZ, float velocity, float scale)
     {
-        //TODO create damage source with shooter, gun data, and damage type
-        //TODO calculate armor
-        //TODO apply force
+        //TODO calculate armor for some damage types
+        //TODO knock back force to entity hit
         if (entity != null)
         {
-            DamageSource damageSource = null;
-            if (damageTypes.containsKey(damageSource))
+            DamageSource damageSource = DamageSource.generic;
+            if (damageTypes.containsKey(damageName))
             {
-                //TODO wrapper so attacker is marked as source
-                DamageSource damageSource1 = damageTypes.get(damageSource).createDamage(attacker);
+                DamageSource damageSource1 = damageTypes.get(damageName).createDamage(attacker);
                 if (damageSource1 != null)
                 {
                     damageSource = damageSource1;
@@ -54,7 +49,6 @@ public class DamageSimple extends DamageData
             }
             else
             {
-                //TODO wrapper so attacker is marked as source
                 DamageSource damageSource1 = fromMinecraft(attacker);
                 if (damageSource1 != null)
                 {
@@ -62,24 +56,13 @@ public class DamageSimple extends DamageData
                 }
             }
 
-            if (damageSource == null)
+            if (attacker != null)
             {
-                if (attacker instanceof EntityPlayer)
-                {
-                    entity.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) attacker).setProjectile(), damage * scale);
-                }
-                else if (attacker instanceof EntityLivingBase)
-                {
-                    entity.attackEntityFrom(DamageSource.causeMobDamage((EntityLivingBase) attacker).setProjectile(), damage * scale);
-                }
-                else
-                {
-                    entity.attackEntityFrom(new EntityDamageSourceIndirect("projectile", attacker, attacker).setProjectile(), damage * scale);
-                }
+                entity.attackEntityFrom(new DamageSourceShooter(damageName, attacker, damageSource), this.damage * scale);
             }
             else
             {
-                entity.attackEntityFrom(damageSource, damage * scale);
+                entity.attackEntityFrom(damageSource, this.damage * scale);
             }
         }
 
@@ -88,59 +71,59 @@ public class DamageSimple extends DamageData
 
     protected final DamageSource fromMinecraft(Entity attacker)
     {
-        if (damageSource.equalsIgnoreCase("inFire"))
+        if (damageName.equalsIgnoreCase("inFire"))
         {
             return DamageSource.inFire;
         }
-        else if (damageSource.equalsIgnoreCase("onFire"))
+        else if (damageName.equalsIgnoreCase("onFire"))
         {
             return DamageSource.onFire;
         }
-        else if (damageSource.equals("lava"))
+        else if (damageName.equals("lava"))
         {
             return DamageSource.lava;
         }
-        else if (damageSource.equalsIgnoreCase("inWall"))
+        else if (damageName.equalsIgnoreCase("inWall"))
         {
             return DamageSource.inWall;
         }
-        else if (damageSource.equals("drown"))
+        else if (damageName.equals("drown"))
         {
             return DamageSource.drown;
         }
-        else if (damageSource.equals("starve"))
+        else if (damageName.equals("starve"))
         {
             return DamageSource.starve;
         }
-        else if (damageSource.equals("cactus"))
+        else if (damageName.equals("cactus"))
         {
             return DamageSource.cactus;
         }
-        else if (damageSource.equals("fall"))
+        else if (damageName.equals("fall"))
         {
             return DamageSource.fall;
         }
-        else if (damageSource.equalsIgnoreCase("outOfWorld"))
+        else if (damageName.equalsIgnoreCase("outOfWorld"))
         {
             return DamageSource.outOfWorld;
         }
-        else if (damageSource.equalsIgnoreCase("generic"))
+        else if (damageName.equalsIgnoreCase("generic"))
         {
             return DamageSource.generic;
         }
-        else if (damageSource.equalsIgnoreCase("magic"))
+        else if (damageName.equalsIgnoreCase("magic"))
         {
             return DamageSource.magic;
         }
-        else if (damageSource.equalsIgnoreCase("wither"))
+        else if (damageName.equalsIgnoreCase("wither"))
         {
             return DamageSource.wither;
         }
-        else if (damageSource.equalsIgnoreCase("anvil"))
+        else if (damageName.equalsIgnoreCase("anvil"))
         {
             return DamageSource.anvil;
         }
-        else if (damageSource.equalsIgnoreCase("fallingBlock"))
+        else if (damageName.equalsIgnoreCase("fallingBlock"))
         {
             return DamageSource.fallingBlock;
         }

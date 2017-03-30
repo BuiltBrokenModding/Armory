@@ -53,18 +53,23 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
         //Create object
         AmmoData data = new AmmoData(this, id, name, ammoType, velocity);
 
-        //Load damage data
+
         boolean damageDetected = false;
         for (Map.Entry<String, JsonElement> entry : object.entrySet())
         {
+            //Load damage data
             if (entry.getKey().startsWith("damage"))
             {
                 DamageData damageData = DamageJsonProcessor.processor.process(entry.getValue());
-                if(damageData != null)
+                if (damageData != null)
                 {
                     data.damageData.add(damageData);
                     damageDetected = true;
                 }
+            }
+            else if (entry.getKey().startsWith("droppedItem"))
+            {
+                data.droppedItemData.add(entry.getValue().getAsJsonPrimitive().getAsString());
             }
         }
 
@@ -72,7 +77,6 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
         {
             Armory.INSTANCE.logger().error("No damage type was detected for ammo " + data + "\n this may cause unexpected behavior.");
         }
-
         //Process shared data
         processExtraData(object, data);
 

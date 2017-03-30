@@ -6,27 +6,36 @@ import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Stores data about a projectile/ammo for a weapon
+ *
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
  */
 public class AmmoData extends ArmoryEntry implements IAmmoData
 {
+    /** Type of ammo */
     public final AmmoType ammoType;
 
+    /** Damage applied to entity when projectile hits */
     public final List<DamageData> damageData = new ArrayList();
+    /** Speed of the projectile fired */
     public final float velocity;
 
-    private float damageCached = -1;
+    /** Item data used to build drop list */
+    public final List<String> droppedItemData = new ArrayList();
 
-    //TODO add optional damage types
-    //TODO add effect handlers
-    //TODO add damage calculations
+    /** Item dropped after the ammo has been fired */
+    public final List<ItemStack> droppedItems = new ArrayList();
+
+    //Cache for damage call
+    private float damageCached = -1;
 
     public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType, float velocity)
     {
@@ -94,6 +103,31 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
             }
         }
         return destroy;
+    }
+
+    @Override
+    public void getEjectedItems(List<ItemStack> items)
+    {
+        if (droppedItemData.size() > 0)
+        {
+            //Build list if not initialized
+            if (droppedItems.size() == 0)
+            {
+                for (String string : droppedItemData)
+                {
+                    ItemStack stack = toStack(convertItemEntry(string));
+                    if (stack != null && stack.getItem() != null)
+                    {
+                        droppedItems.add(stack);
+                    }
+                }
+            }
+
+            for (ItemStack stack : droppedItems)
+            {
+                items.add(stack.copy());
+            }
+        }
     }
 
     @Override

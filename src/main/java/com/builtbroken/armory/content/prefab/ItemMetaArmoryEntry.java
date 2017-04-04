@@ -9,7 +9,7 @@ import com.builtbroken.mc.core.network.IPacketReceiver;
 import com.builtbroken.mc.core.network.packet.PacketPlayerItem;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
-import com.builtbroken.mc.lib.json.processors.item.ItemJson;
+import com.builtbroken.mc.framework.item.ItemBase;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
@@ -31,27 +31,37 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/20/2016.
  */
-public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemJson implements IPacketReceiver, IPostInit
+public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase implements IPacketReceiver, IPostInit
 {
     /** Type of the item @see {@link ArmoryDataHandler} */
     public final String typeName;
 
     public ItemMetaArmoryEntry(String name, String typeName)
     {
-        super(null, Armory.DOMAIN, name);
-        registered = true;
+        super(Armory.DOMAIN, name);
         ArmoryDataHandler.INSTANCE.get(typeName).add(this);
         this.typeName = typeName;
         this.setHasSubtypes(true);
     }
 
     @Override
+    public String getRenderContentID(int meta)
+    {
+        if (getData(meta) == null)
+        {
+            return owner + ":" + typeName;
+        }
+        return getData(meta).getUniqueID();
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean b)
     {
+        super.addInformation(stack, player, list, b);
         if (Engine.runningAsDev)
         {
-            list.add("" + getData(stack));
+            list.add("Key: " + getData(stack) != null ? getData(stack).getUniqueID() : "null");
         }
     }
 

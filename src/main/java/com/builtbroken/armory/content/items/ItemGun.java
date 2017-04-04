@@ -57,6 +57,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean b)
     {
+        super.addInformation(stack, player, list, b);
         IGunData data = getData(stack);
         if (data != null)
         {
@@ -121,7 +122,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             else if (button == 2)
             {
                 GunInstance gun = getGunInstance(stack, player);
-                if (gun != null)
+                if (gun != null && !gun.doReload)
                 {
                     gun.doReload = true;
                     gun.reloadDelay = -1;
@@ -371,6 +372,11 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                 return "gun.clip.empty";
             }
         }
+        //Null NBT is the same as empty
+        else
+        {
+            return "gun.empty";
+        }
         return super.getRenderKey(stack);
     }
 
@@ -397,6 +403,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             boolean hasClipLoaded = instance.getLoadedClip() != null;
             boolean hasAmmo = instance.hasAmmo();
 
+            //TODO add more types
             if (!hasChamberedRound && !hasAmmo)
             {
                 return "gun.empty";

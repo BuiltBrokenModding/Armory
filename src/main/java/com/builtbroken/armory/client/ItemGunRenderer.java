@@ -5,26 +5,28 @@ import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.client.json.ClientDataHandler;
+import com.builtbroken.mc.client.json.render.ItemJsonRenderer;
 import com.builtbroken.mc.client.json.render.RenderData;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.render.model.loader.EngineModelLoader;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.model.IModelCustom;
 import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/19/2016.
  */
-public class ItemGunRenderer implements IItemRenderer
+public class ItemGunRenderer extends ItemJsonRenderer
 {
-    private boolean init = false;
-
     private IModelCustom handgun = EngineModelLoader.loadModel(new ResourceLocation(Armory.DOMAIN, References.MODEL_PATH + "handgun.tcn"));
 
     @SubscribeEvent
@@ -53,7 +55,7 @@ public class ItemGunRenderer implements IItemRenderer
             RenderData data = ClientDataHandler.INSTANCE.getRenderData(((ItemGun) item.getItem()).getData(item).getUniqueID());
             if (data != null)
             {
-                return data.shouldRenderType(type, item);
+                return data.shouldRenderType(type, null, item);
             }
             return type != ItemRenderType.INVENTORY;
         }
@@ -69,7 +71,7 @@ public class ItemGunRenderer implements IItemRenderer
             RenderData data = ClientDataHandler.INSTANCE.getRenderData(((ItemGun) item.getItem()).getData(item).getUniqueID());
             if (data != null)
             {
-                return data.shouldRenderType(type, item);
+                return data.shouldRenderType(type, null, item);
             }
             return type != ItemRenderType.INVENTORY;
         }
@@ -77,10 +79,53 @@ public class ItemGunRenderer implements IItemRenderer
     }
 
     @Override
-    public void renderItem(ItemRenderType type, ItemStack item, Object... dataArray)
+    protected List<String> getRenderStatesToTry(ItemRenderType type, ItemStack item, Object... dataArray)
     {
-        GunData gunData = ((ItemGun) item.getItem()).getData(item);
-        GL11.glPushMatrix();
+        if (item.getItem() instanceof ItemGun)
+        {
+            List<String> list = new ArrayList();
+            //Find entity that is holding this weapon or is the dropped item on the ground
+            Entity entity = null;
+            for (Object obj : dataArray)
+            {
+                if (obj instanceof Entity)
+                {
+                    entity = (Entity) obj;
+                }
+            }
+            //Try to get gun instance version of data
+            if (entity != null)
+            {
+                list.add(((ItemGun) item.getItem()).getRenderKey(((ItemGun) item.getItem()).getGunInstance(item, entity)));
+            }
+
+            //If gun instance didn't work
+            if (list.isEmpty())
+            {
+                list.add(((ItemGun) item.getItem()).getRenderKey(item));
+            }
+            return list.isEmpty() ? null : list;
+        }
+        return null;
+    }
+
+    @Override
+    protected RenderData getRenderData(ItemRenderType type, ItemStack item, Object... dataArray)
+    {
+        if (item.getItem() instanceof ItemGun)
+        {
+            GunData gunData = ((ItemGun) item.getItem()).getData(item);
+            if (gunData != null)
+            {
+                return ClientDataHandler.INSTANCE.getRenderData(gunData.getUniqueID());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void doBackupRender(ItemRenderType type)
+    {
         switch (type)
         {
             case ENTITY:
@@ -100,12 +145,8 @@ public class ItemGunRenderer implements IItemRenderer
                 GL11.glScaled(1.8f, 1.8f, 1.8f);
                 break;
         }
-        RenderData data = ClientDataHandler.INSTANCE.getRenderData(gunData.getUniqueID());
-        if (data == null || !data.render(type, item))
-        {
-            FMLClientHandler.instance().getClient().renderEngine.bindTexture(SharedAssets.GREY_TEXTURE);
-            handgun.renderAll();
-        }
-        GL11.glPopMatrix();
+
+        FMLClientHandler.instance().getClient().renderEngine.bindTexture(SharedAssets.GREY_TEXTURE);
+        handgun.renderAll();
     }
 }

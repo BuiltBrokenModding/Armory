@@ -4,28 +4,23 @@ import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.IWorldPosition;
-import com.builtbroken.mc.client.json.ClientDataHandler;
-import com.builtbroken.mc.client.json.render.RenderData;
-import com.builtbroken.mc.client.json.render.RenderState;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketReceiver;
 import com.builtbroken.mc.core.network.packet.PacketPlayerItem;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
+import com.builtbroken.mc.lib.json.processors.item.ItemJson;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -36,16 +31,17 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/20/2016.
  */
-public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements IPacketReceiver, IPostInit
+public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemJson implements IPacketReceiver, IPostInit
 {
     /** Type of the item @see {@link ArmoryDataHandler} */
     public final String typeName;
 
     public ItemMetaArmoryEntry(String name, String typeName)
     {
+        super(null, Armory.DOMAIN, name);
+        registered = true;
         ArmoryDataHandler.INSTANCE.get(typeName).add(this);
         this.typeName = typeName;
-        this.setUnlocalizedName(Armory.PREFIX + name);
         this.setHasSubtypes(true);
     }
 
@@ -68,108 +64,6 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends Item implements 
             return data.getUnlocalizedName();
         }
         return "item." + this.unlocalizedName;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister reg)
-    {
-
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIconFromDamage(int meta)
-    {
-        E data = getData(meta);
-        if (data != null)
-        {
-            RenderData renderData = ClientDataHandler.INSTANCE.getRenderData(data.getUniqueID());
-            if (renderData != null)
-            {
-                RenderState state = renderData.getState(RenderData.INVENTORY_RENDER_ID);
-                if (state != null && !state.isModelRenderer())
-                {
-                    IIcon icon = state.getIcon();
-                    if (icon != null)
-                    {
-                        return icon;
-                    }
-                }
-                IIcon icon = getIconFromState(renderData, "meta" + meta);
-                if (icon != null)
-                {
-                    return icon;
-                }
-            }
-        }
-        return getDefaultIcon(meta);
-    }
-
-    @SideOnly(Side.CLIENT)
-    protected IIcon getDefaultIcon(int meta)
-    {
-        return Items.stick.getIconFromDamage(meta);
-    }
-
-    @Override
-    public IIcon getIcon(ItemStack stack, int pass)
-    {
-        E data = getData(stack);
-        if (data != null)
-        {
-            RenderData renderData = ClientDataHandler.INSTANCE.getRenderData(data.getUniqueID());
-            if (renderData != null)
-            {
-                String[] keys = getIconStringKeys(stack, pass);
-                if (keys != null)
-                {
-                    for (String key : keys)
-                    {
-                        IIcon icon = getIconFromState(renderData, key);
-                        if (icon != null)
-                        {
-                            return icon;
-                        }
-                    }
-                }
-            }
-        }
-        return getIconFromDamageForRenderPass(stack.getItemDamage(), pass);
-    }
-
-    @Override
-    public int getRenderPasses(int metadata)
-    {
-        //TODO add override for this in the render data
-        return 1;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
-
-    protected String[] getIconStringKeys(ItemStack stack, int pass)
-    {
-        return null;
-    }
-
-    @SideOnly(Side.CLIENT)
-    private IIcon getIconFromState(RenderData renderData, String key)
-    {
-        RenderState state = renderData.getState(key);
-        if (state != null && !state.isModelRenderer())
-        {
-            IIcon icon = state.getIcon();
-            if (icon != null)
-            {
-                return icon;
-            }
-        }
-        return null;
     }
 
     public E getData(ItemStack stack)

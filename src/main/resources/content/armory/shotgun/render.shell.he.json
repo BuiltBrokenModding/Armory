@@ -7,7 +7,7 @@
     "type":"item",
     "states": [
       {
-        "id": 0,
+        "id": "item.inventory",
         "textureID": "armory:shotgunTestIcon.he"
       }
     ]

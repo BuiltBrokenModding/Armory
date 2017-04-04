@@ -7,56 +7,8 @@
     "type":"gun",
     "states": [
       {
-        "id": 0,
+        "id": "item.inventory",
         "textureID": "armory:shotgunTestIcon"
-      },
-      {
-        "id": 1,
-        "modelID": "armory:shotgunTestModel",
-        "textureID": "armory:shotgunTestTexture",
-        "parts": "all",
-        "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        },
-        "rotation": {
-          "yaw": 0,
-          "pitch": 0,
-          "roll": 0
-        }
-      },
-      {
-        "id": 2,
-        "modelID": "armory:shotgunTestModel",
-        "textureID": "armory:shotgunTestTexture",
-        "parts": "all",
-        "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        },
-        "rotation": {
-          "yaw": 0,
-          "pitch": 0,
-          "roll": 0
-        }
-      },
-      {
-        "id": 3,
-        "modelID": "armory:shotgunTestModel",
-        "textureID": "armory:shotgunTestTexture",
-        "parts": "all",
-        "offset": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        },
-        "rotation": {
-          "yaw": 0,
-          "pitch": 0,
-          "roll": 0
-        }
       }
     ]
   },

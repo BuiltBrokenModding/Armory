@@ -29,7 +29,7 @@ public class TileSentryBase extends TileModuleMachine<ExternalInventory>
     public TileSentryBase()
     {
         super("sentry", Material.iron);
-        this.itemBlock = ItemBlockSentry.class;
+       // this.itemBlock = ItemBlockSentry.class; TODO use item instead of an item block
     }
 
     @Override
@@ -69,10 +69,10 @@ public class TileSentryBase extends TileModuleMachine<ExternalInventory>
         if (nbt.hasKey("sentryStack"))
         {
             sentryStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("sentryStack"));
-            if (sentryStack.getItem() instanceof ItemBlockSentry)
-            {
-                sentryData = ((ItemBlockSentry) sentryStack.getItem()).getData(sentryStack);
-            }
+            //if (sentryStack.getItem() instanceof ItemBlockSentry) TODO replace
+            //{
+            //    sentryData = ((ItemBlockSentry) sentryStack.getItem()).getData(sentryStack);
+            //}
         }
         super.readFromNBT(nbt);
     }

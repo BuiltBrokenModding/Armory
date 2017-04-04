@@ -15,14 +15,12 @@ import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
@@ -47,9 +45,6 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     //TODO handle reloading
     //TODO handle firing
     //TODO handle aiming
-
-    @SideOnly(Side.CLIENT)
-    private IIcon[] defaultGunIcons;
 
     private GunInstance clientSideGun;
 
@@ -202,7 +197,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
      * @param player - player who will be referenced in the cache value
      * @return gun instance, or null if something goes completely wrong
      */
-    public GunInstance getGunInstance(ItemStack stack, EntityPlayer player)
+    public GunInstance getGunInstance(ItemStack stack, Entity player)
     {
         if (getData(stack) != null)
         {
@@ -328,25 +323,15 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     @Override
     public boolean canContainAmmo(ItemStack weapon)
     {
-        return true;
+        return true; //TODO implement
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister reg)
-    {
-        super.registerIcons(reg);
-        defaultGunIcons = new IIcon[3];
-        defaultGunIcons[0] = reg.registerIcon(Armory.PREFIX + "shotgun");
-        defaultGunIcons[1] = reg.registerIcon(Armory.PREFIX + "assaultRifle");
-        defaultGunIcons[2] = reg.registerIcon(Armory.PREFIX + "sniperRifle");
-    }
-
-    @Override
-    protected String[] getIconStringKeys(ItemStack stack, int pass)
+    public String getRenderKey(ItemStack stack)
     {
         if (stack.getTagCompound() != null)
         {
+            //TODO if this is changed make sure to update ItemGunRenderer
             NBTTagCompound nbt = stack.getTagCompound();
             boolean hasChamberedRound = nbt.hasKey(GunInstance.NBT_ROUND);
             boolean hasClipLoaded = nbt.hasKey(GunInstance.NBT_CLIP);
@@ -371,36 +356,64 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             //TODO add more types
             if (!hasChamberedRound && !hasAmmo)
             {
-                return new String[]{"gun.empty"};
+                return "gun.empty";
             }
             else if (!hasChamberedRound)
             {
-                return new String[]{"gun.chamber.none"};
+                return "gun.chamber.none";
             }
             else if (!hasClipLoaded)
             {
-                return new String[]{"gun.clip.none"};
+                return "gun.clip.none";
             }
             else if (!hasAmmo)
             {
-                return new String[]{"gun.clip.empty"};
+                return "gun.clip.empty";
+            }
+        }
+        return super.getRenderKey(stack);
+    }
+
+    @Override
+    public String getRenderKey(ItemStack stack, Entity entity, int usesRemaining)
+    {
+        GunInstance instance = getGunInstance(stack, entity);
+        if (instance != null)
+        {
+            String key = getRenderKey(instance);
+            if (key != null)
+            {
+                return key;
+            }
+        }
+        return super.getRenderKey(stack, entity, usesRemaining);
+    }
+
+    public String getRenderKey(GunInstance instance)
+    {
+        if (instance != null)
+        {
+            boolean hasChamberedRound = instance.getChamberedRound() != null;
+            boolean hasClipLoaded = instance.getLoadedClip() != null;
+            boolean hasAmmo = instance.hasAmmo();
+
+            if (!hasChamberedRound && !hasAmmo)
+            {
+                return "gun.empty";
+            }
+            else if (!hasChamberedRound)
+            {
+                return "gun.chamber.none";
+            }
+            else if (!hasClipLoaded)
+            {
+                return "gun.clip.none";
+            }
+            else if (!hasAmmo)
+            {
+                return "gun.clip.empty";
             }
         }
         return null;
-    }
-
-    @SideOnly(Side.CLIENT)
-    protected IIcon getDefaultIcon(int meta)
-    {
-        GunData data = getData(meta);
-        if ("assaultRifle".equalsIgnoreCase(data.getGunType()))
-        {
-            return defaultGunIcons[1];
-        }
-        else if ("sniperRifle".equalsIgnoreCase(data.getGunType()))
-        {
-            return defaultGunIcons[2];
-        }
-        return defaultGunIcons[0];
     }
 }

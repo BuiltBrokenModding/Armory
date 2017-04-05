@@ -178,8 +178,8 @@ public class TestGunInstance extends AbstractArmoryTest
         instance.save(nbt);
 
         assertEquals(2, nbt.func_150296_c().size());
-        assertTrue(nbt.hasKey("chamberedRound"));
-        assertTrue(nbt.hasKey("clip"));
+        assertTrue(nbt.hasKey(GunInstance.NBT_ROUND));
+        assertTrue(nbt.hasKey(GunInstance.NBT_CLIP));
 
         //Any time this code is changed test for legacy loading of old data
     }

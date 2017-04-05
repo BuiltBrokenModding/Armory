@@ -21,6 +21,9 @@ public class GunData extends RangeWeaponData implements IGunData
 
     public final String gunType;
 
+    /** Does the weapon need to be sighted in order to be fired */
+    public boolean sightToFire = false;
+
     /** Reload time in ticks */
     public int reloadTime = 20;
 
@@ -59,6 +62,12 @@ public class GunData extends RangeWeaponData implements IGunData
     public String getGunType()
     {
         return gunType;
+    }
+
+    @Override
+    public boolean isSightedRequiredToFire()
+    {
+        return sightToFire;
     }
 
     @Override

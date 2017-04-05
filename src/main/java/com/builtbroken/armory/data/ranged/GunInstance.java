@@ -63,8 +63,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public Long lastTimeFired = 0L;
     /** Toggle to do reload */
     public boolean doReload = false;
+    /** Is the weapon sighted */
+    public boolean isSighted = false;
     /** Delay before reloading */
-    public int reloadDelay = 0;
+    public int reloadDelay = -1;
 
     public GunInstance(ItemStack gunStack, Entity entity, IGunData gun)
     {
@@ -90,14 +92,21 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     public void fireWeapon(ItemStack stack, World world, int ticksFired)
     {
-        Long deltaTime = System.currentTimeMillis() - lastTimeFired;
-        if (entity instanceof EntityLivingBase && (lastTimeFired == 0L || deltaTime > gunData.getFiringDelay()))
+        if(isSighted || !gunData.isSightedRequiredToFire())
         {
-            lastTimeFired = System.currentTimeMillis();
-            float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch);
-            float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw);
+            Long deltaTime = System.currentTimeMillis() - lastTimeFired;
+            if (entity instanceof EntityLivingBase && (lastTimeFired == 0L || deltaTime > gunData.getFiringDelay()))
+            {
+                lastTimeFired = System.currentTimeMillis();
+                float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch);
+                float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw);
 
-            _doFire(world, yaw, pitch);
+                _doFire(world, yaw, pitch);
+            }
+        }
+        else
+        {
+            //TODO play audio or some other notation that the weapon should be sighted
         }
     }
 
@@ -610,7 +619,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     public void sightWeapon()
     {
-        //TODO implement
+        isSighted = !isSighted;
     }
 
     public void load(NBTTagCompound tag)

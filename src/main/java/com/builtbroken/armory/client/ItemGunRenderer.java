@@ -3,14 +3,16 @@ package com.builtbroken.armory.client;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.data.ranged.GunData;
+import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.client.json.ClientDataHandler;
-import com.builtbroken.mc.client.json.render.ItemJsonRenderer;
+import com.builtbroken.mc.client.json.render.item.ItemJsonRenderer;
 import com.builtbroken.mc.client.json.render.RenderData;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.render.model.loader.EngineModelLoader;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -32,10 +34,22 @@ public class ItemGunRenderer extends ItemJsonRenderer
     @SubscribeEvent
     public void onPlayerRender(RenderPlayerEvent.Pre event)
     {
-        if (event.entityPlayer.getHeldItem() != null && event.entityPlayer.getHeldItem().getItem() instanceof ItemGun)
+        ItemStack stack = event.entityPlayer.getHeldItem();
+        if (stack != null && stack.getItem() instanceof ItemGun)
         {
-            //event.renderer.modelBipedMain.bipedRightArm.showModel = false;
+            ItemGun item = (ItemGun) stack.getItem();
+            RenderPlayer render = event.renderer;
+
+            GunInstance instance = item.getGunInstance(stack, event.entityPlayer);
+            if (instance != null)
+            {
+                if (instance.isSighted)
+                {
+                    render.modelArmorChestplate.aimedBow = render.modelArmor.aimedBow = render.modelBipedMain.aimedBow = true;
+                }
+            }
         }
+        //event.renderer.modelBipedMain.bipedRightArm.showModel = false;
     }
 
     @SubscribeEvent
@@ -96,7 +110,20 @@ public class ItemGunRenderer extends ItemJsonRenderer
             //Try to get gun instance version of data
             if (entity != null)
             {
-                list.add(((ItemGun) item.getItem()).getRenderKey(((ItemGun) item.getItem()).getGunInstance(item, entity)));
+                GunInstance gun = ((ItemGun) item.getItem()).getGunInstance(item, entity);
+                String key = ((ItemGun) item.getItem()).getRenderKey(gun);
+                if(gun.isSighted)
+                {
+                    if(key == null)
+                    {
+                        list.add("sighted");
+                    }
+                    else
+                    {
+                        list.add(key + ".sighted");
+                    }
+                }
+                list.add(key);
             }
 
             //If gun instance didn't work

@@ -82,10 +82,14 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
 
         //Optional data
         final JsonElement fallOff = object.get("fallOff");
-
         final JsonElement rateOfFire = object.get("rateOfFire");
         final JsonElement reloadTime = object.get("reloadTime");
+        final JsonElement sightRequired = object.get("sightToFire");
 
+        if (sightRequired != null)
+        {
+            data.sightToFire = sightRequired.getAsBoolean();
+        }
 
         if (fallOff != null)
         {

@@ -146,69 +146,72 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                 if (stack.getItem() instanceof ItemGun)
                 {
                     GunInstance gun = getGunInstance(stack, entity);
-
-                    if (leftClickHeld.containsKey(entity))
+                    if(gun != null)
                     {
-                        //Handle firing the weapon
-                        if (gun.getChamberedRound() != null || gun.hasAmmo())
-                        {
-                            int ticks = leftClickHeld.get(entity) + 1;
-                            leftClickHeld.put((EntityPlayer) entity, ticks);
-                            onLeftClickHeld(stack, gun, world, (EntityPlayer) entity, slot, ticks);
-                        }
-                        else
-                        {
-                            gun.doReload = true;
-                            leftClickHeld.remove(entity);
-                        }
-                    }
 
-                    //Handle firing the weapon
-                    if (gun.doReload)
-                    {
-                        //If reloading, we are not sighted
-                        gun.isSighted = false;
-
-                        //Set reload delay if init
-                        if (gun.reloadDelay == -1)
+                        if (leftClickHeld.containsKey(entity))
                         {
-                            if (gun.reloadWeapon(((EntityPlayer) entity).inventory, false))
+                            //Handle firing the weapon
+                            if (gun.getChamberedRound() != null || gun.hasAmmo())
                             {
-                                ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Reloading weapon.... eta: " + gun.getGunData().getReloadTime() + "s")); //TODO translate
+                                int ticks = leftClickHeld.get(entity) + 1;
+                                leftClickHeld.put((EntityPlayer) entity, ticks);
+                                onLeftClickHeld(stack, gun, world, (EntityPlayer) entity, slot, ticks);
                             }
                             else
                             {
-                                gun.doReload = false;
-                                gun.reloadDelay = -1;
+                                gun.doReload = true;
+                                leftClickHeld.remove(entity);
                             }
                         }
 
+                        //Handle firing the weapon
                         if (gun.doReload)
                         {
-                            //Tick reload
-                            gun.doReloadTick();
-                            //Note reload time in chat, TODO move to GUI render
-                            if (gun.reloadDelay % 20 == 0)
+                            //If reloading, we are not sighted
+                            gun.isSighted = false;
+
+                            //Set reload delay if init
+                            if (gun.reloadDelay == -1)
                             {
-                                int time = gun.getGunData().getReloadTime() - (gun.reloadDelay / 20);
-                                ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("" + time));
+                                if (gun.reloadWeapon(((EntityPlayer) entity).inventory, false))
+                                {
+                                    ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Reloading weapon.... eta: " + gun.getGunData().getReloadTime() + "s")); //TODO translate
+                                }
+                                else
+                                {
+                                    gun.doReload = false;
+                                    gun.reloadDelay = -1;
+                                }
+                            }
+
+                            if (gun.doReload)
+                            {
+                                //Tick reload
+                                gun.doReloadTick();
+                                //Note reload time in chat, TODO move to GUI render
+                                if (gun.reloadDelay % 20 == 0)
+                                {
+                                    int time = gun.getGunData().getReloadTime() - (gun.reloadDelay / 20);
+                                    ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("" + time));
+                                }
                             }
                         }
-                    }
 
-                    //Sight weapon
-                    if (gun.isSighted)
-                    {
-                        if (!((EntityPlayer) entity).isUsingItem())
+                        //Sight weapon
+                        if (gun.isSighted)
                         {
-                            System.out.println("Setting gun in use");
-                            ((EntityPlayer) entity).setItemInUse(stack, getMaxItemUseDuration(stack));
+                            if (!((EntityPlayer) entity).isUsingItem())
+                            {
+                                System.out.println("Setting gun in use");
+                                ((EntityPlayer) entity).setItemInUse(stack, getMaxItemUseDuration(stack));
+                            }
                         }
-                    }
-                    else if (((EntityPlayer) entity).isUsingItem())
-                    {
-                        ((EntityPlayer) entity).stopUsingItem();
-                        System.out.println("Canceling gun in use");
+                        else if (((EntityPlayer) entity).isUsingItem())
+                        {
+                            ((EntityPlayer) entity).stopUsingItem();
+                            System.out.println("Canceling gun in use");
+                        }
                     }
                 }
                 //If current is not the gun, clear cache
@@ -380,7 +383,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     @Override
     public String getRenderKey(ItemStack stack)
     {
-        if (stack.getTagCompound() != null)
+        if (stack.getTagCompound() != null && getData(stack) != null)
         {
             GunData data = getData(stack);
             //TODO if this is changed make sure to update ItemGunRenderer

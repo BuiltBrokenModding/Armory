@@ -1,0 +1,8 @@
+{
+ "gun.empty":{
+      "category":"neutral",
+      "sounds":[
+         "empty-gun-shot"
+      ]
+   }
+}

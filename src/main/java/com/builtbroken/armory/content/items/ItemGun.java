@@ -97,6 +97,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     @Override
     public void mouseClick(ItemStack stack, EntityPlayer player, int button, boolean state)
     {
+        GunInstance gun = getGunInstance(stack, player);
         if (button == 0)
         {
             if (state)
@@ -109,27 +110,40 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             else
             {
                 leftClickHeld.remove(player);
+
+                if(!player.getEntityWorld().isRemote)
+                {
+                    if (gun != null && gun.getChamberedRound() == null && !gun.hasAmmo())
+                    {
+                        gun.playAudio("empty");
+                    }
+                }
             }
         }
         else if (button == 1)
         {
-            GunInstance gun = getGunInstance(stack, player);
             if (gun != null)
             {
                 gun.isSighted = state;
+                if(!player.getEntityWorld().isRemote)
+                {
+                    gun.playAudio("aimed");
+                }
             }
         }
         else if (button == 2)
         {
-            GunInstance gun = getGunInstance(stack, player);
-            if (gun != null && !gun.doReload)
+            if (gun != null)
             {
-                gun.doReload = true;
-                gun.reloadDelay = -1;
-
-                if (!player.worldObj.isRemote)
+                if (!gun.doReload)
                 {
-                    gun.unloadWeapon(player.inventory);
+                    gun.doReload = true;
+                    gun.reloadDelay = -1;
+
+                    if (!player.worldObj.isRemote)
+                    {
+                        gun.unloadWeapon(player.inventory);
+                    }
                 }
             }
         }
@@ -146,7 +160,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                 if (stack.getItem() instanceof ItemGun)
                 {
                     GunInstance gun = getGunInstance(stack, entity);
-                    if(gun != null)
+                    if (gun != null)
                     {
 
                         if (leftClickHeld.containsKey(entity))
@@ -203,14 +217,12 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                         {
                             if (!((EntityPlayer) entity).isUsingItem())
                             {
-                                System.out.println("Setting gun in use");
                                 ((EntityPlayer) entity).setItemInUse(stack, getMaxItemUseDuration(stack));
                             }
                         }
                         else if (((EntityPlayer) entity).isUsingItem())
                         {
                             ((EntityPlayer) entity).stopUsingItem();
-                            System.out.println("Canceling gun in use");
                         }
                     }
                 }

@@ -92,7 +92,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     public void fireWeapon(ItemStack stack, World world, int ticksFired)
     {
-        if(isSighted || !gunData.isSightedRequiredToFire())
+        if (isSighted || !gunData.isSightedRequiredToFire())
         {
             Long deltaTime = System.currentTimeMillis() - lastTimeFired;
             if (entity instanceof EntityLivingBase && (lastTimeFired == 0L || deltaTime > gunData.getFiringDelay()))
@@ -106,7 +106,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         else
         {
-            //TODO play audio or some other notation that the weapon should be sighted
+            //TODO play some other notation that the weapon should be sighted
+            playAudio("error.aim.needed");
         }
     }
 
@@ -140,6 +141,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //Send effect packet to client to render shot was taken
                 if (Engine.instance != null)
                 {
+                    playAudio("round.fired");
                     //TODO spawn smoke based on weapon data
                     //TODO send effect packet so all effects are client generator (reduces packets)
                     int flames = world.rand.nextInt(5);
@@ -178,6 +180,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 chamberedRound.getEjectedItems(droppedItems);
                 if (droppedItems != null && droppedItems.size() > 0)
                 {
+                    playAudio("round.eject");
                     //TODO get eject point and direction on gun to make a more realistic drop
                     for (ItemStack stack : droppedItems)
                     {
@@ -188,7 +191,6 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //Clear current round as it has been fired
                 consumeShot();
 
-                //TODO eject brass/waste from the weapon
                 //TODO generate heat
                 //TODO apply recoil
                 //TODO damage weapon
@@ -201,7 +203,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         if (!hasAmmo())
         {
             doReload = true;
-            //TODO play empty gun click
+            playAudio("empty");
         }
     }
 
@@ -212,6 +214,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             chamberedRound = getLoadedClip().getAmmo().peek();
             getLoadedClip().consumeAmmo(1);
             updateEntityStack("chamber round");
+            playAudio("round.chamber");
         }
         return getChamberedRound() != null;
     }
@@ -303,9 +306,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     protected void consumeShot()
     {
-        if(chamberedRound != null)
+        if (chamberedRound != null)
         {
             chamberedRound = null;
+            playAudio("round.consume");
             updateEntityStack("consume ammo");
         }
     }
@@ -345,6 +349,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         //If first tick set reload time
         if (reloadDelay == -1)
         {
+            //Play reload init
+            playAudio("reload");
+
+            //Init reload delay
             reloadDelay = gunData.getReloadTime() * 20; //20 ticks a second, Reload time is in seconds, we update in ticks
         }
         //Tick reload timer
@@ -369,6 +377,22 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         else
         {
             //TODO run animation
+            //TODO randomize audio TODO randomize volume TODO get gun position
+            if (reloadDelay % 20 == 0)
+            {
+                //Play reload tick audio
+                playAudio("reload.tick");
+            }
+        }
+    }
+
+    public void playAudio(String key)
+    {
+        //Checks for JUnit testing TODO fix
+        if(Engine.instance != null && Engine.proxy != null && Engine.instance.packetHandler != null)
+        {
+            //TODO get weapon position
+            Engine.proxy.playJsonAudio(entity.worldObj, gunData.getUniqueID() + "." + key, entity.posX, entity.posY + 1.1f, entity.posZ, 1, 1);
         }
     }
 
@@ -445,6 +469,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             {
                 if (_clip == null)
                 {
+                    playAudio("clip.load");
                     _clip = bestClip;
                     inventory.decrStackSize(slot, 1);
                 }
@@ -499,6 +524,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         if (roundsLoad > 0)
         {
+            playAudio("round.load");
             return true;
         }
         else if (entity instanceof EntityPlayer)
@@ -518,7 +544,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             {
                 ((EntityPlayer) entity).inventory.setInventorySlotContents(((EntityPlayer) entity).inventory.currentItem, updated);
                 ((EntityPlayer) entity).inventoryContainer.detectAndSendChanges();
-                if(Engine.runningAsDev)
+                if (Engine.runningAsDev)
                 {
                     Engine.logger().info("Updated gun stack: " + name);
                 }
@@ -530,6 +556,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     {
         if (_clip != null)
         {
+            playAudio("unload");
             if (isManuallyFeedClip())
             {
                 int i = 0;

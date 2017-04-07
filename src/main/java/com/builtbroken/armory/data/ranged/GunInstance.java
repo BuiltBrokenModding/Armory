@@ -186,7 +186,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 }
 
                 //Clear current round as it has been fired
-                chamberedRound = null;
+                consumeShot();
 
                 //TODO eject brass/waste from the weapon
                 //TODO generate heat
@@ -195,7 +195,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //Load next round to fire
                 chamberNextRound();
             }
-            updateEntityStack();
+            updateEntityStack("do fire");
         }
 
         if (!hasAmmo())
@@ -211,7 +211,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             chamberedRound = getLoadedClip().getAmmo().peek();
             getLoadedClip().consumeAmmo(1);
-            updateEntityStack();
+            updateEntityStack("chamber round");
         }
         return getChamberedRound() != null;
     }
@@ -301,9 +301,13 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         return new Pos(x, y, z);
     }
 
-    protected void consumeAmmo()
+    protected void consumeShot()
     {
-        getLoadedClip().consumeAmmo(1);
+        if(chamberedRound != null)
+        {
+            chamberedRound = null;
+            updateEntityStack("consume ammo");
+        }
     }
 
     protected Pos getAim(float yaw, float pitch)
@@ -402,7 +406,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         if (reloaded && doAction)
         {
-            updateEntityStack();
+            updateEntityStack("reload weapon");
         }
         return reloaded;
     }
@@ -504,7 +508,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         return false;
     }
 
-    private void updateEntityStack()
+    private void updateEntityStack(String name)
     {
         if (entity instanceof EntityPlayer)
         {
@@ -514,7 +518,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             {
                 ((EntityPlayer) entity).inventory.setInventorySlotContents(((EntityPlayer) entity).inventory.currentItem, updated);
                 ((EntityPlayer) entity).inventoryContainer.detectAndSendChanges();
-                System.out.println("Updated gun stack");
+                if(Engine.runningAsDev)
+                {
+                    Engine.logger().info("Updated gun stack: " + name);
+                }
             }
         }
     }
@@ -591,7 +598,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 }
                 _clip = null;
             }
-            updateEntityStack();
+            updateEntityStack("unloadWeapon");
         }
     }
 

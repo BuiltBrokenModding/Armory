@@ -13,7 +13,6 @@ import com.builtbroken.mc.api.modules.IModule;
 import com.builtbroken.mc.api.modules.weapon.IClip;
 import com.builtbroken.mc.api.modules.weapon.IGun;
 import com.builtbroken.mc.core.Engine;
-import com.builtbroken.mc.core.network.packet.PacketSpawnParticle;
 import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
 import com.builtbroken.mc.imp.transform.vector.Location;
 import com.builtbroken.mc.imp.transform.vector.Pos;
@@ -138,33 +137,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 final Pos aim = getAim(yaw, pitch);
                 final Pos target = entityPos.add(aim.multiply(500));
 
-                //Send effect packet to client to render shot was taken
-                if (Engine.instance != null)
-                {
-                    playAudio("round.fired");
-                    //TODO spawn smoke based on weapon data
-                    //TODO send effect packet so all effects are client generator (reduces packets)
-                    int flames = world.rand.nextInt(5);
-                    int smoke = world.rand.nextInt(10);
-
-                    for (int i = 0; i < flames; i++)
-                    {
-                        Pos vel = aim.multiply(0.2f).addRandom(world.rand, 0.05f);
-                        PacketSpawnParticle packet = new PacketSpawnParticle("flame", world.provider.dimensionId,
-                                bulletStartPoint.x() + aim.x(), bulletStartPoint.y() + aim.y(), bulletStartPoint.z() + aim.z(),
-                                vel.xf(), vel.yf(), vel.zf());
-                        Engine.instance.packetHandler.sendToAllAround(packet, new Location(world, bulletStartPoint), 100);
-                    }
-
-                    for (int i = 0; i < smoke; i++)
-                    {
-                        Pos vel = aim.multiply(0.2f).addRandom(world.rand, 0.05f);
-                        PacketSpawnParticle packet = new PacketSpawnParticle("smoke", world.provider.dimensionId,
-                                bulletStartPoint.x(), bulletStartPoint.y(), bulletStartPoint.z(),
-                                vel.xf(), vel.yf(), vel.zf());
-                        Engine.instance.packetHandler.sendToAllAround(packet, new Location(world, bulletStartPoint), 100);
-                    }
-                }
+                playAudio("round.fired");
+                playEffect("round.fired", bulletStartPoint, aim); //TODO check with ammo if it has an effect to play then use this as backup
 
                 //Fire round out of gun
                 if (getChamberedRound().getProjectileVelocity() <= 0 || getChamberedRound().getProjectileVelocity() > PROJECTILE_SPEED_LIMIT)
@@ -389,10 +363,25 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public void playAudio(String key)
     {
         //Checks for JUnit testing TODO fix
-        if(Engine.instance != null && Engine.proxy != null && Engine.instance.packetHandler != null)
+        if (Engine.instance != null && Engine.proxy != null && Engine.instance.packetHandler != null)
         {
             //TODO get weapon position
             Engine.proxy.playJsonAudio(entity.worldObj, gunData.getUniqueID() + "." + key, entity.posX, entity.posY + 1.1f, entity.posZ, 1, 1);
+        }
+    }
+
+    public void playEffect(String key, Pos pos, Pos aim)
+    {
+        playEffect(key, pos.x(), pos.y(), pos.z(), aim.x(), aim.y(), aim.z());
+    }
+
+    public void playEffect(String key, double x, double y, double z, double mx, double my, double mz)
+    {
+        //Checks for JUnit testing TODO fix
+        if (Engine.instance != null && Engine.proxy != null && Engine.instance.packetHandler != null)
+        {
+            //TODO get weapon position
+            Engine.proxy.playJsonEffect(entity.worldObj, gunData.getUniqueID() + "." + key, x, y, z, mx, my, mz, null);
         }
     }
 

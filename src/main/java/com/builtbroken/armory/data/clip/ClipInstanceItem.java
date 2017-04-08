@@ -65,4 +65,14 @@ public class ClipInstanceItem extends AbstractModule implements IClip
     {
         return "armory:clip";
     }
+
+    @Override
+    public ItemStack toStack()
+    {
+        if (getAmmoCount() <= 0)
+        {
+            item.setTagCompound(null);
+        }
+        return item;
+    }
 }

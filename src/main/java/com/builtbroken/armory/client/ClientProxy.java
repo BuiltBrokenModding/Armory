@@ -2,8 +2,10 @@ package com.builtbroken.armory.client;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.CommonProxy;
+import com.builtbroken.armory.client.effects.VEProviderGunSmoke;
 import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.content.entity.projectile.RenderEntityProjectile;
+import com.builtbroken.mc.client.effects.VisualEffectRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
@@ -22,7 +24,7 @@ public class ClientProxy extends CommonProxy
     public void preInit()
     {
         super.preInit();
-
+        VisualEffectRegistry.addEffectProvider(new VEProviderGunSmoke());
     }
 
     @Override

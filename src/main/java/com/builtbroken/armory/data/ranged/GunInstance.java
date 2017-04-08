@@ -658,6 +658,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         if (tag.hasKey(NBT_CLIP))
         {
             NBTTagCompound clipTag = tag.getCompoundTag(NBT_CLIP);
+            //Contains data its a clip item
             if (clipTag.hasKey("data"))
             {
                 IClipData data = (IClipData) ArmoryDataHandler.INSTANCE.get("clip").get(clipTag.getString("data"));
@@ -676,9 +677,9 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     error("Failed to load clip data from NBT using unique id '" + clipTag.getString("data") + "' while loading " + this);
                 }
             }
+            //Else internal clip
             else
             {
-                //Internal clip loading
                 ((ClipInstance) _clip).load(clipTag);
             }
         }
@@ -711,7 +712,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             else
             {
                 clipTag.setString("data", _clip.getClipData().getUniqueID());
-                clipTag.setTag("stack", ((ClipInstanceItem) _clip).save().writeToNBT(new NBTTagCompound()));
+                clipTag.setTag("stack", ((ClipInstanceItem) _clip).toStack().writeToNBT(new NBTTagCompound()));
                 nbt.setTag(NBT_CLIP, clipTag);
             }
         }

@@ -265,8 +265,9 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
         itemIcon = reg.registerIcon(Armory.PREFIX + "clip");
     }
 
+    @Override
     @SideOnly(Side.CLIENT)
-    protected IIcon getDefaultIcon(int meta)
+    protected IIcon getFallBackIcon()
     {
         return itemIcon;
     }

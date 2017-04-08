@@ -75,4 +75,16 @@ public class ClipInstanceItem extends AbstractModule implements IClip
         }
         return item;
     }
+
+    @Override
+    public ItemStack save()
+    {
+        return item;
+    }
+
+    @Override
+    protected boolean resetTagOnSave()
+    {
+        return false;
+    }
 }

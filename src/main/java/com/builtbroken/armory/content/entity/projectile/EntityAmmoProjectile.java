@@ -3,6 +3,7 @@ package com.builtbroken.armory.content.entity.projectile;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.modules.weapon.IGun;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.prefab.entity.EntityProjectile;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
@@ -10,6 +11,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
 /**
@@ -39,39 +41,53 @@ public class EntityAmmoProjectile extends EntityProjectile implements IEntityAdd
     }
 
     @Override
-    protected void onImpactTile()
+    protected void onImpactTile(MovingObjectPosition hit)
     {
-        if (ammoData != null)
+        if (Engine.runningAsDev)
         {
-            if (ammoData.onImpactGround(shootingEntity, worldObj, xTile, yTile, zTile, posX, posY, posZ, getVelocity()))
+            Engine.logger().info("Projectile impact tile>> Client:" + worldObj.isRemote + " " + worldObj.provider.dimensionId + "d " + xTile + "x " + yTile + "y " + zTile + "z " + inBlockID + "b");
+        }
+        if (!worldObj.isRemote)
+        {
+            if (ammoData != null)
             {
-                this.setDead();
-            }
-            else
-            {
-                //TODO figure out how to handle based on projectile
+                if (ammoData.onImpactGround(shootingEntity, worldObj, xTile, yTile, zTile, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, getVelocity()))
+                {
+                    this.setDead();
+                }
+                else
+                {
+                    //TODO figure out how to handle based on projectile
+                }
             }
         }
     }
 
     @Override
-    protected void onImpactEntity(Entity entityHit, float velocity)
+    protected void onImpactEntity(Entity entityHit, float velocity, MovingObjectPosition hit)
     {
-        if (ammoData != null)
+        if (Engine.runningAsDev)
         {
-            if (entityHit instanceof EntityProjectile)
+            Engine.logger().info("Projectile impact entity>> Client:" + worldObj.isRemote + " " + worldObj.provider.dimensionId + "d " + entityHit);
+        }
+        if (!worldObj.isRemote)
+        {
+            if (ammoData != null)
             {
-                //TODO implement special handling for impacting bullets
-                //TODO for now ignore bullet collisions
-                return;
-            }
-            if (ammoData.onImpactEntity(entityHit, shootingEntity, posX, posY, posZ, velocity))
-            {
-                this.setDead();
-            }
-            else
-            {
-                //TODO figure out how to handle based on projectile
+                if (entityHit instanceof EntityProjectile)
+                {
+                    //TODO implement special handling for impacting bullets
+                    //TODO for now ignore bullet collisions
+                    return;
+                }
+                if (ammoData.onImpactEntity(entityHit, shootingEntity, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, velocity))
+                {
+                    this.setDead();
+                }
+                else
+                {
+                    //TODO figure out how to handle based on projectile
+                }
             }
         }
     }

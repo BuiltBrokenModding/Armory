@@ -34,6 +34,8 @@ public class RenderEntityProjectile extends RenderEntity
             {
                 GL11.glPushMatrix();
                 GL11.glTranslated(rx, ry, rz);
+                GL11.glRotated(entity.rotationYaw, 0, 1, 0);
+                GL11.glRotated(-entity.rotationPitch, 1, 0, 0);
 
                 rendered = data.render("projectile");
 

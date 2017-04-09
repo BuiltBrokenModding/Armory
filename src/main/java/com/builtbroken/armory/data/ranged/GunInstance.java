@@ -44,6 +44,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 {
     public static final String NBT_ROUND = "chamberedRound";
     public static final String NBT_CLIP = "clip";
+    public static boolean debugRayTraces = false;
 
 
     /** How fast a projectile can travel before a ray trace is used instead */
@@ -181,6 +182,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
     }
 
+    /**
+     * Called to chamber next round
+     *
+     * @return true if chamber has round
+     */
     public boolean chamberNextRound()
     {
         if (getChamberedRound() == null && hasAmmo())
@@ -193,18 +199,47 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         return getChamberedRound() != null;
     }
 
-    protected void _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos end, Pos aim)
+    /**
+     * Called to run debug ray trace code
+     */
+    public void debugRayTrace()
     {
-        //Debug ray trace
-        if (Engine.instance != null && Engine.runningAsDev)
+        if (debugRayTraces && Engine.instance != null && Engine.runningAsDev)
         {
-            PacketSpawnStream packet = new PacketSpawnStream(world.provider.dimensionId, start, end, 2);
+            float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch);
+            float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw);
+
+            final Pos entityPos = getEntityPosition();
+            final Pos bulletStartPoint = entityPos.add(getBulletSpawnOffset(yaw, pitch));
+            final Pos aim = getAim(yaw, pitch);
+            final Pos target = entityPos.add(aim.multiply(500));
+
+            final Pos start = entityPos.add(aim);
+            Pos end = target;
+            MovingObjectPosition hit = start.rayTrace(entity.worldObj, end, false, true, false);
+            if (hit != null)
+            {
+                end = new Pos(hit.hitVec);
+            }
+
+            //Debug ray trace
+            PacketSpawnStream packet = new PacketSpawnStream(entity.worldObj.provider.dimensionId, start.add(0, -0.5, 0), end, 2);
             packet.red = (Color.blue.getRed() / 255f);
             packet.green = (Color.blue.getGreen() / 255f);
             packet.blue = (Color.blue.getBlue() / 255f);
             Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
-        }
 
+            //Debug ray trace
+            packet = new PacketSpawnStream(entity.worldObj.provider.dimensionId, bulletStartPoint, end, 2);
+            packet.red = (Color.RED.getRed() / 255f);
+            packet.green = (Color.RED.getGreen() / 255f);
+            packet.blue = (Color.RED.getBlue() / 255f);
+            Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
+        }
+    }
+
+    protected void _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos end, Pos aim)
+    {
         MovingObjectPosition hit = start.rayTrace(world, end, false, true, false);
         if (hit != null && hit.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)
         {
@@ -221,7 +256,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     protected void _createAndFireEntity(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos end, Pos aim)
     {
-        Pos spawnPoint = getEntityPosition().add(getBulletSpawnOffset(yaw, pitch));
+        Pos spawnPoint = getEntityPosition().add(aim).add(getBulletSpawnOffset(yaw, pitch));
         //TODO spawn projectile
         EntityAmmoProjectile projectile = new EntityAmmoProjectile(world, nextRound, this, entity);
 

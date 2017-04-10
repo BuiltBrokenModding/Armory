@@ -91,53 +91,57 @@ public class TileSentryClient extends TileSentry
     @SideOnly(Side.CLIENT)
     public void renderDynamic(Pos pos, float frame, int pass)
     {
-        double rx = pos.x() + 0.5;
-        double ry = pos.y() + 0.5;
-        double rz = pos.z() + 0.5;
-
-        if (Engine.runningAsDev)
+        if (getSentry() != null)
         {
-            RenderUtility.renderFloatingText("Yaw: " + getSentry().rotationYaw, rx, ry + 1.3, rz, Color.red.getRGB());
-            RenderUtility.renderFloatingText("Pitch: " + getSentry().rotationPitch, rx, ry + 1, rz, Color.red.getRGB());
-        }
+            double rx = pos.x() + 0.5;
+            double ry = pos.y() + 0.5;
+            double rz = pos.z() + 0.5;
 
-        GL11.glPushMatrix();
-        GL11.glTranslated(rx, ry, rz);
-
-        //Get render data
-        RenderData renderData = null;
-        if (sentryData != null)
-        {
-            renderData = ClientDataHandler.INSTANCE.getRenderData(sentryData.getUniqueID());
-        }
-
-        //Render parts
-        boolean rendered = false;
-        if (renderData != null)
-        {
-            IRenderState renderState = renderData.getState("entity.sentry.base");
-            if (renderState instanceof IModelState && ((IModelState) renderState).render())
+            if (Engine.runningAsDev)
             {
-                rendered = true;
+                RenderUtility.renderFloatingText("Yaw: " + getSentry().rotationYaw, rx, ry + 1.3, rz, Color.red.getRGB());
+                RenderUtility.renderFloatingText("Pitch: " + getSentry().rotationPitch, rx, ry + 1, rz, Color.red.getRGB());
             }
-            GL11.glRotated(getSentry().rotationYaw, 0, 1, 0);
-            GL11.glRotated(getSentry().rotationPitch, 1, 0, 0);
-            sentryBackupModel.renderOnly(parts);
 
-            renderState = renderData.getState("entity.sentry.turret");
-            if (renderState instanceof IModelState && ((IModelState) renderState).render())
+            GL11.glPushMatrix();
+            GL11.glTranslated(rx, ry, rz);
+
+            //Get render data
+            RenderData renderData = null;
+            if (sentryData != null)
             {
-                rendered = true;
+                renderData = ClientDataHandler.INSTANCE.getRenderData(sentryData.getUniqueID());
             }
-        }
 
-        //If didn't render run backup
-        if (!rendered)
-        {
-            doBackupRender();
-        }
+            //Render parts
+            boolean rendered = false;
+            if (renderData != null)
+            {
+                //Render base
+                IRenderState renderState = renderData.getState("entity.sentry.base");
+                if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                {
+                    rendered = true;
+                }
 
-        GL11.glPopMatrix();
+                //Render turret
+                GL11.glRotated(getSentry().rotationYaw, 0, 1, 0);
+                GL11.glRotated(getSentry().rotationPitch, 1, 0, 0);
+                renderState = renderData.getState("entity.sentry.turret");
+                if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                {
+                    rendered = true;
+                }
+            }
+
+            //If didn't render run backup
+            if (!rendered)
+            {
+                doBackupRender();
+            }
+
+            GL11.glPopMatrix();
+        }
     }
 
     protected void doBackupRender()

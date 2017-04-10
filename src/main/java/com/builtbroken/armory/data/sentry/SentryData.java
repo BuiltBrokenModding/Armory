@@ -30,6 +30,10 @@ public class SentryData extends ArmoryEntry
     private int targetAttackDelay = 3;
     private int targetLossTimer = 5;
 
+    private double barrelLength;
+    private double bodyWidth;
+    private double bodyHeight;
+
     public SentryData(IJsonProcessor processor, String id, String name)
     {
         super(processor, id, "sentry", name);
@@ -188,5 +192,38 @@ public class SentryData extends ArmoryEntry
     public void setTargetLossTimer(int targetLossTimer)
     {
         this.targetLossTimer = targetLossTimer;
+    }
+
+    public double getBarrelLength()
+    {
+        return barrelLength;
+    }
+
+    @JsonProcessorData(value = "barrelLength", type = "double")
+    public void setBarrelLength(double barrelLength)
+    {
+        this.barrelLength = barrelLength;
+    }
+
+    public double getBodyWidth()
+    {
+        return bodyWidth;
+    }
+
+    @JsonProcessorData(value = "bodyWidth", type = "double")
+    public void setBodyWidth(double bodyWidth)
+    {
+        this.bodyWidth = bodyWidth;
+    }
+
+    public double getBodyHeight()
+    {
+        return bodyHeight;
+    }
+
+    @JsonProcessorData(value = "bodyHeight", type = "double")
+    public void setBodyHeight(double bodyHeight)
+    {
+        this.bodyHeight = bodyHeight;
     }
 }

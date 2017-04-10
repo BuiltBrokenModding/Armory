@@ -65,6 +65,7 @@ public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData>
         {
             throw new IllegalArgumentException("Failed to get gun by ID[" + gunID + "] due to return not being a gun data object, this is a bug");
         }
+        sentryData.setGunData((GunData) gunData);
 
         //Call to process injection tags
         for (Map.Entry<String, JsonElement> entry : sentryJsonObject.entrySet())

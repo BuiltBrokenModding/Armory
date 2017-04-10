@@ -3,7 +3,6 @@ package com.builtbroken.armory.content.sentry;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.sentry.gui.ContainerSentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
-import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.mc.api.tile.access.IGuiTile;
 import com.builtbroken.mc.core.Engine;
@@ -115,9 +114,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     {
         if (sentryData == null)
         {
-            GunData data = (GunData) ArmoryDataHandler.INSTANCE.get("gun").get("armory:handgun.9mm.test");
-            sentryData = new SentryData(null, "test.sentry", "test.sentry");
-            sentryData.setGunData(data);
+            sentryData = (SentryData) ArmoryDataHandler.INSTANCE.get("sentry").get("wjsurvialmod:sentry");
         }
         if (getSentry() == null && isServer())
         {

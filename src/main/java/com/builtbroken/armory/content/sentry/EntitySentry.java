@@ -84,6 +84,10 @@ public class EntitySentry extends EntityBase
     {
         super.setPosition(x, y, z);
         center = new Pos(x, y + (height / 2f), z);
+        if (data != null && data.getCenterOffset() != null)
+        {
+            center = center.add(data.getCenterOffset());
+        }
         searchArea = null;
     }
 
@@ -115,13 +119,18 @@ public class EntitySentry extends EntityBase
         }
         final double radianPitch = Math.toRadians(pitch);
 
-        float width = (float) Math.max(data != null ? data.getBodyWidth() : 0, halfWidth);
+        float width = (float) Math.max(data != null ? data.getBarrelLength() : 0, halfWidth);
 
         bulletSpawnOffset = new Pos(
                 (Math.cos(radianYaw) - Math.sin(radianYaw)) * width,
                 (Math.sin(radianYaw) * Math.sin(radianPitch)) * width,
                 (Math.sin(radianYaw) + Math.cos(radianYaw)) * width
         );
+
+        if (data != null && data.getBarrelOffset() != null)
+        {
+            bulletSpawnOffset = bulletSpawnOffset.add(data.getBarrelOffset());
+        }
     }
 
     @Override

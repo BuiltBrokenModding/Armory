@@ -2,6 +2,7 @@ package com.builtbroken.armory.data.sentry;
 
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.ranged.GunData;
+import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import com.builtbroken.mc.lib.json.loading.JsonProcessorData;
 
@@ -33,6 +34,9 @@ public class SentryData extends ArmoryEntry
     private float barrelLength = 0.8f;
     private float bodyWidth = 0.7f;
     private float bodyHeight = 0.7f;
+
+    private Pos centerOffset;
+    private Pos barrelOffset;
 
     public SentryData(IJsonProcessor processor, String id, String name)
     {
@@ -225,5 +229,27 @@ public class SentryData extends ArmoryEntry
     public void setBodyHeight(float bodyHeight)
     {
         this.bodyHeight = bodyHeight;
+    }
+
+    public Pos getCenterOffset()
+    {
+        return centerOffset;
+    }
+
+    @JsonProcessorData(value = "centerOffset", type = "pos")
+    public void setCenterOffset(Pos centerOffset)
+    {
+        this.centerOffset = centerOffset;
+    }
+
+    public Pos getBarrelOffset()
+    {
+        return barrelOffset;
+    }
+
+    @JsonProcessorData(value = "barrelOffset", type = "pos")
+    public void setBarrelOffset(Pos barrelOffset)
+    {
+        this.barrelOffset = barrelOffset;
     }
 }

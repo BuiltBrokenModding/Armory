@@ -36,6 +36,9 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     protected boolean running = false;
     protected boolean turnedOn = true;
 
+    protected boolean sentryHasAmmo = false;
+    protected boolean sentryIsAlive = false;
+
     public TileSentry()
     {
         super("sentry", Material.iron);
@@ -66,13 +69,26 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         //Server logic
         if (isServer())
         {
+            //Reset state
+            sentryHasAmmo = false;
+            running = false;
+            sentryIsAlive = false;
+
+            if (getSentry() != null)
+            {
+                //Force position
+                getSentry().setPosition(xi() + 0.5, yi() + bounds.max().y() + 0.05, zi() + 0.5);
+
+                //Update has ammo for renders
+                if (getSentry().gunInstance != null)
+                {
+                    sentryHasAmmo = getSentry().gunInstance.hasAmmo();
+                    sentryIsAlive = getSentry().getHealth() > 0;
+                }
+            }
+
             if (sentryData != null && turnedOn)
             {
-                if (getSentry() != null)
-                {
-                    getSentry().setPosition(xi() + 0.5, yi() + bounds.max().y() + 0.05, zi() + 0.5);
-                }
-
                 //Consume energy per tick
                 if (sentryData.getEnergyCost() > 0)
                 {
@@ -194,6 +210,8 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     {
         super.writeDescPacket(buf);
         buf.writeInt(getSentry() == null ? -1 : getSentry().getEntityId());
+        buf.writeBoolean(sentryHasAmmo);
+        buf.writeBoolean(sentryIsAlive);
     }
 
     @Override

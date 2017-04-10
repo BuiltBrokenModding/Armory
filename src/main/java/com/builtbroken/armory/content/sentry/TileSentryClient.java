@@ -70,6 +70,8 @@ public class TileSentryClient extends TileSentry
         super.readDescPacket(buf);
         int entityID = buf.readInt();
         setEntity(entityID);
+        sentryHasAmmo = buf.readBoolean();
+        sentryIsAlive = buf.readBoolean();
     }
 
     protected void setEntity(int entityID)
@@ -117,20 +119,27 @@ public class TileSentryClient extends TileSentry
             boolean rendered = false;
             if (renderData != null)
             {
+                final String emptyS = (sentryHasAmmo ? "" : ".empty");
                 //Render base
-                IRenderState renderState = renderData.getState("entity.sentry.base");
-                if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                for (String key : new String[]{"entity.sentry.base.dead" + emptyS, "entity.sentry.base.dead", "entity.sentry.base" + emptyS, "entity.sentry.base"})
                 {
-                    rendered = true;
+                    IRenderState renderState = renderData.getState(key);
+                    if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                    {
+                        rendered = true;
+                    }
                 }
 
                 //Render turret
                 GL11.glRotated(getSentry().rotationYaw, 0, 1, 0);
                 GL11.glRotated(getSentry().rotationPitch, 1, 0, 0);
-                renderState = renderData.getState("entity.sentry.turret");
-                if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                for (String key : new String[]{"entity.sentry.turret.dead" + emptyS, "entity.sentry.turret.dead", "entity.sentry.turret" + emptyS, "entity.sentry.turret"})
                 {
-                    rendered = true;
+                    IRenderState renderState = renderData.getState(key);
+                    if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                    {
+                        rendered = true;
+                    }
                 }
             }
 

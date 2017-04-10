@@ -41,7 +41,7 @@ public class EntitySentry extends EntityBase
     protected Pos center;
     protected Pos aimPoint;
 
-    public SentryData data;
+    private SentryData data;
     public GunInstance gunInstance;
     public TileSentry base;
 
@@ -115,10 +115,12 @@ public class EntitySentry extends EntityBase
         }
         final double radianPitch = Math.toRadians(pitch);
 
+        float width = (float) Math.max(data != null ? data.getBodyWidth() : 0, halfWidth);
+
         bulletSpawnOffset = new Pos(
-                (Math.cos(radianYaw) - Math.sin(radianYaw)) * halfWidth,
-                halfWidth * Math.sin(radianYaw) * Math.sin(radianPitch),
-                (Math.sin(radianYaw) + Math.cos(radianYaw)) * halfWidth
+                (Math.cos(radianYaw) - Math.sin(radianYaw)) * width,
+                (Math.sin(radianYaw) * Math.sin(radianPitch)) * width,
+                (Math.sin(radianYaw) + Math.cos(radianYaw)) * width
         );
     }
 
@@ -157,7 +159,7 @@ public class EntitySentry extends EntityBase
             lastRotationUpdate = System.nanoTime();
 
             //Invalid entity
-            if (base == null || data == null || base.isInvalid())
+            if (base == null || getData() == null || base.isInvalid())
             {
                 kill();
             }
@@ -175,9 +177,9 @@ public class EntitySentry extends EntityBase
                 }
 
                 //Create gun instance if null
-                if (gunInstance == null && data != null && data.getGunData() != null)
+                if (gunInstance == null && getData() != null && getData().getGunData() != null)
                 {
-                    gunInstance = new GunInstance(new ItemStack(Armory.blockSentry), this, data.getGunData());
+                    gunInstance = new GunInstance(new ItemStack(Armory.blockSentry), this, getData().getGunData());
                     if (Engine.runningAsDev)
                     {
                         gunInstance.doDebugRayTracesOnTthisGun = true;
@@ -193,7 +195,7 @@ public class EntitySentry extends EntityBase
                         targetingDelay = 0;
                         targetingLoseTimer = 0;
 
-                        if (targetSearchTimer++ >= data.getTargetSearchDelay())
+                        if (targetSearchTimer++ >= getData().getTargetSearchDelay())
                         {
                             targetSearchTimer = 0;
                             findTargets();
@@ -203,7 +205,7 @@ public class EntitySentry extends EntityBase
                     else if (isValidTarget(target))
                     {
                         //Delay before attack
-                        if (targetingDelay >= data.getTargetAttackDelay())
+                        if (targetingDelay >= getData().getTargetAttackDelay())
                         {
                             //Update aim point
                             aimPoint = getAimPoint(target);
@@ -225,7 +227,7 @@ public class EntitySentry extends EntityBase
                         }
                     }
                     //If target is not null and invalid, count until invalidated
-                    else if (target != null && targetingLoseTimer++ >= data.getTargetLossTimer())
+                    else if (target != null && targetingLoseTimer++ >= getData().getTargetLossTimer())
                     {
                         target = null;
                         targetingLoseTimer = 0;
@@ -240,7 +242,7 @@ public class EntitySentry extends EntityBase
         //TODO thread
         if (searchArea == null)
         {
-            searchArea = AxisAlignedBB.getBoundingBox(posX, posY, posZ, posX, posY, posZ).expand(data.getRange(), data.getRange(), data.getRange());
+            searchArea = AxisAlignedBB.getBoundingBox(posX, posY, posZ, posX, posY, posZ).expand(getData().getRange(), getData().getRange(), getData().getRange());
         }
 
         List<Entity> entityList = world().getEntitiesWithinAABBExcludingEntity(this, searchArea, getEntitySelector());
@@ -289,7 +291,7 @@ public class EntitySentry extends EntityBase
 
             //Check to ensure we are in range
             double distance = center.distance(aimPoint);
-            if (distance <= data.getRange())
+            if (distance <= getData().getRange())
             {
                 //Trace to make sure no blocks are between shooter and target
                 EulerAngle aim = center.toEulerAngle(aimPoint).clampTo360();
@@ -352,5 +354,16 @@ public class EntitySentry extends EntityBase
         {
             gunInstance.fireWeapon(world(), 1, aimPoint, aim.toPos()); //TODO get firing ticks
         }
+    }
+
+    public SentryData getData()
+    {
+        return data;
+    }
+
+    public void setData(SentryData data)
+    {
+        this.data = data;
+        setSize(data.getBodyWidth(), data.getBodyHeight());
     }
 }

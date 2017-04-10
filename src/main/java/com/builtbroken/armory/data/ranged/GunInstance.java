@@ -741,7 +741,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         else if (entity instanceof EntitySentry && ((EntitySentry) entity).base != null)
         {
             EntitySentry sentry = ((EntitySentry) entity);
-            return slot >= sentry.data.getInventoryAmmoStart() && slot <= sentry.data.getInventoryAmmoEnd();
+            return slot >= sentry.getData().getInventoryAmmoStart() && slot <= sentry.getData().getInventoryAmmoEnd();
         }
         else if (entity instanceof IInventory)
         {

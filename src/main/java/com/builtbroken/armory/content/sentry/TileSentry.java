@@ -90,6 +90,11 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
                 Engine.logger().error("Removing corrupted sentry tile from world, " + this);
                 world().setBlockToAir(xCoord, yCoord, zCoord);
             }
+
+            if (ticks % 10 == 0)
+            {
+                sendDescPacket();
+            }
         }
     }
 
@@ -120,7 +125,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         {
             sentry = new EntitySentry(world());
             getSentry().setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5); //TODO adjust based on data
-            getSentry().data = sentryData;
+            getSentry().setData(sentryData);
             getSentry().base = this;
             world().spawnEntityInWorld(sentry);
             setSentry(sentry);
@@ -177,7 +182,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
 
     public void sendSentryIDToClient()
     {
-        if(world() != null && isServer())
+        if (world() != null && isServer())
         {
             PacketTile packetTile = new PacketTile(this, 2, getSentry() == null ? -1 : getSentry().getEntityId());
             Engine.instance.packetHandler.sendToAllAround(packetTile, this);

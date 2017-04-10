@@ -30,9 +30,9 @@ public class SentryData extends ArmoryEntry
     private int targetAttackDelay = 3;
     private int targetLossTimer = 5;
 
-    private double barrelLength;
-    private double bodyWidth;
-    private double bodyHeight;
+    private float barrelLength = 0.8f;
+    private float bodyWidth = 0.7f;
+    private float bodyHeight = 0.7f;
 
     public SentryData(IJsonProcessor processor, String id, String name)
     {
@@ -194,35 +194,35 @@ public class SentryData extends ArmoryEntry
         this.targetLossTimer = targetLossTimer;
     }
 
-    public double getBarrelLength()
+    public float getBarrelLength()
     {
         return barrelLength;
     }
 
-    @JsonProcessorData(value = "barrelLength", type = "double")
-    public void setBarrelLength(double barrelLength)
+    @JsonProcessorData(value = "barrelLength", type = "float")
+    public void setBarrelLength(float barrelLength)
     {
         this.barrelLength = barrelLength;
     }
 
-    public double getBodyWidth()
+    public float getBodyWidth()
     {
         return bodyWidth;
     }
 
-    @JsonProcessorData(value = "bodyWidth", type = "double")
-    public void setBodyWidth(double bodyWidth)
+    @JsonProcessorData(value = "bodyWidth", type = "float")
+    public void setBodyWidth(float bodyWidth)
     {
         this.bodyWidth = bodyWidth;
     }
 
-    public double getBodyHeight()
+    public float getBodyHeight()
     {
         return bodyHeight;
     }
 
-    @JsonProcessorData(value = "bodyHeight", type = "double")
-    public void setBodyHeight(double bodyHeight)
+    @JsonProcessorData(value = "bodyHeight", type = "float")
+    public void setBodyHeight(float bodyHeight)
     {
         this.bodyHeight = bodyHeight;
     }

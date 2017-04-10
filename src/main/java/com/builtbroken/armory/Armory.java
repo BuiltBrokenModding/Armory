@@ -4,9 +4,13 @@ import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.content.items.ItemAmmo;
 import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.armory.content.items.ItemGun;
+import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.content.sentry.EntitySentry;
 import com.builtbroken.armory.content.sentry.TileSentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
+import com.builtbroken.armory.data.ammo.AmmoData;
+import com.builtbroken.armory.data.clip.ClipData;
+import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.json.processors.AmmoJsonProcessor;
 import com.builtbroken.armory.json.processors.AmmoTypeJsonProcessor;
 import com.builtbroken.armory.json.processors.ClipJsonProcessor;
@@ -23,7 +27,6 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
 
 /**
  * Created by robert on 11/18/2014.
@@ -53,9 +56,9 @@ public final class Armory extends AbstractMod
 
     public static Block blockSentry;
 
-    public static Item itemGun;
-    public static Item itemClip;
-    public static Item itemAmmo;
+    public static ItemMetaArmoryEntry<GunData> itemGun;
+    public static ItemMetaArmoryEntry<ClipData> itemClip;
+    public static ItemMetaArmoryEntry<AmmoData> itemAmmo;
 
     public Armory()
     {

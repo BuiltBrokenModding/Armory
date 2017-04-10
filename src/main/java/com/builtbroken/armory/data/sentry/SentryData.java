@@ -13,6 +13,8 @@ public class SentryData extends ArmoryEntry
     public GunData gunData;
 
     public int inventorySize = 3; // 1 ammo slot, 2 battery slots
+    public int inventoryAmmoStart = 0;
+    public int inventoryAmmoEnd = 0;
     public int energyCost = -1;
     public int energyBuffer = -1;
 

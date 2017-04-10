@@ -57,7 +57,7 @@ public class TestGunInstance extends AbstractArmoryTest
         for (int i = 0; i < 6; i++)
         {
             instance.lastTimeFired = 0L;
-            instance.fireWeapon(stack, world, i);
+            instance.fireWeapon(world, i);
             if (i != 5)
             {
                 assertEquals("Failed to decrease ammo for shot " + i, 4 - i, instance.getLoadedClip().getAmmoCount());

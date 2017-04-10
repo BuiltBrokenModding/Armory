@@ -56,9 +56,9 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     protected final IGunData gunData;
 
     /** Clip that is feed into the weapon */
-    protected IClip _clip;
+    public IClip _clip;
 
-    protected IAmmoData chamberedRound;
+    public IAmmoData chamberedRound;
 
     /** Last time the weapon was fired, milliseconds */
     public Long lastTimeFired = 0L;
@@ -66,6 +66,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public boolean doReload = false;
     /** Is the weapon sighted */
     public boolean isSighted = false;
+    /** True = infinite ammo */
+    public boolean ignoreAmmo = false;
     /** Delay before reloading */
     public int reloadDelay = -1;
 
@@ -87,22 +89,32 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     /**
      * Called to fire the weapon
      *
-     * @param stack      - weapon stack
      * @param world      -world fired in
      * @param ticksFired - number of ticks fired for
      */
-    public void fireWeapon(ItemStack stack, World world, int ticksFired)
+    public void fireWeapon(World world, int ticksFired)
+    {
+        fireWeapon(world, ticksFired, null, null);
+    }
+
+    /**
+     * Called to fire the weapon
+     *
+     * @param world      -world fired in
+     * @param ticksFired - number of ticks fired for
+     */
+    public void fireWeapon(World world, int ticksFired, Pos aimPoint, Pos aim)
     {
         if (isSighted || !gunData.isSightedRequiredToFire())
         {
             Long deltaTime = System.currentTimeMillis() - lastTimeFired;
-            if (entity instanceof EntityLivingBase && (lastTimeFired == 0L || deltaTime > gunData.getFiringDelay()))
+            if (entity != null && (lastTimeFired == 0L || deltaTime > gunData.getFiringDelay()))
             {
                 lastTimeFired = System.currentTimeMillis();
                 float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch);
                 float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw);
 
-                _doFire(world, yaw, pitch);
+                _doFire(world, yaw, pitch, aimPoint, aim);
             }
         }
         else
@@ -112,7 +124,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
     }
 
-    protected void _doFire(World world, float yaw, float pitch)
+    protected void _doFire(World world, float yaw, float pitch, Pos aimPointOverride, Pos aimOverride)
     {        //TODO return and allow reload animations
         //TODO add safety checks
         if (getChamberedRound() != null || hasAmmo())
@@ -136,8 +148,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
                 final Pos entityPos = getEntityPosition();
                 final Pos bulletStartPoint = entityPos.add(getBulletSpawnOffset(yaw, pitch));
-                final Pos aim = getAim(yaw, pitch);
-                final Pos target = entityPos.add(aim.multiply(500));
+                final Pos aim = aimOverride != null ? aimOverride : getAim(yaw, pitch);
+                final Pos target = aimPointOverride != null ? aimPointOverride : entityPos.add(aim.multiply(500));
 
                 playAudio("round.fired");
                 playEffect("round.fired", bulletStartPoint, aim); //TODO check with ammo if it has an effect to play then use this as backup
@@ -247,6 +259,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             if (hit.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
             {
                 nextRound.onImpactEntity(entity, hit.entityHit, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity()); //TODO scale velocity by distance
+                if(Engine.runningAsDev)
+                {
+                    System.out.println(hit.entityHit);
+                }
             }
             else
             {
@@ -283,15 +299,25 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     protected Pos getBulletSpawnOffset(float yaw, float pitch)
     {
-        //Find our hand position so to position starting point near barrel of the gun
-        final float rotationHand = MathHelper.wrapAngleTo180_float(yaw + 90);
+        if (entity instanceof EntityLivingBase)
+        {
+            //Find our hand position so to position starting point near barrel of the gun
+            final float rotationHand = MathHelper.wrapAngleTo180_float(yaw + 90);
+            final double r = Math.toRadians(rotationHand);
+            final Pos hand = new Pos(
+                    (Math.cos(r) - Math.sin(r)) * 0.5,
+                    -0.5,
+                    (Math.sin(r) + Math.cos(r)) * 0.5
+            );
+            return hand;
+        }
+        final float rotationHand = MathHelper.wrapAngleTo180_float(yaw);
         final double r = Math.toRadians(rotationHand);
         final Pos hand = new Pos(
                 (Math.cos(r) - Math.sin(r)) * 0.5,
-                -0.5,
+                0,
                 (Math.sin(r) + Math.cos(r)) * 0.5
         );
-
         return hand;
     }
 
@@ -308,7 +334,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         else
         {
-            y += entity.getEyeHeight();
+            y += (entity.height / 2f);
         }
 
         return new Pos(x, y, z);
@@ -318,7 +344,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     {
         if (chamberedRound != null)
         {
-            chamberedRound = null;
+            if (!ignoreAmmo)
+            {
+                chamberedRound = null;
+            }
             playAudio("round.consume");
             updateEntityStack("consume ammo");
         }
@@ -467,7 +496,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         int slot = -1;
         for (ItemStack stack : it)
         {
-            if(isAmmoSlot(it.slot()))
+            if (isAmmoSlot(it.slot()))
             {
                 if (stack.getItem() instanceof IItemClip)
                 {
@@ -517,7 +546,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         InventoryIterator it = new InventoryIterator(inventory, true);
         for (ItemStack stack : it)
         {
-            if(isAmmoSlot(it.slot()))
+            if (isAmmoSlot(it.slot()))
             {
                 if (stack.getItem() instanceof IItemAmmo)
                 {
@@ -635,7 +664,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 ItemStack stack = ((IModule) _clip).toStack();
                 for (int i = 0; i < inventory.getSizeInventory(); i++)
                 {
-                    if(isAmmoSlot(i))
+                    if (isAmmoSlot(i))
                     {
                         ItemStack slotStack = inventory.getStackInSlot(i);
                         int roomLeft = InventoryUtility.roomLeftInSlot(inventory, i);
@@ -694,10 +723,14 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         else if (entity instanceof EntitySentry && ((EntitySentry) entity).base != null)
         {
-            //TODO change to match ammo area of inventory
-            return slot >= 0 && slot < ((EntitySentry) entity).base.getSizeInventory();
+            EntitySentry sentry = ((EntitySentry) entity);
+            return slot >= sentry.data.inventoryAmmoStart && slot <= sentry.data.inventoryAmmoEnd;
         }
-        return false;
+        else if (entity instanceof IInventory)
+        {
+            return slot >= 0 && slot < ((IInventory) entity).getSizeInventory();
+        }
+        return Engine.isJUnitTest();
     }
 
     public boolean hasSights()

@@ -259,7 +259,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
      */
     public void onLeftClickHeld(ItemStack stack, GunInstance gun, World world, EntityPlayer player, int slot, int ticks)
     {
-        gun.fireWeapon(stack, world, ticks);
+        gun.fireWeapon(world, ticks);
     }
 
     /**

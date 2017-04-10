@@ -11,12 +11,14 @@ import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.entity.EntityBase;
 import com.builtbroken.mc.prefab.entity.selector.EntitySelectors;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
 import java.awt.*;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,7 +30,7 @@ import java.util.List;
 public class EntitySentry extends EntityBase
 {
     /** Rotations per second */
-    protected static double ROTATION_SPEED = 1.0;
+    protected static double ROTATION_SPEED = 10.0;
 
     /** Desired aim angle, updated every tick if target != null */
     protected final EulerAngle aim = new EulerAngle(0, 0, 0);
@@ -40,8 +42,8 @@ public class EntitySentry extends EntityBase
     protected Pos center;
     protected Pos aimPoint;
 
-    protected SentryData data;
-    protected GunInstance gunInstance;
+    public SentryData data;
+    public GunInstance gunInstance;
     public TileSentry base;
 
     protected Entity target;
@@ -87,6 +89,12 @@ public class EntitySentry extends EntityBase
     }
 
     @Override
+    public boolean interactFirst(EntityPlayer player)
+    {
+        return base != null && base.onPlayerRightClick(player, 1, new Pos());
+    }
+
+    @Override
     public void onEntityUpdate()
     {
         if (!world().isRemote && ticksExisted % 2 == 0)
@@ -103,6 +111,7 @@ public class EntitySentry extends EntityBase
                 if (gunInstance == null)
                 {
                     gunInstance = new GunInstance(new ItemStack(Armory.blockSentry), this, data.gunData);
+                    gunInstance.ignoreAmmo = true;
                 }
                 //If no target try to find one
                 if (target == null)
@@ -159,7 +168,9 @@ public class EntitySentry extends EntityBase
             searchArea = AxisAlignedBB.getBoundingBox(posX, posY, posZ, posX, posY, posZ).expand(data.range, data.range, data.range);
         }
 
-        List<Entity> entityList = world().getEntitiesWithinAABBExcludingEntity(this, searchArea, EntitySelectors.PLAYER_SELECTOR.selector()); //TODO replace selector with custom
+        List<Entity> entityList = world().getEntitiesWithinAABBExcludingEntity(this, searchArea, EntitySelectors.MOB_SELECTOR.selector()); //TODO replace selector with custom
+        Collections.sort(entityList, new SentryEntityTargetSorter(center));
+
         if (entityList != null && entityList.size() > 0)
         {
             //TODO sort by distance
@@ -247,39 +258,18 @@ public class EntitySentry extends EntityBase
      */
     protected void fireAtTarget()
     {
-        //TODO implement
         if (Engine.runningAsDev)
         {
             PacketSpawnStream packet = new PacketSpawnStream(world().provider.dimensionId, center, aimPoint, 2);
-            packet.red = (Color.blue.getRed() / 255f);
-            packet.green = (Color.blue.getGreen() / 255f);
-            packet.blue = (Color.blue.getBlue() / 255f);
+            packet.red = (Color.red.getRed() / 255f);
+            packet.green = (Color.red.getGreen() / 255f);
+            packet.blue = (Color.red.getBlue() / 255f);
             Engine.instance.packetHandler.sendToAllAround(packet, new Location((Entity) this), 200);
         }
-
-        if (hasAmmo())
+        if (!gunInstance.hasAmmo())
         {
-
+            gunInstance.reloadWeapon(base, true);
         }
-    }
-
-    /**
-     * Called to consume ammo
-     *
-     * @param count
-     */
-    protected void consumeAmmo(int count)
-    {//TODO implement
-
-    }
-
-    /**
-     * Called to see if we have ammo
-     *
-     * @return
-     */
-    protected boolean hasAmmo()
-    {//TODO implement
-        return true;
+        gunInstance.fireWeapon(world(), 1, aimPoint, aim.toPos());
     }
 }

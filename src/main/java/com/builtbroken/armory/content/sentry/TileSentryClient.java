@@ -3,6 +3,11 @@ package com.builtbroken.armory.content.sentry;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.sentry.gui.GuiSentry;
 import com.builtbroken.mc.client.SharedAssets;
+import com.builtbroken.mc.client.json.ClientDataHandler;
+import com.builtbroken.mc.client.json.imp.IModelState;
+import com.builtbroken.mc.client.json.imp.IRenderState;
+import com.builtbroken.mc.client.json.render.RenderData;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.imp.transform.vector.Pos;
@@ -27,7 +32,8 @@ import java.awt.*;
  */
 public class TileSentryClient extends TileSentry
 {
-    private IModelCustom sentryBackupModel = EngineModelLoader.loadModel(new ResourceLocation(Armory.DOMAIN, References.MODEL_PATH + "test.turret.tcn"));
+    private static IModelCustom sentryBackupModel = EngineModelLoader.loadModel(new ResourceLocation(Armory.DOMAIN, References.MODEL_PATH + "test.turret.tcn"));
+    private static String[] parts = new String[]{"LeftFace", "RightFace", "Head", "Barrel", "BarrelBrace", "BarrelCap"};
 
     @Override
     public Tile newTile()
@@ -89,16 +95,56 @@ public class TileSentryClient extends TileSentry
         double ry = pos.y() + 0.5;
         double rz = pos.z() + 0.5;
 
-        final String[] parts = new String[]{"LeftFace", "RightFace", "Head", "Barrel", "BarrelBrace", "BarrelCap"};
-        if (getSentry() != null)
+        if (Engine.runningAsDev)
         {
             RenderUtility.renderFloatingText("Yaw: " + getSentry().rotationYaw, rx, ry + 1.3, rz, Color.red.getRGB());
             RenderUtility.renderFloatingText("Pitch: " + getSentry().rotationPitch, rx, ry + 1, rz, Color.red.getRGB());
+        }
 
-            GL11.glPushMatrix();
-            GL11.glTranslated(rx, ry, rz);
+        GL11.glPushMatrix();
+        GL11.glTranslated(rx, ry, rz);
+
+        //Get render data
+        RenderData renderData = null;
+        if (sentryData != null)
+        {
+            renderData = ClientDataHandler.INSTANCE.getRenderData(sentryData.getUniqueID());
+        }
+
+        //Render parts
+        boolean rendered = false;
+        if (renderData != null)
+        {
+            IRenderState renderState = renderData.getState("entity.sentry.base");
+            if (renderState instanceof IModelState && ((IModelState) renderState).render())
+            {
+                rendered = true;
+            }
+            GL11.glRotated(getSentry().rotationYaw, 0, 1, 0);
+            GL11.glRotated(getSentry().rotationPitch, 1, 0, 0);
+            sentryBackupModel.renderOnly(parts);
+
+            renderState = renderData.getState("entity.sentry.turret");
+            if (renderState instanceof IModelState && ((IModelState) renderState).render())
+            {
+                rendered = true;
+            }
+        }
+
+        //If didn't render run backup
+        if (!rendered)
+        {
+            doBackupRender();
+        }
+
+        GL11.glPopMatrix();
+    }
+
+    protected void doBackupRender()
+    {
+        if (getSentry() != null)
+        {
             FMLClientHandler.instance().getClient().renderEngine.bindTexture(SharedAssets.GREY_TEXTURE);
-
 
             //Render base
             sentryBackupModel.renderAllExcept(parts);
@@ -107,8 +153,6 @@ public class TileSentryClient extends TileSentry
             GL11.glRotated(getSentry().rotationYaw, 0, 1, 0);
             GL11.glRotated(getSentry().rotationPitch, 1, 0, 0);
             sentryBackupModel.renderOnly(parts);
-
-            GL11.glPopMatrix();
         }
     }
 }

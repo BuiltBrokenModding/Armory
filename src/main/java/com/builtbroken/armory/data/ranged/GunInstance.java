@@ -2,6 +2,7 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
+import com.builtbroken.armory.content.sentry.EntitySentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.clip.ClipInstance;
 import com.builtbroken.armory.data.clip.ClipInstanceItem;
@@ -466,21 +467,24 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         int slot = -1;
         for (ItemStack stack : it)
         {
-            if (stack.getItem() instanceof IItemClip)
+            if(isAmmoSlot(it.slot()))
             {
-                IItemClip itemClip = ((IItemClip) stack.getItem());
-                if (itemClip.isAmmo(stack) && itemClip.isClip(stack))
+                if (stack.getItem() instanceof IItemClip)
                 {
-                    IAmmoType type = itemClip.getClipData(stack).getAmmoType();
-                    if (type == gunData.getAmmoType())
+                    IItemClip itemClip = ((IItemClip) stack.getItem());
+                    if (itemClip.isAmmo(stack) && itemClip.isClip(stack))
                     {
-                        if (bestClip == null || bestClip.getAmmoCount() < itemClip.getAmmoCount(stack))
+                        IAmmoType type = itemClip.getClipData(stack).getAmmoType();
+                        if (type == gunData.getAmmoType())
                         {
-                            IClip clip = itemClip.toClip(stack);
-                            if (clip != null)
+                            if (bestClip == null || bestClip.getAmmoCount() < itemClip.getAmmoCount(stack))
                             {
-                                bestClip = clip;
-                                slot = it.slot();
+                                IClip clip = itemClip.toClip(stack);
+                                if (clip != null)
+                                {
+                                    bestClip = clip;
+                                    slot = it.slot();
+                                }
                             }
                         }
                     }
@@ -513,37 +517,40 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         InventoryIterator it = new InventoryIterator(inventory, true);
         for (ItemStack stack : it)
         {
-            if (stack.getItem() instanceof IItemAmmo)
+            if(isAmmoSlot(it.slot()))
             {
-                IItemAmmo ammo = ((IItemAmmo) stack.getItem());
-                if (ammo.isAmmo(stack) && !ammo.isClip(stack))
+                if (stack.getItem() instanceof IItemAmmo)
                 {
-                    IAmmoData data = ammo.getAmmoData(stack);
-                    IAmmoType type = data.getAmmoType();
-                    if (type == gunData.getAmmoType())
+                    IItemAmmo ammo = ((IItemAmmo) stack.getItem());
+                    if (ammo.isAmmo(stack) && !ammo.isClip(stack))
                     {
-                        if (getLoadedClip().getAmmoCount() < getLoadedClip().getClipData().getMaxAmmo())
+                        IAmmoData data = ammo.getAmmoData(stack);
+                        IAmmoType type = data.getAmmoType();
+                        if (type == gunData.getAmmoType())
                         {
-                            //Decrease stack and load gun
-                            if (doAction)
+                            if (getLoadedClip().getAmmoCount() < getLoadedClip().getClipData().getMaxAmmo())
                             {
-                                int l = getLoadedClip().loadAmmo(data, ammo.getAmmoCount(stack));
-                                inventory.decrStackSize(it.slot(), l);
-                                roundsLoad += l;
-                            }
-                            else
-                            {
-                                roundsLoad += 1;
+                                //Decrease stack and load gun
+                                if (doAction)
+                                {
+                                    int l = getLoadedClip().loadAmmo(data, ammo.getAmmoCount(stack));
+                                    inventory.decrStackSize(it.slot(), l);
+                                    roundsLoad += l;
+                                }
+                                else
+                                {
+                                    roundsLoad += 1;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            //Exit loop if full
-            if (getLoadedClip().getAmmoCount() >= getLoadedClip().getMaxAmmo())
-            {
-                break;
+                //Exit loop if full
+                if (getLoadedClip().getAmmoCount() >= getLoadedClip().getMaxAmmo())
+                {
+                    break;
+                }
             }
         }
         if (roundsLoad > 0)
@@ -589,33 +596,36 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     ItemStack ammoStack = getLoadedClip().getAmmo().peek().toStack();
                     for (; i < inventory.getSizeInventory(); i++)
                     {
-                        ItemStack slotStack = inventory.getStackInSlot(i);
-                        int roomLeft = InventoryUtility.roomLeftInSlot(inventory, i);
-                        if (slotStack == null)
+                        if (isAmmoSlot(i))
                         {
-                            inventory.setInventorySlotContents(i, ammoStack);
-                            getLoadedClip().consumeAmmo(1);
-                            ammoStack = null;
-                            break;
-                        }
-                        else if (roomLeft > 0 && InventoryUtility.stacksMatch(ammoStack, slotStack))
-                        {
-                            int insert = Math.min(roomLeft, ammoStack.stackSize);
-                            slotStack.stackSize += insert;
-                            ammoStack.stackSize -= insert;
-                            inventory.setInventorySlotContents(i, slotStack);
-                            getLoadedClip().consumeAmmo(1);
-                            if (ammoStack.stackSize <= 0)
+                            ItemStack slotStack = inventory.getStackInSlot(i);
+                            int roomLeft = InventoryUtility.roomLeftInSlot(inventory, i);
+                            if (slotStack == null)
                             {
+                                inventory.setInventorySlotContents(i, ammoStack);
+                                getLoadedClip().consumeAmmo(1);
                                 ammoStack = null;
                                 break;
                             }
+                            else if (roomLeft > 0 && InventoryUtility.stacksMatch(ammoStack, slotStack))
+                            {
+                                int insert = Math.min(roomLeft, ammoStack.stackSize);
+                                slotStack.stackSize += insert;
+                                ammoStack.stackSize -= insert;
+                                inventory.setInventorySlotContents(i, slotStack);
+                                getLoadedClip().consumeAmmo(1);
+                                if (ammoStack.stackSize <= 0)
+                                {
+                                    ammoStack = null;
+                                    break;
+                                }
+                            }
                         }
-                    }
-                    //No space to insert so drop
-                    if (ammoStack != null && ammoStack.stackSize >= 0)
-                    {
-                        InventoryUtility.dropItemStack(new Location(entity), ammoStack);
+                        //No space to insert so drop
+                        if (ammoStack != null && ammoStack.stackSize >= 0)
+                        {
+                            InventoryUtility.dropItemStack(new Location(entity), ammoStack);
+                        }
                     }
                 }
             }
@@ -625,21 +635,24 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 ItemStack stack = ((IModule) _clip).toStack();
                 for (int i = 0; i < inventory.getSizeInventory(); i++)
                 {
-                    ItemStack slotStack = inventory.getStackInSlot(i);
-                    int roomLeft = InventoryUtility.roomLeftInSlot(inventory, i);
-                    if (slotStack == null)
+                    if(isAmmoSlot(i))
                     {
-                        inventory.setInventorySlotContents(i, stack);
-                        stack = null;
-                        break;
-                    }
-                    else if (roomLeft > 0 && InventoryUtility.stacksMatch(stack, slotStack))
-                    {
-                        int insert = Math.min(roomLeft, stack.stackSize);
-                        slotStack.stackSize += insert;
-                        stack.stackSize -= insert;
-                        inventory.setInventorySlotContents(i, slotStack);
-                        break;
+                        ItemStack slotStack = inventory.getStackInSlot(i);
+                        int roomLeft = InventoryUtility.roomLeftInSlot(inventory, i);
+                        if (slotStack == null)
+                        {
+                            inventory.setInventorySlotContents(i, stack);
+                            stack = null;
+                            break;
+                        }
+                        else if (roomLeft > 0 && InventoryUtility.stacksMatch(stack, slotStack))
+                        {
+                            int insert = Math.min(roomLeft, stack.stackSize);
+                            slotStack.stackSize += insert;
+                            stack.stackSize -= insert;
+                            inventory.setInventorySlotContents(i, slotStack);
+                            break;
+                        }
                     }
                 }
                 //No space to insert so drop
@@ -666,7 +679,25 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             return ((EntityPlayer) entity).inventory;
         }
+        else if (entity instanceof EntitySentry)
+        {
+            return ((EntitySentry) entity).base;
+        }
         return null;
+    }
+
+    public boolean isAmmoSlot(int slot)
+    {
+        if (entity instanceof EntityPlayer)
+        {
+            return slot >= 0 && slot < ((EntityPlayer) entity).inventory.getSizeInventory();
+        }
+        else if (entity instanceof EntitySentry && ((EntitySentry) entity).base != null)
+        {
+            //TODO change to match ammo area of inventory
+            return slot >= 0 && slot < ((EntitySentry) entity).base.getSizeInventory();
+        }
+        return false;
     }
 
     public boolean hasSights()

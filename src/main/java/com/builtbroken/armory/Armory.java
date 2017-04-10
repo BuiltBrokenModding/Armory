@@ -4,6 +4,8 @@ import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.content.items.ItemAmmo;
 import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.armory.content.items.ItemGun;
+import com.builtbroken.armory.content.sentry.EntitySentry;
+import com.builtbroken.armory.content.sentry.TileSentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.json.processors.AmmoJsonProcessor;
 import com.builtbroken.armory.json.processors.AmmoTypeJsonProcessor;
@@ -20,6 +22,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.EntityRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 
 /**
@@ -47,6 +50,8 @@ public final class Armory extends AbstractMod
     public static CommonProxy proxy;
 
     public static ModCreativeTab CREATIVE_TAB;
+
+    public static Block blockSentry;
 
     public static Item itemGun;
     public static Item itemClip;
@@ -83,6 +88,8 @@ public final class Armory extends AbstractMod
         JsonContentLoader.INSTANCE.add(new ClipJsonProcessor());
         JsonContentLoader.INSTANCE.add(new GunJsonProcessor());
 
+        blockSentry = getManager().newBlock(TileSentry.class);
+
         //TODO gen more guns if registered guns is greater than 32000 (Which should never happen)
         itemGun = getManager().newItem("armoryGun", new ItemGun());
         itemClip = getManager().newItem("armoryClip", new ItemClip());
@@ -94,6 +101,7 @@ public final class Armory extends AbstractMod
     {
         super.init(event);
         EntityRegistry.registerModEntity(EntityAmmoProjectile.class, "ArmoryProjectile", 0, this, 500, 1, true);
+        EntityRegistry.registerModEntity(EntitySentry.class, "ArmorySentry", 1, this, 500, 1, true);
     }
 
     @Mod.EventHandler

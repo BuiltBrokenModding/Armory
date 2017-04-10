@@ -1,7 +1,10 @@
 package com.builtbroken.armory.content.sentry;
 
+import com.builtbroken.armory.data.ArmoryDataHandler;
+import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.imp.transform.region.Cube;
 import com.builtbroken.mc.prefab.inventory.ExternalInventory;
 import com.builtbroken.mc.prefab.tile.Tile;
 import com.builtbroken.mc.prefab.tile.TileModuleMachine;
@@ -16,7 +19,7 @@ import net.minecraftforge.common.util.ForgeDirection;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/26/2017.
  */
-public class TileSentryBase extends TileModuleMachine<ExternalInventory>
+public class TileSentry extends TileModuleMachine<ExternalInventory>
 {
     protected SentryData sentryData;
     protected EntitySentry sentry;
@@ -24,23 +27,44 @@ public class TileSentryBase extends TileModuleMachine<ExternalInventory>
     protected ItemStack sentryStack;
 
     protected boolean running = false;
-    protected boolean turnedOn = false;
+    protected boolean turnedOn = true;
 
-    public TileSentryBase()
+    public TileSentry()
     {
         super("sentry", Material.iron);
-       // this.itemBlock = ItemBlockSentry.class; TODO use item instead of an item block
+        // this.itemBlock = ItemBlockSentry.class; TODO use item instead of an item block
+        bounds = new Cube(.1, 0, .1, .9, .2, .9);
     }
 
     @Override
     public void update()
     {
         super.update();
+        if (sentryData == null)
+        {
+            GunData data = (GunData) ArmoryDataHandler.INSTANCE.get("gun").get("armory:handgun.9mm.test");
+            sentryData = new SentryData(null, "test.sentry", "test.sentry");
+            sentryData.gunData = data;
+        }
         if (isServer())
         {
             //TODO add support for batter slows
             if (sentryData != null && turnedOn)
             {
+                if (sentry == null)
+                {
+                    sentry = new EntitySentry(world());
+                    sentry.setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5); //TODO adjust based on data
+                    sentry.data = sentryData;
+                    sentry.base = this;
+                    world().spawnEntityInWorld(sentry);
+                }
+
+                if (sentry != null)
+                {
+                    sentry.setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5);
+                }
+
                 //Consume energy per tick
                 if (sentryData.energyCost > 0)
                 {
@@ -112,7 +136,7 @@ public class TileSentryBase extends TileModuleMachine<ExternalInventory>
     @Override
     public Tile newTile()
     {
-        return new TileSentryBase();
+        return new TileSentry();
     }
 
     @Override

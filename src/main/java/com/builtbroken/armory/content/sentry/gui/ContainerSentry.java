@@ -11,12 +11,26 @@ import net.minecraft.inventory.Slot;
  */
 public class ContainerSentry extends ContainerBase
 {
-    public ContainerSentry(EntityPlayer player, TileSentry inventory)
+    public ContainerSentry(EntityPlayer player, TileSentry sentry)
     {
-        super(player, inventory);
-        addSlotToContainer(new Slot(inventory, 0, 10, 10));
-        addSlotToContainer(new Slot(inventory, 1, 30, 10));
-        addSlotToContainer(new Slot(inventory, 2, 30, 29));
+        super(player, sentry);
+        int slotID = 0;
+        //Inventory slots
+        int ammoBaySize = (sentry.sentryData.getInventoryAmmoEnd() - sentry.sentryData.getInventoryAmmoStart());
+        int rows = (ammoBaySize / 5) + 1;
+        for (int y = 0; y < rows; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                addSlotToContainer(new Slot(sentry, slotID++, 10 + 18 * x, 10 + 18 * y));
+            }
+        }
+
+        //Battery slots
+        addSlotToContainer(new Slot(sentry, slotID++, 120, 10));
+        addSlotToContainer(new Slot(sentry, slotID++, 120, 29));
+
+        //Player inventory
         addPlayerInventory(player);
     }
 }

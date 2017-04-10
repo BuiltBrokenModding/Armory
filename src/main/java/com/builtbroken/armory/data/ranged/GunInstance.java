@@ -45,7 +45,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 {
     public static final String NBT_ROUND = "chamberedRound";
     public static final String NBT_CLIP = "clip";
+    /** Enabled ray trace debug on all weapons, normally only client side */
     public static boolean debugRayTraces = false;
+    /** Enabled ray trace debug on this weapon only */
+    public boolean doDebugRayTracesOnTthisGun = false;
 
 
     /** How fast a projectile can travel before a ray trace is used instead */
@@ -214,20 +217,34 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     /**
      * Called to run debug ray trace code
+     * <p>
+     * Has to be triggered in order to be used.
      */
     public void debugRayTrace()
     {
-        if (debugRayTraces && Engine.instance != null && Engine.runningAsDev)
+        float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch);
+        float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw);
+
+        final Pos entityPos = getEntityPosition();
+        final Pos aim = getAim(yaw, pitch);
+        final Pos target = entityPos.add(aim.multiply(500));
+
+        final Pos bulletOffset = getBulletSpawnOffset(yaw, pitch);
+        debugRayTrace(entityPos, aim, target, bulletOffset, yaw, pitch);
+    }
+
+    /**
+     * Called to run debug ray trace code
+     * <p>
+     * Has to be triggered in order to be used.
+     */
+    public void debugRayTrace(Pos entityPos, Pos aim, Pos target, Pos bulletOffset, float yaw, float pitch)
+    {
+        if ((debugRayTraces || doDebugRayTracesOnTthisGun) && Engine.instance != null && Engine.runningAsDev)
         {
-            float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch);
-            float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw);
-
-            final Pos entityPos = getEntityPosition();
-            final Pos bulletStartPoint = entityPos.add(getBulletSpawnOffset(yaw, pitch));
-            final Pos aim = getAim(yaw, pitch);
-            final Pos target = entityPos.add(aim.multiply(500));
-
+            final Pos bulletStartPoint = entityPos.add(bulletOffset);
             final Pos start = entityPos.add(aim);
+
             Pos end = target;
             MovingObjectPosition hit = start.rayTrace(entity.worldObj, end, false, true, false);
             if (hit != null)
@@ -236,7 +253,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             }
 
             //Debug ray trace
-            PacketSpawnStream packet = new PacketSpawnStream(entity.worldObj.provider.dimensionId, start.add(0, -0.5, 0), end, 2);
+            PacketSpawnStream packet = new PacketSpawnStream(entity.worldObj.provider.dimensionId, start, end, 2);
             packet.red = (Color.blue.getRed() / 255f);
             packet.green = (Color.blue.getGreen() / 255f);
             packet.blue = (Color.blue.getBlue() / 255f);
@@ -259,7 +276,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             if (hit.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
             {
                 nextRound.onImpactEntity(entity, hit.entityHit, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity()); //TODO scale velocity by distance
-                if(Engine.runningAsDev)
+                if (Engine.runningAsDev)
                 {
                     System.out.println(hit.entityHit);
                 }
@@ -724,7 +741,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         else if (entity instanceof EntitySentry && ((EntitySentry) entity).base != null)
         {
             EntitySentry sentry = ((EntitySentry) entity);
-            return slot >= sentry.data.inventoryAmmoStart && slot <= sentry.data.inventoryAmmoEnd;
+            return slot >= sentry.data.getInventoryAmmoStart() && slot <= sentry.data.getInventoryAmmoEnd();
         }
         else if (entity instanceof IInventory)
         {

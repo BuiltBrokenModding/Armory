@@ -7,6 +7,7 @@ import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.content.entity.projectile.RenderEntityProjectile;
 import com.builtbroken.armory.content.sentry.EntitySentry;
 import com.builtbroken.armory.content.sentry.RenderEntitySentry;
+import com.builtbroken.armory.content.sentry.TileSentryClient;
 import com.builtbroken.mc.client.effects.VisualEffectRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -27,6 +28,7 @@ public class ClientProxy extends CommonProxy
     {
         super.preInit();
         VisualEffectRegistry.addEffectProvider(new VEProviderGunSmoke());
+        Armory.blockSentry = Armory.INSTANCE.getManager().newBlock("sentryTile", TileSentryClient.class);
     }
 
     @Override

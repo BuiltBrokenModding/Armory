@@ -6,15 +6,13 @@ import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.content.sentry.EntitySentry;
-import com.builtbroken.armory.content.sentry.TileSentry;
+import com.builtbroken.armory.content.sentry.ItemSentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.armory.data.ranged.GunData;
-import com.builtbroken.armory.json.processors.AmmoJsonProcessor;
-import com.builtbroken.armory.json.processors.AmmoTypeJsonProcessor;
-import com.builtbroken.armory.json.processors.ClipJsonProcessor;
-import com.builtbroken.armory.json.processors.GunJsonProcessor;
+import com.builtbroken.armory.data.sentry.SentryData;
+import com.builtbroken.armory.json.processors.*;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.json.JsonContentLoader;
@@ -59,6 +57,7 @@ public final class Armory extends AbstractMod
     public static ItemMetaArmoryEntry<GunData> itemGun;
     public static ItemMetaArmoryEntry<ClipData> itemClip;
     public static ItemMetaArmoryEntry<AmmoData> itemAmmo;
+    public static ItemMetaArmoryEntry<SentryData> itemSentry;
 
     public Armory()
     {
@@ -85,18 +84,19 @@ public final class Armory extends AbstractMod
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "ammo"));
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "ammoType"));
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "clip"));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "sentry"));
 
         JsonContentLoader.INSTANCE.add(new AmmoTypeJsonProcessor());
         JsonContentLoader.INSTANCE.add(new AmmoJsonProcessor());
         JsonContentLoader.INSTANCE.add(new ClipJsonProcessor());
         JsonContentLoader.INSTANCE.add(new GunJsonProcessor());
-
-        blockSentry = getManager().newBlock(TileSentry.class);
+        JsonContentLoader.INSTANCE.add(new SentryJsonProcessor());
 
         //TODO gen more guns if registered guns is greater than 32000 (Which should never happen)
         itemGun = getManager().newItem("armoryGun", new ItemGun());
         itemClip = getManager().newItem("armoryClip", new ItemClip());
         itemAmmo = getManager().newItem("armoryAmmo", new ItemAmmo());
+        itemSentry = getManager().newItem("armorySentry", new ItemSentry());
     }
 
     @Mod.EventHandler

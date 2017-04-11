@@ -18,8 +18,10 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModelCustom;
 import org.lwjgl.opengl.GL11;
@@ -34,6 +36,7 @@ public class TileSentryClient extends TileSentry
 {
     private static IModelCustom sentryBackupModel = EngineModelLoader.loadModel(new ResourceLocation(Armory.DOMAIN, References.MODEL_PATH + "test.turret.tcn"));
     private static String[] parts = new String[]{"LeftFace", "RightFace", "Head", "Barrel", "BarrelBrace", "BarrelCap"};
+    private static IIcon icon;
 
     @Override
     public Tile newTile()
@@ -82,6 +85,7 @@ public class TileSentryClient extends TileSentry
             if (entity instanceof EntitySentry)
             {
                 setSentry((EntitySentry) entity);
+                ((EntitySentry) entity).base = this;
             }
         }
         else
@@ -127,6 +131,7 @@ public class TileSentryClient extends TileSentry
                     if (renderState instanceof IModelState && ((IModelState) renderState).render())
                     {
                         rendered = true;
+                        break;
                     }
                 }
 
@@ -139,6 +144,7 @@ public class TileSentryClient extends TileSentry
                     if (renderState instanceof IModelState && ((IModelState) renderState).render())
                     {
                         rendered = true;
+                        break;
                     }
                 }
             }
@@ -167,5 +173,20 @@ public class TileSentryClient extends TileSentry
             GL11.glRotated(getSentry().rotationPitch, 1, 0, 0);
             sentryBackupModel.renderOnly(parts);
         }
+    }
+
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon()
+    {
+        return icon;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister iconRegister)
+    {
+        icon = iconRegister.registerIcon(Armory.PREFIX + "sentryBase");
     }
 }

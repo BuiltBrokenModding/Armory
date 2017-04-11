@@ -617,7 +617,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             ItemStack stack = ((EntityPlayer) entity).getHeldItem();
             ItemStack updated = toStack();
-            if (stack.isItemEqual(updated))
+            if (stack != null && stack.isItemEqual(updated))
             {
                 ((EntityPlayer) entity).inventory.setInventorySlotContents(((EntityPlayer) entity).inventory.currentItem, updated);
                 ((EntityPlayer) entity).inventoryContainer.detectAndSendChanges();

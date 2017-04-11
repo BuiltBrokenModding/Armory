@@ -13,11 +13,16 @@ import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.ExternalInventory;
 import com.builtbroken.mc.prefab.tile.Tile;
 import com.builtbroken.mc.prefab.tile.TileModuleMachine;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
 import net.minecraftforge.common.util.ForgeDirection;
 
 /**
@@ -43,10 +48,40 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     {
         super("sentry", Material.iron);
         // this.itemBlock = ItemBlockSentry.class; TODO use item instead of an item block
-        bounds = new Cube(.1, 0, .1, .9, .2, .9);
+        bounds = new Cube(0, 0, 0, 1, .2, 1);
         this.renderNormalBlock = true;
         this.renderTileEntity = true;
         this.isOpaque = false;
+    }
+
+    @Override
+    public Cube getCollisionBounds()
+    {
+        return Cube.EMPTY;
+    }
+
+    @Override
+    public Cube getSelectBounds()
+    {
+        return Cube.FULL;
+    }
+
+    @Override
+    public Cube getBlockBounds()
+    {
+        return bounds;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+        float width = Math.max(1, sentryData != null ? sentryData.getBodyWidth() : 0);
+        float height = Math.max(1, sentryData != null ? sentryData.getBodyHeight() : 0);
+        float x = xi() + 0.5f;
+        float y = yi() + 0.5f;
+        float z = zi() + 0.5f;
+        return AxisAlignedBB.getBoundingBox(x - width, y, z - width, x + width, y + height + 0.2, z + width);
     }
 
     @Override

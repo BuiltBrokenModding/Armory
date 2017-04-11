@@ -2,7 +2,6 @@ package com.builtbroken.armory.content.sentry;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.sentry.gui.ContainerSentry;
-import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.mc.api.tile.access.IGuiTile;
 import com.builtbroken.mc.core.Engine;
@@ -13,16 +12,16 @@ import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.ExternalInventory;
 import com.builtbroken.mc.prefab.tile.Tile;
 import com.builtbroken.mc.prefab.tile.TileModuleMachine;
+import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
 import net.minecraftforge.common.util.ForgeDirection;
 
 /**
@@ -157,10 +156,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         if (nbt.hasKey("sentryStack"))
         {
             sentryStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("sentryStack"));
-            //if (sentryStack.getItem() instanceof ItemBlockSentry) TODO replace
-            //{
-            //    sentryData = ((ItemBlockSentry) sentryStack.getItem()).getData(sentryStack);
-            //}
+            sentryData = Armory.itemSentry.getData(sentryStack);
         }
         loadSentryData();
         super.readFromNBT(nbt);
@@ -168,11 +164,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
 
     protected void loadSentryData()
     {
-        if (sentryData == null)
-        {
-            sentryData = (SentryData) ArmoryDataHandler.INSTANCE.get("sentry").get("wjsurvialmod:sentry");
-        }
-        if (getSentry() == null && isServer())
+        if (sentryData != null && getSentry() == null && isServer())
         {
             sentry = new EntitySentry(world());
             getSentry().setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5); //TODO adjust based on data
@@ -247,6 +239,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         buf.writeInt(getSentry() == null ? -1 : getSentry().getEntityId());
         buf.writeBoolean(sentryHasAmmo);
         buf.writeBoolean(sentryIsAlive);
+        ByteBufUtils.writeItemStack(buf, sentryStack != null ? sentryStack : new ItemStack(Items.apple));
     }
 
     @Override

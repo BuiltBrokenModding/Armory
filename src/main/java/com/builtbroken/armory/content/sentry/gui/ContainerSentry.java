@@ -16,19 +16,22 @@ public class ContainerSentry extends ContainerBase
         super(player, sentry);
         int slotID = 0;
         //Inventory slots
-        int ammoBaySize = (sentry.sentryData.getInventoryAmmoEnd() - sentry.sentryData.getInventoryAmmoStart());
-        int rows = (ammoBaySize / 5) + 1;
-        for (int y = 0; y < rows; y++)
+        if(sentry != null && sentry.sentryData != null)
         {
-            for (int x = 0; x < 5; x++)
+            int ammoBaySize = (sentry.sentryData.getInventoryAmmoEnd() - sentry.sentryData.getInventoryAmmoStart());
+            int rows = (ammoBaySize / 5) + 1;
+            for (int y = 0; y < rows; y++)
             {
-                addSlotToContainer(new Slot(sentry, slotID++, 10 + 18 * x, 10 + 18 * y));
+                for (int x = 0; x < 5; x++)
+                {
+                    addSlotToContainer(new Slot(sentry, slotID++, 10 + 18 * x, 10 + 18 * y));
+                }
             }
-        }
 
-        //Battery slots
-        addSlotToContainer(new Slot(sentry, slotID++, 120, 10));
-        addSlotToContainer(new Slot(sentry, slotID++, 120, 29));
+            //Battery slots
+            addSlotToContainer(new Slot(sentry, slotID++, 120, 10));
+            addSlotToContainer(new Slot(sentry, slotID++, 120, 29));
+        }
 
         //Player inventory
         addPlayerInventory(player);

@@ -15,12 +15,14 @@ import com.builtbroken.mc.lib.render.RenderUtility;
 import com.builtbroken.mc.lib.render.model.loader.EngineModelLoader;
 import com.builtbroken.mc.prefab.tile.Tile;
 import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModelCustom;
@@ -75,6 +77,16 @@ public class TileSentryClient extends TileSentry
         setEntity(entityID);
         sentryHasAmmo = buf.readBoolean();
         sentryIsAlive = buf.readBoolean();
+        sentryStack = ByteBufUtils.readItemStack(buf);
+        if (sentryStack.getItem() == Items.apple)
+        {
+            sentryStack = null;
+        }
+
+        if (sentryStack != null)
+        {
+            sentryData = Armory.itemSentry.getData(sentryStack);
+        }
     }
 
     protected void setEntity(int entityID)
@@ -137,8 +149,18 @@ public class TileSentryClient extends TileSentry
 
                 //Render turret
                 GL11.glRotated(getSentry().rotationYaw, 0, 1, 0);
+                for (String key : new String[]{"entity.sentry.yaw.dead" + emptyS, "entity.sentry.yaw.dead", "entity.sentry.yaw" + emptyS, "entity.sentry.yaw"})
+                {
+                    IRenderState renderState = renderData.getState(key);
+                    if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                    {
+                        rendered = true;
+                        break;
+                    }
+                }
+
                 GL11.glRotated(getSentry().rotationPitch, 1, 0, 0);
-                for (String key : new String[]{"entity.sentry.turret.dead" + emptyS, "entity.sentry.turret.dead", "entity.sentry.turret" + emptyS, "entity.sentry.turret"})
+                for (String key : new String[]{"entity.sentry.pitch.dead" + emptyS, "entity.sentry.pitch.dead", "entity.sentry.pitch" + emptyS, "entity.sentry.pitch"})
                 {
                     IRenderState renderState = renderData.getState(key);
                     if (renderState instanceof IModelState && ((IModelState) renderState).render())

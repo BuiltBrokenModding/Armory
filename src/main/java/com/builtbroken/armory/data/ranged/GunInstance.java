@@ -397,6 +397,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         return getLoadedClip() != null && getLoadedClip().getAmmoCount() > 0;
     }
 
+    public boolean isFullOnAmmo()
+    {
+        return getLoadedClip() != null && getLoadedClip().getAmmoCount() >= getLoadedClip().getMaxAmmo();
+    }
+
     /**
      * Called to tick the gun for reload.
      */
@@ -473,6 +478,16 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      * @param inventory - inventory of the entity
      */
     public boolean reloadWeapon(IInventory inventory, boolean doAction)
+    {
+        return reloadWeapon(inventory, doAction, !isManuallyFeedClip());
+    }
+
+    /**
+     * Called to reload the weapon from inventory
+     *
+     * @param inventory - inventory of the entity
+     */
+    public boolean reloadWeapon(IInventory inventory, boolean doAction, boolean unload)
     {
         boolean reloaded = false;
         if (inventory != null)

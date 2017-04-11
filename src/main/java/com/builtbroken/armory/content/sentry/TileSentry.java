@@ -141,7 +141,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
                 world().setBlockToAir(xCoord, yCoord, zCoord);
             }
 
-            if (ticks % 10 == 0)
+            if (ticks % 3 == 0)
             {
                 sendDescPacket();
             }
@@ -240,6 +240,14 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         buf.writeBoolean(sentryHasAmmo);
         buf.writeBoolean(sentryIsAlive);
         ByteBufUtils.writeItemStack(buf, sentryStack != null ? sentryStack : new ItemStack(Items.apple));
+        if (getSentry() != null)
+        {
+            ByteBufUtils.writeUTF8String(buf, getSentry().status);
+        }
+        else
+        {
+            ByteBufUtils.writeUTF8String(buf, "null");
+        }
     }
 
     @Override
@@ -268,6 +276,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     public void setSentry(EntitySentry sentry)
     {
         this.sentry = sentry;
+        this.sentry.setData(sentryData);
         sendSentryIDToClient();
     }
 }

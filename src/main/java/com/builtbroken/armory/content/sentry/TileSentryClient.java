@@ -82,10 +82,14 @@ public class TileSentryClient extends TileSentry
         {
             sentryStack = null;
         }
-
         if (sentryStack != null)
         {
             sentryData = Armory.itemSentry.getData(sentryStack);
+        }
+        String status = ByteBufUtils.readUTF8String(buf);
+        if(getSentry() != null)
+        {
+            getSentry().status = status;
         }
     }
 

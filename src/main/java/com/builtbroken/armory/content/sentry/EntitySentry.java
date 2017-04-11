@@ -64,6 +64,9 @@ public class EntitySentry extends EntityBase
 
     public Pos bulletSpawnOffset;
 
+    public String status;
+    public boolean reloading = false;
+
     public EntitySentry(World world)
     {
         super(world);
@@ -163,6 +166,7 @@ public class EntitySentry extends EntityBase
         //Update logic every other tick
         if (!world().isRemote && ticksExisted % 2 == 0)
         {
+            status = "unknown";
             //Keep track of time between ticks to provide smooth animation
             deltaTime = (System.nanoTime() - lastRotationUpdate) / 100000000.0; // time / time_tick, client uses different value
             lastRotationUpdate = System.nanoTime();
@@ -170,6 +174,7 @@ public class EntitySentry extends EntityBase
             //Invalid entity
             if (base == null || getData() == null || base.isInvalid())
             {
+                status = "invalid";
                 kill();
             }
             else
@@ -196,52 +201,85 @@ public class EntitySentry extends EntityBase
                 }
 
                 //Can only function if we have a gun
-                if (gunInstance != null)
+                if (gunInstance != null && isEntityAlive())
                 {
-                    //If no target try to find one
-                    if (target == null)
+                    //Trigger reload mod if out of ammo
+                    if (!gunInstance.hasAmmo() && gunInstance.getChamberedRound() == null)
                     {
-                        targetingDelay = 0;
-                        targetingLoseTimer = 0;
+                        reloading = true;
+                    }
 
-                        if (targetSearchTimer++ >= getData().getTargetSearchDelay())
+                    if (reloading)
+                    {
+                        status = "reloading";
+                        loadAmmo();
+                        if (gunInstance.isFullOnAmmo())
                         {
-                            targetSearchTimer = 0;
-                            findTargets();
+                            reloading = false;
                         }
                     }
-                    //If target and valid try to attack
-                    else if (isValidTarget(target))
+                    else
                     {
-                        //Delay before attack
-                        if (targetingDelay >= getData().getTargetAttackDelay())
+                        //If no target try to find one
+                        if (target == null)
                         {
-                            //Update aim point
-                            aimPoint = getAimPoint(target);
+                            status = "searching";
+                            targetingDelay = 0;
+                            targetingLoseTimer = 0;
 
-                            aim.set(center.toEulerAngle(aimPoint).clampTo360());
-
-                            if (isAimed())
+                            if (targetSearchTimer++ >= getData().getTargetSearchDelay())
                             {
-                                fireAtTarget();
+                                targetSearchTimer = 0;
+                                findTargets();
+                            }
+                        }
+                        //If target and valid try to attack
+                        else if (isValidTarget(target))
+                        {
+                            status = "aiming";
+                            //Delay before attack
+                            if (targetingDelay >= getData().getTargetAttackDelay())
+                            {
+                                //Update aim point
+                                aimPoint = getAimPoint(target);
+
+                                aim.set(center.toEulerAngle(aimPoint).clampTo360());
+
+                                if (isAimed())
+                                {
+                                    status = "attacking";
+                                    fireAtTarget();
+                                }
+                                else
+                                {
+                                    aimAtTarget();
+                                }
                             }
                             else
                             {
-                                aimAtTarget();
+                                targetingDelay++;
                             }
                         }
-                        else
+                        //If target is not null and invalid, count until invalidated
+                        else if (target != null && targetingLoseTimer++ >= getData().getTargetLossTimer())
                         {
-                            targetingDelay++;
+                            status = "target lost";
+                            target = null;
+                            targetingLoseTimer = 0;
                         }
                     }
-                    //If target is not null and invalid, count until invalidated
-                    else if (target != null && targetingLoseTimer++ >= getData().getTargetLossTimer())
-                    {
-                        target = null;
-                        targetingLoseTimer = 0;
-                    }
                 }
+            }
+        }
+    }
+
+    protected void loadAmmo()
+    {
+        if (gunInstance != null)
+        {
+            if(!gunInstance.reloadWeapon(base, true))
+            {
+                reloading = false;
             }
         }
     }

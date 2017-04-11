@@ -1,6 +1,7 @@
 package com.builtbroken.armory.data.sentry;
 
 import com.builtbroken.armory.data.ArmoryEntry;
+import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
@@ -12,7 +13,10 @@ import com.builtbroken.mc.lib.json.loading.JsonProcessorData;
  */
 public class SentryData extends ArmoryEntry
 {
+    //Gun to use
     private GunData gunData;
+    //Ammo to use, forces ammo to a single type should only be used by energy weapons
+    private AmmoData ammoData;
 
     private int inventorySize = 10; // 1 ammo slot, 2 battery slots
     private int inventoryAmmoStart = 0;
@@ -51,6 +55,16 @@ public class SentryData extends ArmoryEntry
     public void setGunData(GunData gunData)
     {
         this.gunData = gunData;
+    }
+
+    public AmmoData getAmmoData()
+    {
+        return ammoData;
+    }
+
+    public void setAmmoData(AmmoData ammoData)
+    {
+        this.ammoData = ammoData;
     }
 
     public int getInventorySize()

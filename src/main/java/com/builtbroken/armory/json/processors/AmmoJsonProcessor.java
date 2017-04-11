@@ -7,8 +7,13 @@ import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.armory.json.ArmoryEntryJsonProcessor;
 import com.builtbroken.armory.json.damage.DamageJsonProcessor;
+import com.builtbroken.jlib.lang.DebugPrinter;
+import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.lib.json.JsonContentLoader;
+import com.builtbroken.mc.lib.json.loading.JsonProcessorInjectionMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Map;
 
@@ -18,9 +23,14 @@ import java.util.Map;
  */
 public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
 {
+    protected final JsonProcessorInjectionMap keyHandler;
+    protected final DebugPrinter debugPrinter;
+
     public AmmoJsonProcessor()
     {
         super("ammo");
+        keyHandler = new JsonProcessorInjectionMap(AmmoData.class);
+        debugPrinter = JsonContentLoader.INSTANCE != null ? JsonContentLoader.INSTANCE.debug : new DebugPrinter(LogManager.getLogger());
     }
 
     @Override
@@ -32,33 +42,36 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
     @Override
     public AmmoData process(JsonElement element)
     {
-        final JsonObject object = element.getAsJsonObject();
-        ensureValuesExist(object, "id", "name", "ammoType");
+        debugPrinter.start("AmmoProcessor", "Processing entry", Engine.runningAsDev);
+
+        final JsonObject ammoJsonObject = element.getAsJsonObject();
+        ensureValuesExist(ammoJsonObject, "id", "name", "ammoType");
 
         //Get common data
-        String id = object.get("id").getAsString();
-        String name = object.get("name").getAsString();
+        String id = ammoJsonObject.get("id").getAsString();
+        String name = ammoJsonObject.get("name").getAsString();
 
         //Get ammo type
-        String ammoTypeString = object.get("ammoType").getAsString();
+        String ammoTypeString = ammoJsonObject.get("ammoType").getAsString();
         AmmoType ammoType = (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammoTypeString);
 
-        //Get velocity
-        float velocity = -1;
-        if (object.has("velocity"))
-        {
-            velocity = object.getAsJsonPrimitive("velocity").getAsFloat();
-        }
+        debugPrinter.log("Name: " + name);
+        debugPrinter.log("ID: " + id);
+        debugPrinter.log("Type: " + ammoType);
 
         //Create object
-        AmmoData data = new AmmoData(this, id, name, ammoType, velocity);
+        AmmoData data = new AmmoData(this, id, name, ammoType);
 
 
         boolean damageDetected = false;
-        for (Map.Entry<String, JsonElement> entry : object.entrySet())
+        for (Map.Entry<String, JsonElement> entry : ammoJsonObject.entrySet())
         {
+            if (keyHandler.handle(ammoJsonObject, entry.getKey().toLowerCase(), entry.getValue()))
+            {
+                debugPrinter.log("Injected Key: " + entry.getKey());
+            }
             //Load damage data
-            if (entry.getKey().startsWith("damage"))
+            else if (entry.getKey().startsWith("damage"))
             {
                 DamageData damageData = DamageJsonProcessor.processor.process(entry.getValue());
                 if (damageData != null)
@@ -78,8 +91,9 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
             Armory.INSTANCE.logger().error("No damage type was detected for ammo " + data + "\n this may cause unexpected behavior.");
         }
         //Process shared data
-        processExtraData(object, data);
+        processExtraData(ammoJsonObject, data);
 
+        debugPrinter.end("Done...");
         return data;
     }
 }

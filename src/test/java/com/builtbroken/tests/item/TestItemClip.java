@@ -148,7 +148,7 @@ public class TestItemClip extends AbstractArmoryTest
 
         for (int i = 0; i < 6; i++)
         {
-            AmmoData data = new AmmoData(null, "" + i, "ammo" + i, type, -1);
+            AmmoData data = new AmmoData(null, "" + i, "ammo" + i, type);
             data.damageData.add(new DamageSimple(null, "impact", i));
             ArmoryDataHandler.INSTANCE.get("ammo").add(data);
 

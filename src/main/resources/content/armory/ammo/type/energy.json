@@ -1,0 +1,10 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "ammoType": {
+    "name": "laser",
+    "id": "laser",
+    "projectileType": "laser"
+  }
+}

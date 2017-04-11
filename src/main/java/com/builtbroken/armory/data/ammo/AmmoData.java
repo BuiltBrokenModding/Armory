@@ -5,6 +5,7 @@ import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
+import com.builtbroken.mc.lib.json.loading.JsonProcessorData;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -25,8 +26,6 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
 
     /** Damage applied to entity when projectile hits */
     public final List<DamageData> damageData = new ArrayList();
-    /** Speed of the projectile fired */
-    public final float velocity;
 
     /** Item data used to build drop list */
     public final List<String> droppedItemData = new ArrayList();
@@ -36,12 +35,13 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
 
     //Cache for damage call
     private float damageCached = -1;
+    private float velocity;
+    private int energyCost = -1;
 
-    public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType, float velocity)
+    public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType)
     {
         super(processor, id, "ammo", name);
         this.ammoType = ammoType;
-        this.velocity = velocity;
     }
 
     @Override
@@ -69,12 +69,6 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
             }
         }
         return damageCached;
-    }
-
-    @Override
-    public float getProjectileVelocity()
-    {
-        return velocity;
     }
 
     @Override
@@ -130,9 +124,33 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
         }
     }
 
+    public float getEnergyCost()
+    {
+        return energyCost;
+    }
+
+    @JsonProcessorData(value = "energyCost", type = "int")
+    public void setEnergyCost(int energyCost)
+    {
+        this.energyCost = energyCost;
+    }
+
+    /** Speed of the projectile fired */
+    public float getProjectileVelocity()
+    {
+        return velocity;
+    }
+
+    @JsonProcessorData(value = "velocity", type = "float")
+    public void setProjectileVelocity(float velocity)
+    {
+        this.velocity = velocity;
+    }
+
     @Override
     public String toString()
     {
         return "Ammo[" + getUniqueID() + "]@" + hashCode();
     }
+
 }

@@ -1,0 +1,14 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "ammo": {
+    "name": "laser",
+    "id": "armory:laser",
+    "ammoType": "laser",
+    "damage": {
+      "value": 5,
+      "type": "impact"
+    }
+  }
+}

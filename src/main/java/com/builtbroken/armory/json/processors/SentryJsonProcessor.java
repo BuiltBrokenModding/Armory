@@ -21,7 +21,6 @@ import java.util.Map;
 public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData>
 {
     protected final JsonProcessorInjectionMap keyHandler;
-
     protected final DebugPrinter debugPrinter;
 
     public SentryJsonProcessor()
@@ -72,10 +71,7 @@ public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData>
         {
             if (keyHandler.handle(sentryData, entry.getKey().toLowerCase(), entry.getValue()))
             {
-                if (Engine.runningAsDev)
-                {
-                    debugPrinter.log("Injected Key: " + entry.getKey());
-                }
+                debugPrinter.log("Injected Key: " + entry.getKey());
             }
         }
 

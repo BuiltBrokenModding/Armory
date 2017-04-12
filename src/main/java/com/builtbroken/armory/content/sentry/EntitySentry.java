@@ -3,6 +3,8 @@ package com.builtbroken.armory.content.sentry;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.armory.data.sentry.SentryData;
+import com.builtbroken.mc.api.energy.IEnergyBuffer;
+import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketSpawnParticle;
 import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
@@ -16,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +29,7 @@ import java.util.List;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/26/2017.
  */
-public class EntitySentry extends EntityBase
+public class EntitySentry extends EntityBase implements IEnergyBufferProvider
 {
     /** Rotations per second */
     protected static double ROTATION_SPEED = 10.0;
@@ -203,6 +206,10 @@ public class EntitySentry extends EntityBase
                 //Can only function if we have a gun
                 if (gunInstance != null && isEntityAlive())
                 {
+                    if (!gunInstance.getGunData().getReloadType().requiresItems() && data.getAmmoData() != null)
+                    {
+                        gunInstance.chamberedRound = data.getAmmoData();
+                    }
                     //Trigger reload mod if out of ammo
                     if (!gunInstance.hasAmmo() && gunInstance.getChamberedRound() == null)
                     {
@@ -277,7 +284,7 @@ public class EntitySentry extends EntityBase
     {
         if (gunInstance != null)
         {
-            if(!gunInstance.reloadWeapon(base, true))
+            if (!gunInstance.reloadWeapon(base, true))
             {
                 reloading = false;
             }
@@ -412,5 +419,11 @@ public class EntitySentry extends EntityBase
     {
         this.data = data;
         setSize(data.getBodyWidth(), data.getBodyHeight());
+    }
+
+    @Override
+    public IEnergyBuffer getEnergyBuffer(ForgeDirection side)
+    {
+        return base instanceof IEnergyBufferProvider ? base.getEnergyBuffer(side) : null;
     }
 }

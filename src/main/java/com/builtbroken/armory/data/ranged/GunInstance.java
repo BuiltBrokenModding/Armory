@@ -8,6 +8,8 @@ import com.builtbroken.armory.data.clip.ClipInstance;
 import com.builtbroken.armory.data.clip.ClipInstanceItem;
 import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.data.weapon.*;
+import com.builtbroken.mc.api.energy.IEnergyBuffer;
+import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
 import com.builtbroken.mc.api.items.weapons.IItemAmmo;
 import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.modules.IModule;
@@ -30,6 +32,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -70,7 +73,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     /** Is the weapon sighted */
     public boolean isSighted = false;
     /** True = infinite ammo */
-    public boolean ignoreAmmo = false;
+    public boolean consumeAmmo = false;
     /** Delay before reloading */
     public int reloadDelay = -1;
 
@@ -361,9 +364,37 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     {
         if (chamberedRound != null)
         {
-            if (!ignoreAmmo)
+            if (!consumeAmmo)
             {
-                chamberedRound = null;
+                ReloadType reloadType = getGunData().getReloadType();
+
+                if (reloadType.requiresItems())
+                {
+                    chamberedRound = null;
+                }
+                else if (reloadType == ReloadType.ENERGY)
+                {
+                    if (entity instanceof IEnergyBufferProvider && chamberedRound.getEnergyCost() > 0)
+                    {
+                        IEnergyBuffer buffer = ((IEnergyBufferProvider) entity).getEnergyBuffer(ForgeDirection.UNKNOWN);
+                        if (buffer != null)
+                        {
+                            int energyOut = buffer.removeEnergyFromStorage(chamberedRound.getEnergyCost(), true);
+                            if (Engine.runningAsDev && energyOut < chamberedRound.getEnergyCost())
+                            {
+                                Armory.INSTANCE.logger().error("Error, energy out did not match expected [" + energyOut + " < " + chamberedRound.getEnergyCost() + "]. Entity: " + entity + " Ammo: " + chamberedRound);
+                            }
+                        }
+                        else if (Engine.runningAsDev)
+                        {
+                            Armory.INSTANCE.logger().error("Error no buffer provided to drain energy for firing shot. Entity: " + entity + " Ammo: " + chamberedRound);
+                        }
+                    }
+                }
+                else if (reloadType == ReloadType.FLUID)
+                {
+                    //TODO implement
+                }
             }
             playAudio("round.consume");
             updateEntityStack("consume ammo");

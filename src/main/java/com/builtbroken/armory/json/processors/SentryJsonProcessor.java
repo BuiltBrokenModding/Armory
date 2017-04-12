@@ -1,6 +1,7 @@
 package com.builtbroken.armory.json.processors;
 
 import com.builtbroken.armory.data.ArmoryDataHandler;
+import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.armory.json.ArmoryEntryJsonProcessor;
@@ -65,6 +66,24 @@ public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData>
             throw new IllegalArgumentException("Failed to get gun by ID[" + gunID + "] due to return not being a gun data object, this is a bug");
         }
         sentryData.setGunData((GunData) gunData);
+
+        //Load ammo data
+        if (sentryJsonObject.has("ammoData"))
+        {
+            String ammoKey = sentryJsonObject.get("ammoData").getAsString();
+            debugPrinter.log("AmmoData: " + ammoKey);
+
+            Object ammoData = ArmoryDataHandler.INSTANCE.get("ammo").get(ammoKey);
+            if (ammoData == null)
+            {
+                throw new IllegalArgumentException("Failed to location ammo data by ID[" + ammoKey + "]");
+            }
+            else if (!(ammoData instanceof AmmoData))
+            {
+                throw new IllegalArgumentException("Failed to get ammo data by ID[" + ammoKey + "] due to return not being an ammo data object, this is a bug");
+            }
+            sentryData.setAmmoData((AmmoData) ammoData);
+        }
 
         //Call to process injection tags
         for (Map.Entry<String, JsonElement> entry : sentryJsonObject.entrySet())

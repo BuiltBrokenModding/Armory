@@ -30,7 +30,7 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
     @Override
     public String getLoadOrder()
     {
-        return "after:ammoType";
+        return "after:ammo";
     }
 
     @Override

@@ -74,6 +74,7 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
             else if (entry.getKey().startsWith("damage"))
             {
                 DamageData damageData = DamageJsonProcessor.processor.process(entry.getValue());
+                debugPrinter.log("Damage: " + damageData);
                 if (damageData != null)
                 {
                     data.damageData.add(damageData);
@@ -82,13 +83,15 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
             }
             else if (entry.getKey().startsWith("droppedItem"))
             {
-                data.droppedItemData.add(entry.getValue().getAsJsonPrimitive().getAsString());
+                String itemKey = entry.getValue().getAsJsonPrimitive().getAsString();
+                data.droppedItemData.add(itemKey);
+                debugPrinter.log("Dropped Item: " + itemKey);
             }
         }
 
         if (!damageDetected && Armory.INSTANCE != null)
         {
-            Armory.INSTANCE.logger().error("No damage type was detected for ammo " + data + "\n this may cause unexpected behavior.");
+            debugPrinter.error("No damage type was detected in ammo data, this may cause unexpected behavior. Data: " + data);
         }
         //Process shared data
         processExtraData(ammoJsonObject, data);

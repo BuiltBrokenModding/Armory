@@ -6,6 +6,9 @@ import com.builtbroken.armory.content.sentry.imp.ISentryHost;
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.armory.data.user.IWeaponUser;
+import com.builtbroken.jlib.data.network.IByteBufReader;
+import com.builtbroken.jlib.data.network.IByteBufWriter;
+import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.core.Engine;
@@ -14,10 +17,12 @@ import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.rotation.IRotation;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.entity.selector.EntitySelectors;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.command.IEntitySelector;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -31,8 +36,9 @@ import java.util.List;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/11/2017.
  */
-public class Sentry implements IWorldPosition, IRotation, IWeaponUser
+public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter
 {
+    //TODO implement log system (enemy detected, enemy killed, ammo consumed, power failed, etc. with time stamps and custom log limits)
     /** Desired aim angle, updated every tick if target != null */
     protected final EulerAngle aim = new EulerAngle(0, 0, 0);
     /** Current aim angle, updated each tick */
@@ -47,19 +53,14 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser
 
     public Pos center;
     public Pos aimPoint;
-
-    public GunInstance gunInstance;
+    public Pos bulletSpawnOffset;
 
     protected Entity target;
+    public GunInstance gunInstance;
 
     protected int targetSearchTimer = 0;
     protected int targetingDelay = 0;
     protected int targetingLoseTimer = 0;
-
-    /** Last time rotation was updated, used in {@link EulerAngle#lerp(EulerAngle, double)} function for smooth rotation */
-    protected long lastRotationUpdate = System.nanoTime();
-    /** Percent of time that passed since last tick, should be 1.0 on a stable server */
-    protected double deltaTime;
 
     /** Areas to search for targets */
     public AxisAlignedBB searchArea;
@@ -67,28 +68,28 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser
     /** Offset to use to prevent clipping self with ray traces */
     public double halfWidth = 0;
 
-    public Pos bulletSpawnOffset;
-
+    //States
     public String status;
     public boolean reloading = false;
+    public boolean running = false;
+    public boolean turnedOn = true;
+    public boolean sentryHasAmmo = false;
+    public boolean sentryIsAlive = false;
 
     public Sentry(SentryData sentryData)
     {
         this.sentryData = sentryData;
     }
 
-    public void update(int ticks)
+    public boolean update(int ticks, float deltaTime)
     {
-        //Calculate bullet offset
-        calculateBulletSpawnOffset();
-
         //Update logic every other tick
         if (!world().isRemote && ticks % 2 == 0)
         {
+            //Calculate bullet offset
+            calculateBulletSpawnOffset();
+
             status = "unknown";
-            //Keep track of time between ticks to provide smooth animation
-            deltaTime = (System.nanoTime() - lastRotationUpdate) / 100000000.0; // time / time_tick, client uses different value
-            lastRotationUpdate = System.nanoTime();
 
             //Invalid entity
             if (host == null || getSentryData() == null)
@@ -97,6 +98,10 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser
             }
             else
             {
+                //Reset state system
+                running = false;
+                sentryHasAmmo = false;
+                sentryIsAlive = false;
                 //Debug
                 if (Engine.runningAsDev)
                 {
@@ -111,6 +116,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser
                 //Create gun instance if null
                 if (gunInstance == null && getSentryData() != null && getSentryData().getGunData() != null)
                 {
+                    //TODO get real gun instance
                     gunInstance = new GunInstance(new ItemStack(Armory.blockSentry), this, getSentryData().getGunData());
                     if (Engine.runningAsDev)
                     {
@@ -174,7 +180,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser
                                 }
                                 else
                                 {
-                                    aimAtTarget();
+                                    aimAtTarget(deltaTime);
                                 }
                             }
                             else
@@ -192,7 +198,9 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser
                     }
                 }
             }
+            return true;
         }
+        return false;
     }
 
     /**
@@ -329,7 +337,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser
     /**
      * Called to aim at the current target
      */
-    protected void aimAtTarget()
+    protected void aimAtTarget(float deltaTime)
     {
         //Aim at point
         currentAim.moveTowards(aim, getSentryData().getRotationSpeed(), deltaTime).clampTo360();
@@ -437,5 +445,33 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser
     public boolean isAmmoSlot(int slot)
     {
         return slot >= getSentryData().getInventoryAmmoStart() && slot <= getSentryData().getInventoryAmmoEnd();
+    }
+
+    @Override
+    public void load(NBTTagCompound nbt)
+    {
+
+    }
+
+    @Override
+    public NBTTagCompound save(NBTTagCompound nbt)
+    {
+        //TODO save state
+        //TODO save gun
+        return nbt;
+    }
+
+    @Override
+    public Sentry readBytes(ByteBuf buf)
+    {
+        return this;
+    }
+
+    @Override
+    public ByteBuf writeBytes(ByteBuf buf)
+    {
+        //TODO Sync state(s)
+        //TODO Sync ammo
+        return buf;
     }
 }

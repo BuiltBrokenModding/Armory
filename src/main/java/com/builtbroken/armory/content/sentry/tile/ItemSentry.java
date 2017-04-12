@@ -2,7 +2,6 @@ package com.builtbroken.armory.content.sentry.tile;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
-import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.armory.data.sentry.SentryData;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -48,8 +47,7 @@ public class ItemSentry extends ItemMetaArmoryEntry<SentryData>
             TileEntity tile = world.getTileEntity(x, y, z);
             if (tile instanceof TileSentry)
             {
-                ((TileSentry) tile).sentryStack = stack.copy();
-                ((TileSentry) tile).sentryData = getData(stack);
+                ((TileSentry) tile).setSentryStack(stack.copy());
             }
         }
         return true;

@@ -25,7 +25,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.util.ForgeDirection;
 
 /**
  * Reference point and storage point for {@link EntitySentry}
@@ -35,17 +34,10 @@ import net.minecraftforge.common.util.ForgeDirection;
  */
 public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost
 {
-    public SentryData sentryData;
+    protected Sentry sentry;
+
+    private ItemStack sentryStack;
     private EntitySentry sentryEntity;
-    private Sentry sentry;
-
-    protected ItemStack sentryStack;
-
-    protected boolean running = false;
-    protected boolean turnedOn = true;
-
-    protected boolean sentryHasAmmo = false;
-    protected boolean sentryIsAlive = false;
 
     public TileSentry()
     {
@@ -79,12 +71,16 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
-        float width = Math.max(1, sentryData != null ? sentryData.getBodyWidth() : 0);
-        float height = Math.max(1, sentryData != null ? sentryData.getBodyHeight() : 0);
-        float x = xi() + 0.5f;
-        float y = yi() + 0.5f;
-        float z = zi() + 0.5f;
-        return AxisAlignedBB.getBoundingBox(x - width, y, z - width, x + width, y + height + 0.2, z + width);
+        if (getSentry() != null)
+        {
+            float width = Math.max(1, getSentry().getSentryData() != null ? getSentry().getSentryData().getBodyWidth() : 0);
+            float height = Math.max(1, getSentry().getSentryData() != null ? getSentry().getSentryData().getBodyHeight() : 0);
+            float x = xi() + 0.5f;
+            float y = yi() + 0.5f;
+            float z = zi() + 0.5f;
+            return AxisAlignedBB.getBoundingBox(x - width, y, z - width, x + width, y + height + 0.2, z + width);
+        }
+        return super.getRenderBoundingBox();
     }
 
     @Override
@@ -98,53 +94,23 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     {
         super.update();
 
-        //TODO remove
-        if (getSentry() == null || sentryData == null)
-        {
-            loadSentryData();
-        }
-
         //Server logic
-        if (isServer())
+        if (isServer() && getSentry() != null)
         {
-            //Reset state
-            sentryHasAmmo = false;
-            running = false;
-            sentryIsAlive = false;
-
-            if (getSentry() != null)
+            //Create entity if null
+            if (getSentryEntity() == null)
             {
-                //Force position
-                getSentryEntity().setPosition(xi() + 0.5, yi() + bounds.max().y() + 0.05, zi() + 0.5);
-
-                //Update has ammo for renders
-                if (getSentry().gunInstance != null)
-                {
-                    sentryHasAmmo = getSentry().gunInstance.hasAmmo();
-                    sentryIsAlive = getSentryEntity().getHealth() > 0;
-                }
+                sentryEntity = new EntitySentry(world());
+                getSentryEntity().setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5);
+                getSentryEntity().host = this;
+                world().spawnEntityInWorld(sentryEntity);
+                setSentryEntity(sentryEntity);
             }
 
-            if (sentryData != null && turnedOn)
-            {
-                //Consume energy per tick
-                if (sentryData.getEnergyCost() > 0)
-                {
-                    //energy is consumed even if there is not enough for a full cycle
-                    int drained = getEnergyBuffer(ForgeDirection.UNKNOWN).removeEnergyFromStorage(sentryData.getEnergyCost(), true);
-                    running = drained >= sentryData.getEnergyCost();
-                    //TODO add negative effects
-                    //      TODO add percentage performance if energy is above 40%
-                    //      TODO if bellow 40% start to check for brown out damage
-                }
-            }
+            //Force position of entity
+            getSentryEntity().setPosition(xi() + 0.5, yi() + bounds.max().y() + 0.05, zi() + 0.5);
 
-            if (sentryData == null)
-            {
-                Engine.logger().error("Removing corrupted sentry tile from world, " + this);
-                world().setBlockToAir(xCoord, yCoord, zCoord);
-            }
-
+            //Update client about sentry
             if (ticks % 3 == 0)
             {
                 sendDescPacket();
@@ -155,36 +121,44 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     @Override
     public void readFromNBT(NBTTagCompound nbt)
     {
-        running = nbt.getBoolean("running");
-        turnedOn = nbt.getBoolean("enabled");
         if (nbt.hasKey("sentryStack"))
         {
-            sentryStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("sentryStack"));
-            sentryData = Armory.itemSentry.getData(sentryStack);
-            sentry = new Sentry(sentryData);
+            setSentryStack(ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("sentryStack")));
         }
-        loadSentryData();
         super.readFromNBT(nbt);
     }
 
-    protected void loadSentryData()
+    public void setSentryStack(ItemStack stack)
     {
-        if (sentryData != null && getSentry() == null && isServer())
+        sentryStack = stack;
+        if (stack != null)
         {
-            sentryEntity = new EntitySentry(world());
-            getSentryEntity().setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5); //TODO adjust based on data
-            getSentryEntity().host = this;
-            world().spawnEntityInWorld(sentryEntity);
-            setSentryEntity(sentryEntity);
+            SentryData data = Armory.itemSentry.getData(sentryStack);
+            if (data != null)
+            {
+                sentry = new Sentry(data);
+            }
+            else
+            {
+                Armory.INSTANCE.logger().error("Could not read sentry data from " + stack, new RuntimeException());
+                setSentryStack(null);
+            }
+        }
+        else
+        {
+            sentry = null;
+            if (getSentryEntity() != null)
+            {
+                world().removeEntity(getSentryEntity());
+            }
         }
     }
+
 
     @Override
     public void writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
-        nbt.setBoolean("running", running);
-        nbt.setBoolean("enabled", turnedOn);
         if (sentryStack != null)
         {
             nbt.setTag("sentryStack", sentryStack.writeToNBT(new NBTTagCompound()));
@@ -192,11 +166,24 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     }
 
     @Override
+    public void writeDescPacket(ByteBuf buf)
+    {
+        super.writeDescPacket(buf);
+        buf.writeInt(getSentryEntity() == null ? -1 : getSentryEntity().getEntityId());
+        ByteBufUtils.writeItemStack(buf, sentryStack != null ? sentryStack : new ItemStack(Items.apple));
+        buf.writeBoolean(getSentry() != null);
+        if(getSentry() != null)
+        {
+            getSentry().writeBytes(buf);
+        }
+    }
+
+    @Override
     protected ExternalInventory createInventory()
     {
-        if (sentryData != null && sentryData.getInventorySize() > 0)
+        if (getSentry() != null && getSentry().getSentryData() != null && getSentry().getSentryData().getInventorySize() > 0)
         {
-            return new ExternalInventory(this, sentryData.getInventorySize());
+            return new ExternalInventory(this, getSentry().getSentryData().getInventorySize());
         }
         return null;
     }
@@ -204,9 +191,9 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     @Override
     public int getEnergyBufferSize()
     {
-        if (sentryData != null && sentryData.getInventorySize() > 0)
+        if (getSentry() != null && getSentry().getSentryData() != null && getSentry().getSentryData().getEnergyBuffer() > 0)
         {
-            return sentryData.getEnergyBuffer();
+            return getSentry().getSentryData().getEnergyBuffer();
         }
         return 0;
     }
@@ -237,24 +224,6 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     }
 
     @Override
-    public void writeDescPacket(ByteBuf buf)
-    {
-        super.writeDescPacket(buf);
-        buf.writeInt(getSentry() == null ? -1 : getSentryEntity().getEntityId());
-        buf.writeBoolean(sentryHasAmmo);
-        buf.writeBoolean(sentryIsAlive);
-        ByteBufUtils.writeItemStack(buf, sentryStack != null ? sentryStack : new ItemStack(Items.apple));
-        if (getSentry() != null)
-        {
-            ByteBufUtils.writeUTF8String(buf, getSentry().status);
-        }
-        else
-        {
-            ByteBufUtils.writeUTF8String(buf, "null");
-        }
-    }
-
-    @Override
     public Object getServerGuiElement(int ID, EntityPlayer player)
     {
         return new ContainerSentry(player, this);
@@ -264,12 +233,6 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     public Object getClientGuiElement(int ID, EntityPlayer player)
     {
         return null;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "TileSentryBase[" + (world() != null && world().provider != null ? world().provider.dimensionId : "?") + "w, " + xCoord + "x, " + yCoord + "y, " + zCoord + "z, " + sentryData + "]@" + hashCode();
     }
 
     public EntitySentry getSentryEntity()
@@ -288,5 +251,12 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     public Sentry getSentry()
     {
         return sentry;
+    }
+
+
+    @Override
+    public String toString()
+    {
+        return "TileSentryBase[" + (world() != null && world().provider != null ? world().provider.dimensionId : "?") + "w, " + xCoord + "x, " + yCoord + "y, " + zCoord + "z, " + sentry + "]@" + hashCode();
     }
 }

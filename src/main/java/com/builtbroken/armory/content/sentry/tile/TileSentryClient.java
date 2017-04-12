@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModelCustom;
@@ -76,21 +77,15 @@ public class TileSentryClient extends TileSentry
         super.readDescPacket(buf);
         int entityID = buf.readInt();
         setEntity(entityID);
-        sentryHasAmmo = buf.readBoolean();
-        sentryIsAlive = buf.readBoolean();
-        sentryStack = ByteBufUtils.readItemStack(buf);
+        ItemStack sentryStack = ByteBufUtils.readItemStack(buf);
         if (sentryStack.getItem() == Items.apple)
         {
             sentryStack = null;
         }
-        if (sentryStack != null)
+        setSentryStack(sentryStack);
+        if (buf.readBoolean() && getSentry() != null)
         {
-            sentryData = Armory.itemSentry.getData(sentryStack);
-        }
-        String status = ByteBufUtils.readUTF8String(buf);
-        if(getSentry() != null)
-        {
-            getSentry().status = status;
+            getSentry().readBytes(buf);
         }
     }
 
@@ -131,16 +126,16 @@ public class TileSentryClient extends TileSentry
 
             //Get render data
             RenderData renderData = null;
-            if (sentryData != null)
+            if (getSentry().getSentryData() != null)
             {
-                renderData = ClientDataHandler.INSTANCE.getRenderData(sentryData.getUniqueID());
+                renderData = ClientDataHandler.INSTANCE.getRenderData(getSentry().getSentryData().getUniqueID());
             }
 
             //Render parts
             boolean rendered = false;
             if (renderData != null)
             {
-                final String emptyS = (sentryHasAmmo ? "" : ".empty");
+                final String emptyS = (getSentry().sentryHasAmmo ? "" : ".empty");
                 //Render base
                 for (String key : new String[]{"entity.sentry.base.dead" + emptyS, "entity.sentry.base.dead", "entity.sentry.base" + emptyS, "entity.sentry.base"})
                 {

@@ -4,6 +4,7 @@ import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.armory.content.sentry.imp.ISentryHost;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
 import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
+import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.entity.EntityBase;
 import com.builtbroken.mc.prefab.tile.Tile;
@@ -22,6 +23,11 @@ public class EntitySentry extends EntityBase implements IEnergyBufferProvider, I
     /** Host that is managing this entity */
     public ISentryHost host;
     protected Sentry sentry;
+
+    /** Last time rotation was updated, used in {@link EulerAngle#lerp(EulerAngle, double)} function for smooth rotation */
+    protected long lastRotationUpdate = System.nanoTime();
+    /** Percent of time that passed since last tick, should be 1.0 on a stable server */
+    protected float deltaTime;
 
     public EntitySentry(World world)
     {
@@ -62,6 +68,20 @@ public class EntitySentry extends EntityBase implements IEnergyBufferProvider, I
         if (this.posY < -64.0D)
         {
             this.kill();
+        }
+    }
+
+    @Override
+    public void onEntityUpdate()
+    {
+        if (getSentry() != null)
+        {
+            //Keep track of time between ticks to provide smooth animation
+            deltaTime = (float) ((System.nanoTime() - lastRotationUpdate) / 100000000.0); // time / time_tick, client uses different value
+            if (getSentry().update(ticksExisted, deltaTime))
+            {
+                lastRotationUpdate = System.nanoTime();
+            }
         }
     }
 

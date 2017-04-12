@@ -16,9 +16,9 @@ public class ContainerSentry extends ContainerBase
         super(player, sentry);
         int slotID = 0;
         //Inventory slots
-        if(sentry != null && sentry.sentryData != null)
+        if(sentry != null && sentry.getSentry() != null)
         {
-            int ammoBaySize = (sentry.sentryData.getInventoryAmmoEnd() - sentry.sentryData.getInventoryAmmoStart());
+            int ammoBaySize = (sentry.getSentry().getSentryData().getInventoryAmmoEnd() - sentry.getSentry().getSentryData().getInventoryAmmoStart());
             int rows = (ammoBaySize / 5) + 1;
             for (int y = 0; y < rows; y++)
             {

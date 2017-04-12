@@ -5,6 +5,7 @@ import com.builtbroken.mc.imp.transform.rotation.IRotation;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 
 /**
  * Used to wrapper shooters to provide clean data access and to provide support to non-entity shooters.
@@ -33,6 +34,22 @@ public interface IWeaponUser extends IWorldPosition, IRotation
     Pos getEntityPosition();
 
     /**
+     * Gets the vector that represents
+     * the entity's aim
+     *
+     * @return
+     */
+    Pos getEntityAim();
+
+    /**
+     * Gets the position to spawn projectiles
+     * realitive to the entity.
+     *
+     * @return
+     */
+    Pos getProjectileSpawnOffset();
+
+    /**
      * Inventory to use for weapon ammo access
      *
      * @return
@@ -46,4 +63,9 @@ public interface IWeaponUser extends IWorldPosition, IRotation
      * @return true if can be used for ammo
      */
     boolean isAmmoSlot(int slot);
+
+    default void updateWeaponStack(ItemStack stack, String editor)
+    {
+
+    }
 }

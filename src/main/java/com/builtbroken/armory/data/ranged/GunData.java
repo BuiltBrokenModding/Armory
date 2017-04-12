@@ -4,7 +4,9 @@ import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.IClipData;
 import com.builtbroken.mc.api.data.weapon.IGunData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
+import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
+import com.builtbroken.mc.lib.json.loading.JsonProcessorData;
 
 /**
  * Holds all data about a gun
@@ -22,15 +24,19 @@ public class GunData extends RangeWeaponData implements IGunData
     public final String gunType;
 
     /** Does the weapon need to be sighted in order to be fired */
-    public boolean sightToFire = false;
+    private boolean sightToFire = false;
 
     /** Reload time in ticks */
-    public int reloadTime = 20;
+    private int reloadTime = 20;
 
     /** Rounds a min that can be fired from the weapon, does not include reload time */
     private int rateOfFire = 60;
 
     private int firingDelay;
+
+    private Pos projectileSpawnOffset = Pos.zero;
+    private Pos ejectSpawnOffset = Pos.zero;
+    private Pos ejectSpawnVector = Pos.zero;
 
     public GunData(IJsonProcessor processor, String id, String type, String name, IAmmoType ammoType, ReloadType clipType, IClipData singleFireData)
     {
@@ -64,10 +70,51 @@ public class GunData extends RangeWeaponData implements IGunData
         return gunType;
     }
 
+    public Pos getProjectileSpawnOffset()
+    {
+        return projectileSpawnOffset;
+    }
+
+    @JsonProcessorData(value = "projectileSpawnOffset", type = "pos")
+    public void setProjectileSpawnOffset(Pos pos)
+    {
+        this.projectileSpawnOffset = pos;
+    }
+
+    @Override
+    public Pos getEjectionSpawnOffset()
+    {
+        return ejectSpawnOffset;
+    }
+
+    @JsonProcessorData(value = "ejectionSpawnOffset", type = "pos")
+    public void setEjectionSpawnOffset(Pos pos)
+    {
+        this.ejectSpawnOffset = pos;
+    }
+
+    @Override
+    public Pos getEjectionSpawnVector()
+    {
+        return ejectSpawnVector;
+    }
+
+    @JsonProcessorData(value = "ejectionSpawnVector", type = "pos")
+    public void setEjectSpawnVector(Pos pos)
+    {
+        this.ejectSpawnVector = pos;
+    }
+
     @Override
     public boolean isSightedRequiredToFire()
     {
         return sightToFire;
+    }
+
+    @JsonProcessorData(value = "sightToFire")
+    public void setSightToFire(boolean b)
+    {
+        this.sightToFire = b;
     }
 
     @Override
@@ -76,23 +123,30 @@ public class GunData extends RangeWeaponData implements IGunData
         return reloadTime;
     }
 
+    @JsonProcessorData(value = "reloadTime", type = "int")
+    public void setReloadTime(int time)
+    {
+        this.reloadTime = time;
+    }
+
     @Override
     public int getRateOfFire()
     {
         return rateOfFire;
     }
 
-    @Override
-    public int getFiringDelay()
-    {
-        return firingDelay;
-    }
-
+    @JsonProcessorData(value = "rateOfFire", type = "int")
     public void setRateOfFire(int rateOfFire)
     {
         this.rateOfFire = rateOfFire;
         //Seconds in a min * millis in a second / rounds in a min
         this.firingDelay = 60 * 1000 / rateOfFire;
+    }
+
+    @Override
+    public int getFiringDelay()
+    {
+        return firingDelay;
     }
 
     @Override

@@ -114,11 +114,15 @@ public class TileSentryClient extends TileSentry
             double rx = pos.x() + 0.5;
             double ry = pos.y() + 0.5;
             double rz = pos.z() + 0.5;
+            double height = getSentry() != null ? getSentry().getSentryData().getBodyHeight() : 0;
 
             if (Engine.runningAsDev)
             {
-                RenderUtility.renderFloatingText("Yaw: " + getSentry().yaw(), rx, ry + 1.3, rz, Color.red.getRGB());
-                RenderUtility.renderFloatingText("Pitch: " + getSentry().pitch(), rx, ry + 1, rz, Color.red.getRGB());
+                RenderUtility.renderFloatingText(String.format("Yaw: %3.2f", getSentry().yaw()), rx, ry + height + 1.8, rz, Color.red.getRGB());
+                RenderUtility.renderFloatingText(String.format("Pitch: %3.2f", getSentry().pitch()), rx, ry + height + 1.5, rz, Color.red.getRGB());
+                RenderUtility.renderFloatingText(String.format("Status: %s", getSentry().status), rx, ry + height + 1.2, rz, Color.red.getRGB());
+                String clip = getSentry().gunInstance._clip != null ? (getSentry().gunInstance._clip.getAmmoCount() + "/" + getSentry().gunInstance._clip.getMaxAmmo()) : "null";
+                RenderUtility.renderFloatingText(String.format("Ammo: %s", clip), rx, ry + height + 0.9, rz, Color.red.getRGB());
             }
 
             GL11.glPushMatrix();

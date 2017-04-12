@@ -35,7 +35,6 @@ import net.minecraft.util.AxisAlignedBB;
 public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost
 {
     protected Sentry sentry;
-
     private ItemStack sentryStack;
     private EntitySentry sentryEntity;
 
@@ -109,10 +108,20 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
             getSentryEntity().setPosition(xi() + 0.5, yi() + bounds.max().y() + 0.05, zi() + 0.5);
 
             //Update client about sentry
-            if (ticks % 3 == 0)
+            if (ticks % getSentry().getPacketRefreshRate() == 0)
             {
                 sendDescPacket();
             }
+        }
+    }
+
+    @Override
+    public void invalidate()
+    {
+        super.invalidate();
+        if (getSentryEntity() != null)
+        {
+            world().removeEntity(getSentryEntity());
         }
     }
 
@@ -122,6 +131,10 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         if (nbt.hasKey("sentryStack"))
         {
             setSentryStack(ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("sentryStack")));
+        }
+        if (getSentry() != null && nbt.hasKey("sentryData"))
+        {
+            getSentry().load(nbt.getCompoundTag("sentryData"));
         }
         super.readFromNBT(nbt);
     }
@@ -161,6 +174,12 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         {
             nbt.setTag("sentryStack", sentryStack.writeToNBT(new NBTTagCompound()));
         }
+        if (getSentry() != null)
+        {
+            NBTTagCompound sentryTag = new NBTTagCompound();
+            getSentry().save(sentryTag);
+            nbt.setTag("sentryData", sentryTag);
+        }
     }
 
     @Override
@@ -170,7 +189,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         buf.writeInt(getSentryEntity() == null ? -1 : getSentryEntity().getEntityId());
         ByteBufUtils.writeItemStack(buf, sentryStack != null ? sentryStack : new ItemStack(Items.apple));
         buf.writeBoolean(getSentry() != null);
-        if(getSentry() != null)
+        if (getSentry() != null)
         {
             getSentry().writeBytes(buf);
         }

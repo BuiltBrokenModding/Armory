@@ -17,6 +17,7 @@ import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.rotation.IRotation;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.entity.selector.EntitySelectors;
+import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.command.IEntitySelector;
 import net.minecraft.entity.Entity;
@@ -44,18 +45,19 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     /** Current aim angle, updated each tick */
     protected final EulerAngle currentAim = new EulerAngle(0, 0, 0);
     /** Default aim to use when not targeting things */
-    protected final EulerAngle defaultAim = new EulerAngle(0, 0, 0);
+    protected final EulerAngle defaultAim = new EulerAngle(0, 0, 0); //TODO implement
     /** Data that defines this sentry instance */
     protected final SentryData sentryData;
+    public final GunInstance gunInstance;
     /** Current host of this sentry */
-    protected ISentryHost host;
+    public ISentryHost host;
 
     public Pos center;
     public Pos aimPoint;
     public Pos bulletSpawnOffset;
 
     protected Entity target;
-    public GunInstance gunInstance;
+
 
     protected int targetSearchTimer = 0;
     protected int targetingDelay = 0;
@@ -67,17 +69,29 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     /** Offset to use to prevent clipping self with ray traces */
     public double halfWidth = 0;
 
-    //States
-    public String status;
+    //Status vars
+    public String status = "loading";
     public boolean reloading = false;
     public boolean running = false;
     public boolean turnedOn = true;
     public boolean sentryHasAmmo = false;
-    public boolean sentryIsAlive = false;
+
+    //Stats vars
+    public float health = 0;
 
     public Sentry(SentryData sentryData)
     {
         this.sentryData = sentryData;
+        health = sentryData.getMaxHealth();
+        gunInstance = new GunInstance(new ItemStack(Armory.blockSentry), this, getSentryData().getGunData());
+        if (!gunInstance.getGunData().getReloadType().requiresItems() && sentryData.getAmmoData() != null)
+        {
+            gunInstance.overrideRound = sentryData.getAmmoData();
+        }
+        if (Engine.runningAsDev)
+        {
+            gunInstance.doDebugRayTracesOnTthisGun = true;
+        }
     }
 
     public boolean update(int ticks, float deltaTime)
@@ -100,7 +114,6 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                 //Reset state system
                 running = false;
                 sentryHasAmmo = false;
-                sentryIsAlive = false;
                 //Debug
                 if (Engine.runningAsDev)
                 {
@@ -112,28 +125,17 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                     Engine.instance.packetHandler.sendToAll(packetSpawnParticle);
                 }
 
-                //Create gun instance if null
-                if (gunInstance == null && getSentryData() != null && getSentryData().getGunData() != null)
-                {
-                    //TODO get real gun instance
-                    gunInstance = new GunInstance(new ItemStack(Armory.blockSentry), this, getSentryData().getGunData());
-                    if (Engine.runningAsDev)
-                    {
-                        gunInstance.doDebugRayTracesOnTthisGun = true;
-                    }
-                }
-
                 //Can only function if we have a gun
                 if (gunInstance != null)
                 {
-                    if (!gunInstance.getGunData().getReloadType().requiresItems() && sentryData.getAmmoData() != null)
-                    {
-                        gunInstance.chamberedRound = sentryData.getAmmoData();
-                    }
                     //Trigger reload mod if out of ammo
-                    if (!gunInstance.hasAmmo() && gunInstance.getChamberedRound() == null)
+                    if (!gunInstance.hasMagWithAmmo() && gunInstance.getChamberedRound() == null)
                     {
                         reloading = true;
+                    }
+                    else
+                    {
+                        sentryHasAmmo = true;
                     }
 
                     if (reloading)
@@ -200,6 +202,11 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
             return true;
         }
         return false;
+    }
+
+    public int getPacketRefreshRate()
+    {
+        return 2;
     }
 
     /**
@@ -358,10 +365,10 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     protected void fireAtTarget()
     {
         //Debug
-        gunInstance.debugRayTrace(center, aim.toPos(), aimPoint, bulletSpawnOffset, (float) currentAim.yaw(), (float) currentAim.pitch());
+        gunInstance.debugRayTrace(center, getEntityAim(), aimPoint, bulletSpawnOffset);
 
         //Check fi has ammo, then fire
-        if (gunInstance.hasAmmo())
+        if (gunInstance.getChamberedRound() != null)
         {
             gunInstance.fireWeapon(world(), 1, aimPoint, aim.toPos()); //TODO get firing ticks
         }
@@ -427,6 +434,18 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     }
 
     @Override
+    public Pos getEntityAim()
+    {
+        return currentAim.toPos();
+    }
+
+    @Override
+    public Pos getProjectileSpawnOffset()
+    {
+        return bulletSpawnOffset;
+    }
+
+    @Override
     public IInventory getInventory()
     {
         if (host instanceof IInventory)
@@ -449,28 +468,69 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     @Override
     public void load(NBTTagCompound nbt)
     {
-
+        if (nbt.hasKey("turnedOn"))
+        {
+            turnedOn = nbt.getBoolean("turnedOn");
+        }
+        if (nbt.hasKey("health"))
+        {
+            health = nbt.getFloat("health");
+        }
+        if (nbt.hasKey("currentAim"))
+        {
+            currentAim.readFromNBT(nbt.getCompoundTag("currentAim"));
+        }
+        if (nbt.hasKey("gunInstance"))
+        {
+            gunInstance.load(nbt.getCompoundTag("gunInstance"));
+        }
     }
 
     @Override
     public NBTTagCompound save(NBTTagCompound nbt)
     {
-        //TODO save state
-        //TODO save gun
+        nbt.setBoolean("turnedOn", turnedOn);
+        nbt.setFloat("health", health);
+        nbt.setTag("currentAim", currentAim.toNBT());
+        //Save gun
+        NBTTagCompound gunTag = new NBTTagCompound();
+        gunInstance.save(gunTag);
+        nbt.setTag("gunInstance", gunTag);
         return nbt;
     }
 
     @Override
     public Sentry readBytes(ByteBuf buf)
     {
+        running = buf.readBoolean();
+        turnedOn = buf.readBoolean();
+        sentryHasAmmo = buf.readBoolean();
+        health = buf.readFloat();
+        currentAim.readBytes(buf);
+        aim.readBytes(buf);
+        status = ByteBufUtils.readUTF8String(buf);
+
+        //Load gun data
+        NBTTagCompound gunTag = ByteBufUtils.readTag(buf);
+        gunInstance.load(gunTag);
         return this;
     }
 
     @Override
     public ByteBuf writeBytes(ByteBuf buf)
     {
-        //TODO Sync state(s)
-        //TODO Sync ammo
+        buf.writeBoolean(running);
+        buf.writeBoolean(turnedOn);
+        buf.writeBoolean(sentryHasAmmo);
+        buf.writeFloat(health);
+        currentAim.writeBytes(buf);
+        aim.writeBytes(buf);
+        ByteBufUtils.writeUTF8String(buf, status);
+
+        //Save gun data
+        NBTTagCompound gunTag = new NBTTagCompound();
+        gunInstance.save(gunTag);
+        ByteBufUtils.writeTag(buf, gunTag);
         return buf;
     }
 }

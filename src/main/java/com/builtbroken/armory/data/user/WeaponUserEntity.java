@@ -3,6 +3,7 @@ package com.builtbroken.armory.data.user;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 /**
@@ -22,6 +23,36 @@ public class WeaponUserEntity<E extends Entity> implements IWeaponUser
     public Pos getEntityPosition()
     {
         return new Pos(x(), y() + (entity.height / 2f), z());
+    }
+
+    @Override
+    public Pos getEntityAim()
+    {
+        //Used to calculate x and z position
+        double f3 = MathHelper.cos((float) (-yaw() * 0.017453292F - Math.PI));
+        double f4 = MathHelper.sin((float) (-yaw() * 0.017453292F - Math.PI));
+        double f5 = -MathHelper.cos((float) (-pitch() * 0.017453292F));
+
+        //used to calculate aim y
+        double aimY = MathHelper.sin((float) (-pitch() * 0.017453292F));
+
+        double aimX = f4 * f5;
+        double aimZ = f3 * f5;
+        return new Pos(aimX, aimY, aimZ);
+    }
+
+    @Override
+    public Pos getProjectileSpawnOffset()
+    {
+        //Find our hand position so to position starting point near barrel of the gun
+        final float rotationHand = MathHelper.wrapAngleTo180_float((float) (yaw() + 90));
+        final double r = Math.toRadians(rotationHand);
+        final Pos hand = new Pos(
+                (Math.cos(r) - Math.sin(r)) * 0.5,
+                -0.5,
+                (Math.sin(r) + Math.cos(r)) * 0.5
+        );
+        return hand;
     }
 
     @Override

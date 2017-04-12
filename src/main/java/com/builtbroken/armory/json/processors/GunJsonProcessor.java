@@ -5,10 +5,17 @@ import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.json.ArmoryEntryJsonProcessor;
+import com.builtbroken.jlib.lang.DebugPrinter;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
+import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.lib.json.JsonContentLoader;
+import com.builtbroken.mc.lib.json.loading.JsonProcessorInjectionMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.Map;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -16,9 +23,14 @@ import com.google.gson.JsonPrimitive;
  */
 public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
 {
+    protected final JsonProcessorInjectionMap keyHandler;
+    protected final DebugPrinter debugPrinter;
+
     public GunJsonProcessor()
     {
         super("gun");
+        keyHandler = new JsonProcessorInjectionMap(GunData.class);
+        debugPrinter = JsonContentLoader.INSTANCE != null ? JsonContentLoader.INSTANCE.debug : new DebugPrinter(LogManager.getLogger());
     }
 
     @Override
@@ -36,27 +48,38 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
     @Override
     public GunData process(JsonElement element)
     {
-        final JsonObject object = element.getAsJsonObject();
-        ensureValuesExist(object, "ID", "name", "gunType", "reloadType", "ammoType");
+        debugPrinter.start("SentryProcessor", "Processing entry", Engine.runningAsDev);
+        final JsonObject gunJsonData = element.getAsJsonObject();
+        ensureValuesExist(gunJsonData, "ID", "name", "gunType", "reloadType", "ammoType");
 
         //common data
-        final String name = object.get("name").getAsString();
-        final String ID = object.get("ID").getAsString();
+        final String name = gunJsonData.get("name").getAsString();
+        final String ID = gunJsonData.get("ID").getAsString();
+
+        debugPrinter.log("Name: " + name);
+        debugPrinter.log("ID: " + ID);
+
 
         //Gun type
-        final String type = object.get("gunType").getAsString();
+        final String type = gunJsonData.get("gunType").getAsString();
+        debugPrinter.log("Type: " + type);
+
 
         //Get the reload type of the gun
-        JsonPrimitive clipTypeValue = object.getAsJsonPrimitive("reloadType");
+        JsonPrimitive clipTypeValue = gunJsonData.getAsJsonPrimitive("reloadType");
         ReloadType reloadType = ReloadType.get(clipTypeValue.getAsString());
+        debugPrinter.log("ReloadType: " + reloadType);
+
 
         //Get and validate ammo type
-        final String ammoTypeValue = object.get("ammoType").getAsString();
+        final String ammoTypeValue = gunJsonData.get("ammoType").getAsString();
         final AmmoType ammoType = (AmmoType) ArmoryDataHandler.INSTANCE.get("ammoType").get(ammoTypeValue);
         if (ammoType == null)
         {
             throw new IllegalArgumentException("Invalid ammo type " + ammoType + " while reading " + element);
         }
+        debugPrinter.log("AmmoType: " + ammoType);
+
 
         //Build single fire clip type used to breach load the weapon, also doubles as the clip type for muskets & bold action rifles
         final ClipData builtInClip;
@@ -66,8 +89,8 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
         }
         else if (reloadType == ReloadType.HAND_FEED)
         {
-            ensureValuesExist(object, "clipSize");
-            builtInClip = new ClipData(this, ID, name + "@handFeed", ReloadType.HAND_FEED, ammoType, object.getAsJsonPrimitive("clipSize").getAsInt());
+            ensureValuesExist(gunJsonData, "clipSize");
+            builtInClip = new ClipData(this, ID, name + "@handFeed", ReloadType.HAND_FEED, ammoType, gunJsonData.getAsJsonPrimitive("clipSize").getAsInt());
         }
         else
         {
@@ -75,50 +98,20 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
         }
 
         //Make gun object
-        final GunData data = new GunData(this, ID, type, name, ammoType, reloadType, builtInClip);
+        final GunData gunData = new GunData(this, ID, type, name, ammoType, reloadType, builtInClip);
+
+        //Call to process injection tags
+        for (Map.Entry<String, JsonElement> entry : gunJsonData.entrySet())
+        {
+            if (keyHandler.handle(gunData, entry.getKey().toLowerCase(), entry.getValue()))
+            {
+                debugPrinter.log("Injected Key: " + entry.getKey());
+            }
+        }
 
         //Process extra data that all objects share
-        processExtraData(object, data);
-
-        //Optional data
-        final JsonElement fallOff = object.get("fallOff");
-        final JsonElement rateOfFire = object.get("rateOfFire");
-        final JsonElement reloadTime = object.get("reloadTime");
-        final JsonElement sightRequired = object.get("sightToFire");
-
-        if (sightRequired != null)
-        {
-            data.sightToFire = sightRequired.getAsBoolean();
-        }
-
-        if (fallOff != null)
-        {
-            //TODO create equation processor
-        }
-
-        if (rateOfFire != null)
-        {
-            if (rateOfFire.isJsonPrimitive())
-            {
-                data.setRateOfFire(rateOfFire.getAsInt());
-            }
-            else
-            {
-                throw new IllegalArgumentException("Invalid rate of fire value " + rateOfFire + " when reading " + element);
-            }
-        }
-
-        if (reloadTime != null)
-        {
-            if (reloadTime.isJsonPrimitive())
-            {
-                data.reloadTime = reloadTime.getAsInt();
-            }
-            else
-            {
-                throw new IllegalArgumentException("Invalid reload time value " + reloadTime + " when reading " + element);
-            }
-        }
-        return data;
+        processExtraData(gunJsonData, gunData);
+        debugPrinter.end("Done...");
+        return gunData;
     }
 }

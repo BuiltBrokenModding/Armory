@@ -122,7 +122,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
 
                 if (!player.getEntityWorld().isRemote)
                 {
-                    if (gun != null && gun.getChamberedRound() == null && !gun.hasAmmo())
+                    if (gun != null && gun.getChamberedRound() == null && !gun.hasMagWithAmmo())
                     {
                         gun.playAudio("empty");
                     }
@@ -178,7 +178,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                             if (leftClickHeld.containsKey(entity))
                             {
                                 //Handle firing the weapon
-                                if (gun.getChamberedRound() != null || gun.hasAmmo())
+                                if (gun.getChamberedRound() != null || gun.hasMagWithAmmo())
                                 {
                                     int ticks = leftClickHeld.get(entity) + 1;
                                     leftClickHeld.put((EntityPlayer) entity, ticks);
@@ -294,7 +294,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                 GunInstance instance = gunCache.get(player);
                 if (instance != null && InventoryUtility.stacksMatch(instance.toStack(), stack))
                 {
-                    if (instance.weaponUser != null && instance.weaponUser == player && instance.getGunData() != null)
+                    if (instance.weaponUser != null && instance.weaponUser.getShooter() == player && instance.getGunData() != null)
                     {
                         return instance;
                     }
@@ -509,7 +509,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
         {
             boolean hasChamberedRound = instance.getChamberedRound() != null;
             boolean hasClipLoaded = instance.getLoadedClip() != null;
-            boolean hasAmmo = instance.hasAmmo();
+            boolean hasAmmo = instance.hasMagWithAmmo();
             boolean manuallyFeed = instance.isManuallyFeedClip();
 
             //TODO add more types

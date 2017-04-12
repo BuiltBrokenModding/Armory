@@ -56,7 +56,7 @@ public class TestGunProcessor extends AbstractTest
         assertEquals("armory:handgun.9mm.test", data.ID);
         assertSame(ammoType, data.ammoType);
         assertSame(ReloadType.CLIP, data.reloadType);
-        assertEquals(40, data.reloadTime);
+        assertEquals(40, data.getReloadTime());
         assertEquals(240, data.getRateOfFire());
         assertEquals(630, data.mass);
     }

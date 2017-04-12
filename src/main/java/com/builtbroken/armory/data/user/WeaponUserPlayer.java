@@ -1,8 +1,10 @@
 package com.builtbroken.armory.data.user;
 
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -28,7 +30,7 @@ public class WeaponUserPlayer extends WeaponUserEntity<EntityPlayer>
 
 
     @Override
-    public IInventory getInventory()
+    public InventoryPlayer getInventory()
     {
         return entity.inventory;
     }
@@ -37,5 +39,20 @@ public class WeaponUserPlayer extends WeaponUserEntity<EntityPlayer>
     public boolean isAmmoSlot(int slot)
     {
         return slot >= 0 && slot < entity.inventory.getSizeInventory();
+    }
+
+    @Override
+    public void updateWeaponStack(ItemStack updated, String name)
+    {
+        ItemStack stack = entity.getHeldItem();
+        if (stack != null && stack.isItemEqual(updated))
+        {
+            getInventory().setInventorySlotContents(getInventory().currentItem, updated);
+            entity.inventoryContainer.detectAndSendChanges();
+            if (Engine.runningAsDev)
+            {
+                Engine.logger().info("Updated gun stack: " + name);
+            }
+        }
     }
 }

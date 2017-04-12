@@ -28,7 +28,7 @@ public class SentryData extends ArmoryEntry
     private int energyBuffer = -1;
 
     private int armor = -1;
-    private int hp = 20;
+    private int maxHealth = 20;
 
     private int range = 50;
     private int targetSearchDelay = 10;
@@ -154,15 +154,15 @@ public class SentryData extends ArmoryEntry
         this.armor = armor;
     }
 
-    public int getHp()
+    public int getMaxHealth()
     {
-        return hp;
+        return maxHealth;
     }
 
     @JsonProcessorData(value = "healthMax", type = "int")
-    public void setHp(int hp)
+    public void setMaxHealth(int hp)
     {
-        this.hp = hp;
+        this.maxHealth = hp;
     }
 
     /** Range to look for targets inside */

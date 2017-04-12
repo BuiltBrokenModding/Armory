@@ -10,6 +10,7 @@ import com.builtbroken.armory.data.damage.simple.DamageSimple;
 import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
+import com.builtbroken.armory.data.user.WeaponUserEntity;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.mc.prefab.inventory.BasicInventory;
@@ -207,7 +208,7 @@ public class TestGunInstance extends AbstractArmoryTest
 
     private GunInstance newInstance(ItemStack stack, World world)
     {
-        return new GunInstance(stack, new EntityZombie(world), gunData);
+        return new GunInstance(stack, new WeaponUserEntity(new EntityZombie(world)), gunData);
     }
 
     @Override

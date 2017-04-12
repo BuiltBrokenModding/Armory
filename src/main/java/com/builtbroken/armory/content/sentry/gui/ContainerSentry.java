@@ -1,6 +1,6 @@
 package com.builtbroken.armory.content.sentry.gui;
 
-import com.builtbroken.armory.content.sentry.TileSentry;
+import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.mc.prefab.gui.ContainerBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
@@ -16,9 +16,9 @@ public class ContainerSentry extends ContainerBase
         super(player, sentry);
         int slotID = 0;
         //Inventory slots
-        if(sentry != null && sentry.sentryData != null)
+        if(sentry != null && sentry.getSentry() != null)
         {
-            int ammoBaySize = (sentry.sentryData.getInventoryAmmoEnd() - sentry.sentryData.getInventoryAmmoStart());
+            int ammoBaySize = (sentry.getSentry().getSentryData().getInventoryAmmoEnd() - sentry.getSentry().getSentryData().getInventoryAmmoStart());
             int rows = (ammoBaySize / 5) + 1;
             for (int y = 0; y < rows; y++)
             {

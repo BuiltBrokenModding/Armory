@@ -35,7 +35,7 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
 
     //Cache for damage call
     private float damageCached = -1;
-    private float velocity;
+    private float velocity = -1;
     private int energyCost = -1;
 
     public AmmoData(IJsonProcessor processor, String id, String name, AmmoType ammoType)
@@ -124,7 +124,8 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
         }
     }
 
-    public float getEnergyCost()
+    @Override
+    public int getEnergyCost()
     {
         return energyCost;
     }
@@ -135,7 +136,7 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
         this.energyCost = energyCost;
     }
 
-    /** Speed of the projectile fired */
+    @Override
     public float getProjectileVelocity()
     {
         return velocity;

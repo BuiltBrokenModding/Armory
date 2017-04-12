@@ -60,13 +60,13 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
         debugPrinter.log("Type: " + ammoType);
 
         //Create object
-        AmmoData data = new AmmoData(this, id, name, ammoType);
+        AmmoData ammoData = new AmmoData(this, id, name, ammoType);
 
 
         boolean damageDetected = false;
         for (Map.Entry<String, JsonElement> entry : ammoJsonObject.entrySet())
         {
-            if (keyHandler.handle(ammoJsonObject, entry.getKey().toLowerCase(), entry.getValue()))
+            if (keyHandler.handle(ammoData, entry.getKey().toLowerCase(), entry.getValue()))
             {
                 debugPrinter.log("Injected Key: " + entry.getKey());
             }
@@ -74,26 +74,29 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
             else if (entry.getKey().startsWith("damage"))
             {
                 DamageData damageData = DamageJsonProcessor.processor.process(entry.getValue());
+                debugPrinter.log("Damage: " + damageData);
                 if (damageData != null)
                 {
-                    data.damageData.add(damageData);
+                    ammoData.damageData.add(damageData);
                     damageDetected = true;
                 }
             }
             else if (entry.getKey().startsWith("droppedItem"))
             {
-                data.droppedItemData.add(entry.getValue().getAsJsonPrimitive().getAsString());
+                String itemKey = entry.getValue().getAsJsonPrimitive().getAsString();
+                ammoData.droppedItemData.add(itemKey);
+                debugPrinter.log("Dropped Item: " + itemKey);
             }
         }
 
         if (!damageDetected && Armory.INSTANCE != null)
         {
-            Armory.INSTANCE.logger().error("No damage type was detected for ammo " + data + "\n this may cause unexpected behavior.");
+            debugPrinter.error("No damage type was detected in ammo data, this may cause unexpected behavior. Data: " + ammoData);
         }
         //Process shared data
-        processExtraData(ammoJsonObject, data);
+        processExtraData(ammoJsonObject, ammoData);
 
         debugPrinter.end("Done...");
-        return data;
+        return ammoData;
     }
 }

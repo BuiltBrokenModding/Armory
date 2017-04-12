@@ -5,6 +5,9 @@ import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
+import com.builtbroken.armory.data.user.IWeaponUser;
+import com.builtbroken.armory.data.user.WeaponUserEntity;
+import com.builtbroken.armory.data.user.WeaponUserPlayer;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.IGunData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
@@ -291,7 +294,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                 GunInstance instance = gunCache.get(player);
                 if (instance != null && InventoryUtility.stacksMatch(instance.toStack(), stack))
                 {
-                    if (instance.entity != null && instance.entity == player && instance.getGunData() != null)
+                    if (instance.weaponUser != null && instance.weaponUser == player && instance.getGunData() != null)
                     {
                         return instance;
                     }
@@ -353,7 +356,16 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
      */
     public GunInstance loadInstance(Entity entity, GunData data, ItemStack gunStack)
     {
-        GunInstance instance = new GunInstance(gunStack, entity, data);
+        IWeaponUser user;
+        if (entity instanceof EntityPlayer)
+        {
+            user = new WeaponUserPlayer((EntityPlayer) entity);
+        }
+        else
+        {
+            user = new WeaponUserEntity(entity);
+        }
+        GunInstance instance = new GunInstance(gunStack, user, data);
         if (gunStack.getTagCompound() != null)
         {
             instance.load(gunStack.getTagCompound());

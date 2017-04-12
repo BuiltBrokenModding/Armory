@@ -1,18 +1,28 @@
 package com.builtbroken.armory.content.sentry;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.content.sentry.ai.SentryEntityTargetSorter;
+import com.builtbroken.armory.content.sentry.imp.ISentryHost;
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.armory.data.sentry.SentryData;
+import com.builtbroken.armory.data.user.IWeaponUser;
+import com.builtbroken.jlib.data.network.IByteBufReader;
+import com.builtbroken.jlib.data.network.IByteBufWriter;
+import com.builtbroken.mc.api.ISave;
+import com.builtbroken.mc.api.IWorldPosition;
+import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketSpawnParticle;
 import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
+import com.builtbroken.mc.imp.transform.rotation.IRotation;
 import com.builtbroken.mc.imp.transform.vector.Pos;
-import com.builtbroken.mc.prefab.entity.EntityBase;
 import com.builtbroken.mc.prefab.entity.selector.EntitySelectors;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.command.IEntitySelector;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -21,164 +31,76 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * AI driven entity for handling how the sentry gun works
+ * Actual sentry object that handles most of the functionality of the sentry
  *
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
- * Created by Dark(DarkGuardsman, Robert) on 3/26/2017.
+ * Created by Dark(DarkGuardsman, Robert) on 4/11/2017.
  */
-public class EntitySentry extends EntityBase
+public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter
 {
-    /** Rotations per second */
-    protected static double ROTATION_SPEED = 10.0;
-
+    //TODO implement log system (enemy detected, enemy killed, ammo consumed, power failed, etc. with time stamps and custom log limits)
     /** Desired aim angle, updated every tick if target != null */
     protected final EulerAngle aim = new EulerAngle(0, 0, 0);
     /** Current aim angle, updated each tick */
     protected final EulerAngle currentAim = new EulerAngle(0, 0, 0);
     /** Default aim to use when not targeting things */
     protected final EulerAngle defaultAim = new EulerAngle(0, 0, 0);
+    /** Data that defines this sentry instance */
+    protected final SentryData sentryData;
+    /** Current host of this sentry */
+    protected ISentryHost host;
 
-    protected Pos center;
-    protected Pos aimPoint;
-
-    private SentryData data;
-    public GunInstance gunInstance;
-    public TileSentry base;
+    public Pos center;
+    public Pos aimPoint;
+    public Pos bulletSpawnOffset;
 
     protected Entity target;
+    public GunInstance gunInstance;
 
     protected int targetSearchTimer = 0;
     protected int targetingDelay = 0;
     protected int targetingLoseTimer = 0;
 
-    /** Last time rotation was updated, used in {@link EulerAngle#lerp(EulerAngle, double)} function for smooth rotation */
-    protected long lastRotationUpdate = System.nanoTime();
-    /** Percent of time that passed since last tick, should be 1.0 on a stable server */
-    protected double deltaTime;
-
     /** Areas to search for targets */
-    protected AxisAlignedBB searchArea;
+    public AxisAlignedBB searchArea;
 
     /** Offset to use to prevent clipping self with ray traces */
     public double halfWidth = 0;
 
-    public Pos bulletSpawnOffset;
-
+    //States
     public String status;
     public boolean reloading = false;
+    public boolean running = false;
+    public boolean turnedOn = true;
+    public boolean sentryHasAmmo = false;
+    public boolean sentryIsAlive = false;
 
-    public EntitySentry(World world)
+    public Sentry(SentryData sentryData)
     {
-        super(world);
-        this.noClip = true;
-        this.setSize(0.7f, 0.7f);
+        this.sentryData = sentryData;
     }
 
-    @Override
-    protected void setSize(float width, float height)
+    public boolean update(int ticks, float deltaTime)
     {
-        super.setSize(width, height);
-        halfWidth = Math.sqrt((width * width) * 2) / 2f;
-    }
-
-
-    @Override
-    public void setPosition(double x, double y, double z)
-    {
-        super.setPosition(x, y, z);
-        center = new Pos(x, y + (height / 2f), z);
-        if (data != null && data.getCenterOffset() != null)
-        {
-            center = center.add(data.getCenterOffset());
-        }
-        searchArea = null;
-    }
-
-    /**
-     * Callculates the offset point to use
-     * for ray tracing and bullet spawning
-     */
-    protected void calculateBulletSpawnOffset()
-    {
-        float yaw = rotationYaw;
-        while (yaw < 0)
-        {
-            yaw += 360;
-        }
-        while (yaw > 360)
-        {
-            yaw -= 360;
-        }
-        final double radianYaw = Math.toRadians(-yaw - 45 - 90);
-
-        float pitch = rotationPitch;
-        while (pitch < 0)
-        {
-            pitch += 360;
-        }
-        while (pitch > 360)
-        {
-            pitch -= 360;
-        }
-        final double radianPitch = Math.toRadians(pitch);
-
-        float width = (float) Math.max(data != null ? data.getBarrelLength() : 0, halfWidth);
-
-        bulletSpawnOffset = new Pos(
-                (Math.cos(radianYaw) - Math.sin(radianYaw)) * width,
-                (Math.sin(radianYaw) * Math.sin(radianPitch)) * width,
-                (Math.sin(radianYaw) + Math.cos(radianYaw)) * width
-        );
-
-        if (data != null && data.getBarrelOffset() != null)
-        {
-            bulletSpawnOffset = bulletSpawnOffset.add(data.getBarrelOffset());
-        }
-    }
-
-    @Override
-    public void onUpdate()
-    {
-        onEntityUpdate();
-        this.prevPosX = this.posX;
-        this.prevPosY = this.posY;
-        this.prevPosZ = this.posZ;
-        this.prevRotationPitch = this.rotationPitch;
-        this.prevRotationYaw = this.rotationYaw;
-        if (this.posY < -64.0D)
-        {
-            this.kill();
-        }
-    }
-
-    @Override
-    public boolean interactFirst(EntityPlayer player)
-    {
-        return base != null && base.onPlayerRightClick(player, 1, new Pos());
-    }
-
-    @Override
-    public void onEntityUpdate()
-    {
-        //Calculate bullet offset
-        calculateBulletSpawnOffset();
-
         //Update logic every other tick
-        if (!world().isRemote && ticksExisted % 2 == 0)
+        if (!world().isRemote && ticks % 2 == 0)
         {
+            //Calculate bullet offset
+            calculateBulletSpawnOffset();
+
             status = "unknown";
-            //Keep track of time between ticks to provide smooth animation
-            deltaTime = (System.nanoTime() - lastRotationUpdate) / 100000000.0; // time / time_tick, client uses different value
-            lastRotationUpdate = System.nanoTime();
 
             //Invalid entity
-            if (base == null || getData() == null || base.isInvalid())
+            if (host == null || getSentryData() == null)
             {
                 status = "invalid";
-                kill();
             }
             else
             {
+                //Reset state system
+                running = false;
+                sentryHasAmmo = false;
+                sentryIsAlive = false;
                 //Debug
                 if (Engine.runningAsDev)
                 {
@@ -191,9 +113,10 @@ public class EntitySentry extends EntityBase
                 }
 
                 //Create gun instance if null
-                if (gunInstance == null && getData() != null && getData().getGunData() != null)
+                if (gunInstance == null && getSentryData() != null && getSentryData().getGunData() != null)
                 {
-                    gunInstance = new GunInstance(new ItemStack(Armory.blockSentry), this, getData().getGunData());
+                    //TODO get real gun instance
+                    gunInstance = new GunInstance(new ItemStack(Armory.blockSentry), this, getSentryData().getGunData());
                     if (Engine.runningAsDev)
                     {
                         gunInstance.doDebugRayTracesOnTthisGun = true;
@@ -201,8 +124,12 @@ public class EntitySentry extends EntityBase
                 }
 
                 //Can only function if we have a gun
-                if (gunInstance != null && isEntityAlive())
+                if (gunInstance != null)
                 {
+                    if (!gunInstance.getGunData().getReloadType().requiresItems() && sentryData.getAmmoData() != null)
+                    {
+                        gunInstance.chamberedRound = sentryData.getAmmoData();
+                    }
                     //Trigger reload mod if out of ammo
                     if (!gunInstance.hasAmmo() && gunInstance.getChamberedRound() == null)
                     {
@@ -227,7 +154,7 @@ public class EntitySentry extends EntityBase
                             targetingDelay = 0;
                             targetingLoseTimer = 0;
 
-                            if (targetSearchTimer++ >= getData().getTargetSearchDelay())
+                            if (targetSearchTimer++ >= getSentryData().getTargetSearchDelay())
                             {
                                 targetSearchTimer = 0;
                                 findTargets();
@@ -238,7 +165,7 @@ public class EntitySentry extends EntityBase
                         {
                             status = "aiming";
                             //Delay before attack
-                            if (targetingDelay >= getData().getTargetAttackDelay())
+                            if (targetingDelay >= getSentryData().getTargetAttackDelay())
                             {
                                 //Update aim point
                                 aimPoint = getAimPoint(target);
@@ -252,7 +179,7 @@ public class EntitySentry extends EntityBase
                                 }
                                 else
                                 {
-                                    aimAtTarget();
+                                    aimAtTarget(deltaTime);
                                 }
                             }
                             else
@@ -261,7 +188,7 @@ public class EntitySentry extends EntityBase
                             }
                         }
                         //If target is not null and invalid, count until invalidated
-                        else if (target != null && targetingLoseTimer++ >= getData().getTargetLossTimer())
+                        else if (target != null && targetingLoseTimer++ >= getSentryData().getTargetLossTimer())
                         {
                             status = "target lost";
                             target = null;
@@ -270,14 +197,58 @@ public class EntitySentry extends EntityBase
                     }
                 }
             }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Callculates the offset point to use
+     * for ray tracing and bullet spawning
+     */
+    protected void calculateBulletSpawnOffset()
+    {
+        float yaw = (float) currentAim.yaw();
+        while (yaw < 0)
+        {
+            yaw += 360;
+        }
+        while (yaw > 360)
+        {
+            yaw -= 360;
+        }
+        final double radianYaw = Math.toRadians(-yaw - 45 - 90);
+
+        float pitch = (float) currentAim.pitch();
+        while (pitch < 0)
+        {
+            pitch += 360;
+        }
+        while (pitch > 360)
+        {
+            pitch -= 360;
+        }
+        final double radianPitch = Math.toRadians(pitch);
+
+        float width = (float) Math.max(sentryData != null ? sentryData.getBarrelLength() : 0, halfWidth);
+
+        bulletSpawnOffset = new Pos(
+                (Math.cos(radianYaw) - Math.sin(radianYaw)) * width,
+                (Math.sin(radianYaw) * Math.sin(radianPitch)) * width,
+                (Math.sin(radianYaw) + Math.cos(radianYaw)) * width
+        );
+
+        if (sentryData != null && sentryData.getBarrelOffset() != null)
+        {
+            bulletSpawnOffset = bulletSpawnOffset.add(sentryData.getBarrelOffset());
         }
     }
 
     protected void loadAmmo()
     {
-        if (gunInstance != null)
+        if (gunInstance != null && getInventory() != null)
         {
-            if(!gunInstance.reloadWeapon(base, true))
+            if (!gunInstance.reloadWeapon(getInventory(), true))
             {
                 reloading = false;
             }
@@ -289,10 +260,10 @@ public class EntitySentry extends EntityBase
         //TODO thread
         if (searchArea == null)
         {
-            searchArea = AxisAlignedBB.getBoundingBox(posX, posY, posZ, posX, posY, posZ).expand(getData().getRange(), getData().getRange(), getData().getRange());
+            searchArea = AxisAlignedBB.getBoundingBox(x(), y(), z(), x(), y(), z()).expand(getSentryData().getRange(), getSentryData().getRange(), getSentryData().getRange());
         }
 
-        List<Entity> entityList = world().getEntitiesWithinAABBExcludingEntity(this, searchArea, getEntitySelector());
+        List<Entity> entityList = world().getEntitiesWithinAABBExcludingEntity(host instanceof Entity ? (Entity) host : null, searchArea, getEntitySelector());
         Collections.sort(entityList, new SentryEntityTargetSorter(center));
 
         if (entityList != null && entityList.size() > 0)
@@ -338,7 +309,7 @@ public class EntitySentry extends EntityBase
 
             //Check to ensure we are in range
             double distance = center.distance(aimPoint);
-            if (distance <= getData().getRange())
+            if (distance <= getSentryData().getRange())
             {
                 //Trace to make sure no blocks are between shooter and target
                 EulerAngle aim = center.toEulerAngle(aimPoint).clampTo360();
@@ -365,11 +336,10 @@ public class EntitySentry extends EntityBase
     /**
      * Called to aim at the current target
      */
-    protected void aimAtTarget()
+    protected void aimAtTarget(float deltaTime)
     {
         //Aim at point
-        currentAim.moveTowards(aim, ROTATION_SPEED, deltaTime).clampTo360();
-        setRotation((float) currentAim.yaw(), (float) currentAim.pitch());
+        currentAim.moveTowards(aim, getSentryData().getRotationSpeed(), deltaTime).clampTo360();
     }
 
     /**
@@ -379,7 +349,7 @@ public class EntitySentry extends EntityBase
      */
     protected boolean isAimed()
     {
-        return aim.isWithin(currentAim, ROTATION_SPEED); //TODO implement
+        return aim.isWithin(currentAim, getSentryData().getRotationSpeed());
     }
 
     /**
@@ -387,14 +357,8 @@ public class EntitySentry extends EntityBase
      */
     protected void fireAtTarget()
     {
-        if (!gunInstance.hasAmmo())
-        {
-            //TODO add reload timer and delay
-            gunInstance.reloadWeapon(base, true);
-        }
-
         //Debug
-        gunInstance.debugRayTrace(center, aim.toPos(), aimPoint, bulletSpawnOffset, rotationYaw, rotationPitch);
+        gunInstance.debugRayTrace(center, aim.toPos(), aimPoint, bulletSpawnOffset, (float) currentAim.yaw(), (float) currentAim.pitch());
 
         //Check fi has ammo, then fire
         if (gunInstance.hasAmmo())
@@ -403,14 +367,110 @@ public class EntitySentry extends EntityBase
         }
     }
 
-    public SentryData getData()
+    public SentryData getSentryData()
     {
-        return data;
+        return sentryData;
     }
 
-    public void setData(SentryData data)
+    @Override
+    public World world()
     {
-        this.data = data;
-        setSize(data.getBodyWidth(), data.getBodyHeight());
+        return host != null ? host.world() : null;
+    }
+
+    @Override
+    public double x()
+    {
+        return host != null ? host.x() : 0;
+    }
+
+    @Override
+    public double y()
+    {
+        return host != null ? host.y() : 0;
+    }
+
+    @Override
+    public double z()
+    {
+        return host != null ? host.z() : 0;
+    }
+
+    @Override
+    public double yaw()
+    {
+        return currentAim.yaw();
+    }
+
+    @Override
+    public double pitch()
+    {
+        return currentAim.pitch();
+    }
+
+    @Override
+    public double roll()
+    {
+        return currentAim.roll();
+    }
+
+    @Override
+    public Entity getShooter()
+    {
+        return host instanceof Entity ? (Entity) host : null;
+    }
+
+    @Override
+    public Pos getEntityPosition()
+    {
+        return center;
+    }
+
+    @Override
+    public IInventory getInventory()
+    {
+        if (host instanceof IInventory)
+        {
+            return (IInventory) host;
+        }
+        else if (host instanceof IInventoryProvider)
+        {
+            return ((IInventoryProvider) host).getInventory();
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isAmmoSlot(int slot)
+    {
+        return slot >= getSentryData().getInventoryAmmoStart() && slot <= getSentryData().getInventoryAmmoEnd();
+    }
+
+    @Override
+    public void load(NBTTagCompound nbt)
+    {
+
+    }
+
+    @Override
+    public NBTTagCompound save(NBTTagCompound nbt)
+    {
+        //TODO save state
+        //TODO save gun
+        return nbt;
+    }
+
+    @Override
+    public Sentry readBytes(ByteBuf buf)
+    {
+        return this;
+    }
+
+    @Override
+    public ByteBuf writeBytes(ByteBuf buf)
+    {
+        //TODO Sync state(s)
+        //TODO Sync ammo
+        return buf;
     }
 }

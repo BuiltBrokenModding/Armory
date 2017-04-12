@@ -100,11 +100,9 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
             //Create entity if null
             if (getSentryEntity() == null)
             {
-                sentryEntity = new EntitySentry(world());
+                sentryEntity = new EntitySentry(world(), sentry, this);
                 getSentryEntity().setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5);
-                getSentryEntity().host = this;
                 world().spawnEntityInWorld(sentryEntity);
-                setSentryEntity(sentryEntity);
             }
 
             //Force position of entity

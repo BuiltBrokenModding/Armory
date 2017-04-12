@@ -50,7 +50,6 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     /** Current host of this sentry */
     protected ISentryHost host;
 
-
     public Pos center;
     public Pos aimPoint;
     public Pos bulletSpawnOffset;

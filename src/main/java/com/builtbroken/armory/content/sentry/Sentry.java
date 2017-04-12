@@ -12,9 +12,10 @@ import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.core.Engine;
-import com.builtbroken.mc.core.network.packet.PacketSpawnParticle;
+import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
 import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.rotation.IRotation;
+import com.builtbroken.mc.imp.transform.vector.Location;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.entity.selector.EntitySelectors;
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -28,6 +29,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -88,10 +90,6 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         {
             gunInstance.overrideRound = sentryData.getAmmoData();
         }
-        if (Engine.runningAsDev)
-        {
-            gunInstance.doDebugRayTracesOnTthisGun = true;
-        }
     }
 
     public boolean update(int ticks, float deltaTime)
@@ -118,11 +116,39 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                 if (Engine.runningAsDev)
                 {
                     Pos hand = center.add(bulletSpawnOffset);
-                    PacketSpawnParticle packetSpawnParticle = new PacketSpawnParticle("smoke", world().provider.dimensionId, hand.x(), hand.y(), hand.z(), 0, 0, 0);
-                    Engine.instance.packetHandler.sendToAll(packetSpawnParticle);
+                    //Debug ray trace
+                    PacketSpawnStream packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.1, 0), hand.add(0, 0.1, 0), 2);
+                    packet.red = (Color.MAGENTA.getRed() / 255f);
+                    packet.green = (Color.MAGENTA.getGreen() / 255f);
+                    packet.blue = (Color.MAGENTA.getBlue() / 255f);
+                    Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
 
-                    packetSpawnParticle = new PacketSpawnParticle("flame", world().provider.dimensionId, center.x(), center.y(), center.z(), 0, 0, 0);
-                    Engine.instance.packetHandler.sendToAll(packetSpawnParticle);
+                    hand = center.add(getEntityAim());
+                    //Debug ray trace
+                    packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.2, 0), hand.add(0, 0.2, 0), 2);
+                    packet.red = (Color.blue.getRed() / 255f);
+                    packet.green = (Color.blue.getGreen() / 255f);
+                    packet.blue = (Color.blue.getBlue() / 255f);
+                    Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+
+                    hand = center.add(aim.toPos());
+                    //Debug ray trace
+                    packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.3, 0), hand.add(0, 0.3, 0), 2);
+                    packet.red = (Color.CYAN.getRed() / 255f);
+                    packet.green = (Color.CYAN.getGreen() / 255f);
+                    packet.blue = (Color.CYAN.getBlue() / 255f);
+                    Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+
+
+                    if(aimPoint != null)
+                    {
+                        //Debug ray trace
+                        packet = new PacketSpawnStream(world().provider.dimensionId, center, aimPoint, 2);
+                        packet.red = (Color.yellow.getRed() / 255f);
+                        packet.green = (Color.yellow.getGreen() / 255f);
+                        packet.blue = (Color.yellow.getBlue() / 255f);
+                        Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+                    }
                 }
 
                 //Can only function if we have a gun
@@ -215,35 +241,9 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
      */
     protected void calculateBulletSpawnOffset()
     {
-        float yaw = (float) currentAim.yaw();
-        while (yaw < 0)
-        {
-            yaw += 360;
-        }
-        while (yaw > 360)
-        {
-            yaw -= 360;
-        }
-        final double radianYaw = Math.toRadians(-yaw - 45 - 90);
-
-        float pitch = (float) currentAim.pitch();
-        while (pitch < 0)
-        {
-            pitch += 360;
-        }
-        while (pitch > 360)
-        {
-            pitch -= 360;
-        }
-        final double radianPitch = Math.toRadians(pitch);
-
         float width = (float) Math.max(sentryData != null ? sentryData.getBarrelLength() : 0, halfWidth);
 
-        bulletSpawnOffset = new Pos(
-                (Math.cos(radianYaw) - Math.sin(radianYaw)) * width,
-                (Math.sin(radianYaw) * Math.sin(radianPitch)) * width,
-                (Math.sin(radianYaw) + Math.cos(radianYaw)) * width
-        );
+        bulletSpawnOffset = (Pos)new Pos(0, 0, -width).transform(currentAim);
 
         if (sentryData != null && sentryData.getBarrelOffset() != null)
         {
@@ -356,7 +356,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
      */
     protected boolean isAimed()
     {
-        return aim.isWithin(currentAim, getSentryData().getRotationSpeed());
+        return aim.isWithin(currentAim, (getSentryData().getRotationSpeed() / 2f));
     }
 
     /**

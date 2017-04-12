@@ -2,10 +2,10 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
-import com.builtbroken.armory.content.sentry.EntitySentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.clip.ClipInstance;
 import com.builtbroken.armory.data.clip.ClipInstanceItem;
+import com.builtbroken.armory.data.user.IWeaponUser;
 import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.data.weapon.*;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
@@ -22,7 +22,6 @@ import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.InventoryIterator;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import com.builtbroken.mc.prefab.module.AbstractModule;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -57,7 +56,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     /** How fast a projectile can travel before a ray trace is used instead */
     public static final float PROJECTILE_SPEED_LIMIT = 100;
     /** Who is holding the weapon */
-    public final Entity entity;
+    public final IWeaponUser weaponUser;
     /** Properties of the weapon */
     protected final IGunData gunData;
 
@@ -77,10 +76,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     /** Delay before reloading */
     public int reloadDelay = -1;
 
-    public GunInstance(ItemStack gunStack, Entity entity, IGunData gun)
+    public GunInstance(ItemStack gunStack, IWeaponUser weaponUser, IGunData gun)
     {
         super(gunStack, "armory:gun");
-        this.entity = entity;
+        this.weaponUser = weaponUser;
         this.gunData = gun;
         if (isManuallyFeedClip())
         {
@@ -114,11 +113,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         if (isSighted || !gunData.isSightedRequiredToFire())
         {
             Long deltaTime = System.currentTimeMillis() - lastTimeFired;
-            if (entity != null && (lastTimeFired == 0L || deltaTime > gunData.getFiringDelay()))
+            if (weaponUser != null && (lastTimeFired == 0L || deltaTime > gunData.getFiringDelay()))
             {
                 lastTimeFired = System.currentTimeMillis();
-                float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch);
-                float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw);
+                float pitch = (float) weaponUser.pitch();
+                float yaw = (float) weaponUser.yaw();
 
                 _doFire(world, yaw, pitch, aimPoint, aim);
             }
@@ -225,8 +224,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     public void debugRayTrace()
     {
-        float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch);
-        float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw);
+        float pitch = (float) weaponUser.pitch();
+        float yaw = (float) weaponUser.yaw();
 
         final Pos entityPos = getEntityPosition();
         final Pos aim = getAim(yaw, pitch);
@@ -249,25 +248,25 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             final Pos start = entityPos.add(aim);
 
             Pos end = target;
-            MovingObjectPosition hit = start.rayTrace(entity.worldObj, end, false, true, false);
+            MovingObjectPosition hit = start.rayTrace(weaponUser.world(), end, false, true, false);
             if (hit != null)
             {
                 end = new Pos(hit.hitVec);
             }
 
             //Debug ray trace
-            PacketSpawnStream packet = new PacketSpawnStream(entity.worldObj.provider.dimensionId, start, end, 2);
+            PacketSpawnStream packet = new PacketSpawnStream(weaponUser.world().provider.dimensionId, start, end, 2);
             packet.red = (Color.blue.getRed() / 255f);
             packet.green = (Color.blue.getGreen() / 255f);
             packet.blue = (Color.blue.getBlue() / 255f);
-            Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
+            Engine.instance.packetHandler.sendToAllAround(packet, new Location(weaponUser), 200);
 
             //Debug ray trace
-            packet = new PacketSpawnStream(entity.worldObj.provider.dimensionId, bulletStartPoint, end, 2);
+            packet = new PacketSpawnStream(weaponUser.world().provider.dimensionId, bulletStartPoint, end, 2);
             packet.red = (Color.RED.getRed() / 255f);
             packet.green = (Color.RED.getGreen() / 255f);
             packet.blue = (Color.RED.getBlue() / 255f);
-            Engine.instance.packetHandler.sendToAllAround(packet, new Location(entity), 200);
+            Engine.instance.packetHandler.sendToAllAround(packet, new Location(weaponUser), 200);
         }
     }
 
@@ -278,7 +277,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             if (hit.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
             {
-                nextRound.onImpactEntity(entity, hit.entityHit, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity()); //TODO scale velocity by distance
+                nextRound.onImpactEntity(weaponUser.getShooter(), hit.entityHit, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity()); //TODO scale velocity by distance
                 if (Engine.runningAsDev)
                 {
                     System.out.println(hit.entityHit);
@@ -286,7 +285,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             }
             else
             {
-                nextRound.onImpactGround(entity, world, hit.blockX, hit.blockY, hit.blockZ, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity());
+                nextRound.onImpactGround(weaponUser.getShooter(), world, hit.blockX, hit.blockY, hit.blockZ, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity());
             }
         }
     }
@@ -295,7 +294,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     {
         Pos spawnPoint = getEntityPosition().add(aim).add(getBulletSpawnOffset(yaw, pitch));
         //TODO spawn projectile
-        EntityAmmoProjectile projectile = new EntityAmmoProjectile(world, nextRound, this, entity);
+        EntityAmmoProjectile projectile = new EntityAmmoProjectile(world, nextRound, this, weaponUser.getShooter());
 
         projectile.setPosition(spawnPoint.x(), spawnPoint.y(), spawnPoint.z());
 
@@ -319,7 +318,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     protected Pos getBulletSpawnOffset(float yaw, float pitch)
     {
-        if (entity instanceof EntityLivingBase)
+        if (weaponUser instanceof EntityLivingBase)
         {
             //Find our hand position so to position starting point near barrel of the gun
             final float rotationHand = MathHelper.wrapAngleTo180_float(yaw + 90);
@@ -343,21 +342,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     protected Pos getEntityPosition()
     {
-        double x = entity.posX;
-        double y = entity.posY;
-        double z = entity.posZ;
-
-        if (entity instanceof EntityPlayer)
-        {
-            // isRemote check to revert changes to ray trace position due to adding the eye height clientside and entity yOffset differences
-            y += (double) (entity.worldObj.isRemote ? entity.getEyeHeight() - ((EntityPlayer) entity).getDefaultEyeHeight() : entity.getEyeHeight());
-        }
-        else
-        {
-            y += (entity.height / 2f);
-        }
-
-        return new Pos(x, y, z);
+        return weaponUser.getEntityPosition();
     }
 
     protected void consumeShot()
@@ -374,20 +359,20 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 }
                 else if (reloadType == ReloadType.ENERGY)
                 {
-                    if (entity instanceof IEnergyBufferProvider && chamberedRound.getEnergyCost() > 0)
+                    if (weaponUser instanceof IEnergyBufferProvider && chamberedRound.getEnergyCost() > 0)
                     {
-                        IEnergyBuffer buffer = ((IEnergyBufferProvider) entity).getEnergyBuffer(ForgeDirection.UNKNOWN);
+                        IEnergyBuffer buffer = ((IEnergyBufferProvider) weaponUser).getEnergyBuffer(ForgeDirection.UNKNOWN);
                         if (buffer != null)
                         {
                             int energyOut = buffer.removeEnergyFromStorage(chamberedRound.getEnergyCost(), true);
                             if (Engine.runningAsDev && energyOut < chamberedRound.getEnergyCost())
                             {
-                                Armory.INSTANCE.logger().error("Error, energy out did not match expected [" + energyOut + " < " + chamberedRound.getEnergyCost() + "]. Entity: " + entity + " Ammo: " + chamberedRound);
+                                Armory.INSTANCE.logger().error("Error, energy out did not match expected [" + energyOut + " < " + chamberedRound.getEnergyCost() + "]. Entity: " + weaponUser + " Ammo: " + chamberedRound);
                             }
                         }
                         else if (Engine.runningAsDev)
                         {
-                            Armory.INSTANCE.logger().error("Error no buffer provided to drain energy for firing shot. Entity: " + entity + " Ammo: " + chamberedRound);
+                            Armory.INSTANCE.logger().error("Error no buffer provided to drain energy for firing shot. Entity: " + weaponUser + " Ammo: " + chamberedRound);
                         }
                     }
                 }
@@ -460,7 +445,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             if (!singleShot || chamberedRound == null)
             {
                 //Reload weapon
-                reloadWeapon(getInventory(), true);
+                reloadWeapon(weaponUser.getInventory(), true);
                 //Chamber next round
                 chamberNextRound();
             }
@@ -484,7 +469,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         if (Engine.instance != null && Engine.proxy != null && Engine.instance.packetHandler != null)
         {
             //TODO get weapon position
-            Engine.proxy.playJsonAudio(entity.worldObj, gunData.getUniqueID() + "." + key, entity.posX, entity.posY + 1.1f, entity.posZ, 1, 1);
+            Engine.proxy.playJsonAudio(weaponUser.world(), gunData.getUniqueID() + "." + key, weaponUser.x(), weaponUser.y() + 1.1f, weaponUser.z(), 1, 1);
         }
     }
 
@@ -499,7 +484,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         if (Engine.instance != null && Engine.proxy != null && Engine.instance.packetHandler != null)
         {
             //TODO get weapon position
-            Engine.proxy.playJsonEffect(entity.worldObj, gunData.getUniqueID() + "." + key, x, y, z, mx, my, mz, null);
+            Engine.proxy.playJsonEffect(weaponUser.world(), gunData.getUniqueID() + "." + key, x, y, z, mx, my, mz, null);
         }
     }
 
@@ -538,7 +523,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         else if (Armory.INSTANCE != null)
         {
-            Armory.INSTANCE.logger().error("Reload was called on '" + entity + "' but it had no inventory.");
+            Armory.INSTANCE.logger().error("Reload was called on '" + weaponUser + "' but it had no inventory.");
         }
         if (doAction)
         {
@@ -559,7 +544,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         int slot = -1;
         for (ItemStack stack : it)
         {
-            if (isAmmoSlot(it.slot()))
+            if (weaponUser.isAmmoSlot(it.slot()))
             {
                 if (stack.getItem() instanceof IItemClip)
                 {
@@ -596,9 +581,9 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             }
             return true;
         }
-        else if (entity instanceof EntityPlayer)
+        else if (weaponUser instanceof EntityPlayer)
         {
-            ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("There is no ammo of type '" + gunData.getAmmoType() + "' to load into the gun.")); //TODO translate
+            ((EntityPlayer) weaponUser).addChatComponentMessage(new ChatComponentText("There is no ammo of type '" + gunData.getAmmoType() + "' to load into the gun.")); //TODO translate
         }
         return false;
     }
@@ -609,7 +594,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         InventoryIterator it = new InventoryIterator(inventory, true);
         for (ItemStack stack : it)
         {
-            if (isAmmoSlot(it.slot()))
+            if (weaponUser.isAmmoSlot(it.slot()))
             {
                 if (stack.getItem() instanceof IItemAmmo)
                 {
@@ -650,23 +635,23 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             playAudio("round.load");
             return true;
         }
-        else if (entity instanceof EntityPlayer)
+        else if (weaponUser instanceof EntityPlayer)
         {
-            ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("There is no ammo of type '" + gunData.getAmmoType() + "' to load into the gun."));  //TODO translate
+            ((EntityPlayer) weaponUser).addChatComponentMessage(new ChatComponentText("There is no ammo of type '" + gunData.getAmmoType() + "' to load into the gun."));  //TODO translate
         }
         return false;
     }
 
     private void updateEntityStack(String name)
     {
-        if (entity instanceof EntityPlayer)
+        if (weaponUser instanceof EntityPlayer)
         {
-            ItemStack stack = ((EntityPlayer) entity).getHeldItem();
+            ItemStack stack = ((EntityPlayer) weaponUser).getHeldItem();
             ItemStack updated = toStack();
             if (stack != null && stack.isItemEqual(updated))
             {
-                ((EntityPlayer) entity).inventory.setInventorySlotContents(((EntityPlayer) entity).inventory.currentItem, updated);
-                ((EntityPlayer) entity).inventoryContainer.detectAndSendChanges();
+                ((EntityPlayer) weaponUser).inventory.setInventorySlotContents(((EntityPlayer) weaponUser).inventory.currentItem, updated);
+                ((EntityPlayer) weaponUser).inventoryContainer.detectAndSendChanges();
                 if (Engine.runningAsDev)
                 {
                     Engine.logger().info("Updated gun stack: " + name);
@@ -688,7 +673,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     ItemStack ammoStack = getLoadedClip().getAmmo().peek().toStack();
                     for (; i < inventory.getSizeInventory(); i++)
                     {
-                        if (isAmmoSlot(i))
+                        if (weaponUser.isAmmoSlot(i))
                         {
                             ItemStack slotStack = inventory.getStackInSlot(i);
                             int roomLeft = InventoryUtility.roomLeftInSlot(inventory, i);
@@ -716,7 +701,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                         //No space to insert so drop
                         if (ammoStack != null && ammoStack.stackSize >= 0)
                         {
-                            InventoryUtility.dropItemStack(new Location(entity), ammoStack);
+                            InventoryUtility.dropItemStack(new Location(weaponUser), ammoStack);
                         }
                     }
                 }
@@ -727,7 +712,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 ItemStack stack = ((IModule) _clip).toStack();
                 for (int i = 0; i < inventory.getSizeInventory(); i++)
                 {
-                    if (isAmmoSlot(i))
+                    if (weaponUser.isAmmoSlot(i))
                     {
                         ItemStack slotStack = inventory.getStackInSlot(i);
                         int roomLeft = InventoryUtility.roomLeftInSlot(inventory, i);
@@ -750,7 +735,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //No space to insert so drop
                 if (stack != null && stack.stackSize >= 0)
                 {
-                    InventoryUtility.dropItemStack(new Location(entity), stack);
+                    InventoryUtility.dropItemStack(new Location(weaponUser), stack);
                 }
                 _clip = null;
             }
@@ -763,37 +748,6 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         return getGunData().getReloadType() == ReloadType.BREACH_LOADED
                 || getGunData().getReloadType() == ReloadType.FRONT_LOADED
                 || getGunData().getReloadType() == ReloadType.HAND_FEED;
-    }
-
-    public IInventory getInventory()
-    {
-        if (entity instanceof EntityPlayer)
-        {
-            return ((EntityPlayer) entity).inventory;
-        }
-        else if (entity instanceof EntitySentry)
-        {
-            return ((EntitySentry) entity).base;
-        }
-        return null;
-    }
-
-    public boolean isAmmoSlot(int slot)
-    {
-        if (entity instanceof EntityPlayer)
-        {
-            return slot >= 0 && slot < ((EntityPlayer) entity).inventory.getSizeInventory();
-        }
-        else if (entity instanceof EntitySentry && ((EntitySentry) entity).base != null)
-        {
-            EntitySentry sentry = ((EntitySentry) entity);
-            return slot >= sentry.getData().getInventoryAmmoStart() && slot <= sentry.getData().getInventoryAmmoEnd();
-        }
-        else if (entity instanceof IInventory)
-        {
-            return slot >= 0 && slot < ((IInventory) entity).getSizeInventory();
-        }
-        return Engine.isJUnitTest();
     }
 
     public boolean hasSights()
@@ -920,6 +874,6 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     @Override
     public String toString()
     {
-        return "GunInstance[" + entity + ", " + gunData + ", " + chamberedRound + ", " + _clip + "]";
+        return "GunInstance[" + weaponUser + ", " + gunData + ", " + chamberedRound + ", " + _clip + "]";
     }
 }

@@ -1,4 +1,4 @@
-package com.builtbroken.armory.content.sentry;
+package com.builtbroken.armory.content.sentry.ai;
 
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import net.minecraft.entity.Entity;

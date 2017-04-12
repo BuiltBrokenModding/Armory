@@ -1,6 +1,7 @@
-package com.builtbroken.armory.content.sentry;
+package com.builtbroken.armory.content.sentry.tile;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.gui.GuiSentry;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.client.json.ClientDataHandler;
@@ -100,13 +101,13 @@ public class TileSentryClient extends TileSentry
             Entity entity = world().getEntityByID(entityID);
             if (entity instanceof EntitySentry)
             {
-                setSentry((EntitySentry) entity);
-                ((EntitySentry) entity).base = this;
+                setSentryEntity((EntitySentry) entity);
+                ((EntitySentry) entity).host = this;
             }
         }
         else
         {
-            setSentry(null);
+            setSentryEntity(null);
         }
     }
 
@@ -121,8 +122,8 @@ public class TileSentryClient extends TileSentry
 
             if (Engine.runningAsDev)
             {
-                RenderUtility.renderFloatingText("Yaw: " + getSentry().rotationYaw, rx, ry + 1.3, rz, Color.red.getRGB());
-                RenderUtility.renderFloatingText("Pitch: " + getSentry().rotationPitch, rx, ry + 1, rz, Color.red.getRGB());
+                RenderUtility.renderFloatingText("Yaw: " + getSentry().yaw(), rx, ry + 1.3, rz, Color.red.getRGB());
+                RenderUtility.renderFloatingText("Pitch: " + getSentry().pitch(), rx, ry + 1, rz, Color.red.getRGB());
             }
 
             GL11.glPushMatrix();
@@ -152,7 +153,7 @@ public class TileSentryClient extends TileSentry
                 }
 
                 //Render turret
-                GL11.glRotated(getSentry().rotationYaw, 0, 1, 0);
+                GL11.glRotated(getSentry().yaw(), 0, 1, 0);
                 for (String key : new String[]{"entity.sentry.yaw.dead" + emptyS, "entity.sentry.yaw.dead", "entity.sentry.yaw" + emptyS, "entity.sentry.yaw"})
                 {
                     IRenderState renderState = renderData.getState(key);
@@ -163,7 +164,7 @@ public class TileSentryClient extends TileSentry
                     }
                 }
 
-                GL11.glRotated(getSentry().rotationPitch, 1, 0, 0);
+                GL11.glRotated(getSentry().pitch(), 1, 0, 0);
                 for (String key : new String[]{"entity.sentry.pitch.dead" + emptyS, "entity.sentry.pitch.dead", "entity.sentry.pitch" + emptyS, "entity.sentry.pitch"})
                 {
                     IRenderState renderState = renderData.getState(key);
@@ -195,8 +196,8 @@ public class TileSentryClient extends TileSentry
             sentryBackupModel.renderAllExcept(parts);
 
             //Render turret
-            GL11.glRotated(getSentry().rotationYaw, 0, 1, 0);
-            GL11.glRotated(getSentry().rotationPitch, 1, 0, 0);
+            GL11.glRotated(getSentry().y(), 0, 1, 0);
+            GL11.glRotated(getSentry().pitch(), 1, 0, 0);
             sentryBackupModel.renderOnly(parts);
         }
     }

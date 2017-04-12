@@ -1,4 +1,4 @@
-package com.builtbroken.armory.content.sentry;
+package com.builtbroken.armory.content.sentry.entity;
 
 import net.minecraft.client.renderer.entity.RenderEntity;
 import net.minecraft.entity.Entity;

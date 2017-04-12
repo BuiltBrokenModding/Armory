@@ -1,7 +1,8 @@
-package com.builtbroken.armory.content.sentry;
+package com.builtbroken.armory.content.sentry.tile;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
+import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.armory.data.sentry.SentryData;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;

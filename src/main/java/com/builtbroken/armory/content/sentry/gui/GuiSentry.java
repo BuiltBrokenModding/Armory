@@ -1,6 +1,6 @@
 package com.builtbroken.armory.content.sentry.gui;
 
-import com.builtbroken.armory.content.sentry.TileSentry;
+import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.mc.prefab.gui.GuiContainerBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;

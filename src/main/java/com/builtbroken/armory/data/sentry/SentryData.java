@@ -38,6 +38,7 @@ public class SentryData extends ArmoryEntry
     private float barrelLength = 0.8f;
     private float bodyWidth = 0.7f;
     private float bodyHeight = 0.7f;
+    private float rotationSpeed = 10.0f;
 
     private Pos centerOffset;
     private Pos barrelOffset;
@@ -265,5 +266,16 @@ public class SentryData extends ArmoryEntry
     public void setBarrelOffset(Pos barrelOffset)
     {
         this.barrelOffset = barrelOffset;
+    }
+
+    public float getRotationSpeed()
+    {
+        return rotationSpeed;
+    }
+
+    @JsonProcessorData(value = "rotationSpeed", type = "float")
+    public void setRotationSpeed(float rotationSpeed)
+    {
+        this.rotationSpeed = rotationSpeed;
     }
 }

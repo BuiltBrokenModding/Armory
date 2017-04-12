@@ -1,7 +1,10 @@
-package com.builtbroken.armory.content.sentry;
+package com.builtbroken.armory.content.sentry.tile;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.content.sentry.Sentry;
+import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.gui.ContainerSentry;
+import com.builtbroken.armory.content.sentry.imp.ISentryHost;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.mc.api.tile.access.IGuiTile;
 import com.builtbroken.mc.core.Engine;
@@ -30,10 +33,11 @@ import net.minecraftforge.common.util.ForgeDirection;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/26/2017.
  */
-public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver
+public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost
 {
     public SentryData sentryData;
-    private EntitySentry sentry;
+    private EntitySentry sentryEntity;
+    private Sentry sentry;
 
     protected ItemStack sentryStack;
 
@@ -111,13 +115,13 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
             if (getSentry() != null)
             {
                 //Force position
-                getSentry().setPosition(xi() + 0.5, yi() + bounds.max().y() + 0.05, zi() + 0.5);
+                getSentryEntity().setPosition(xi() + 0.5, yi() + bounds.max().y() + 0.05, zi() + 0.5);
 
                 //Update has ammo for renders
                 if (getSentry().gunInstance != null)
                 {
                     sentryHasAmmo = getSentry().gunInstance.hasAmmo();
-                    sentryIsAlive = getSentry().getHealth() > 0;
+                    sentryIsAlive = getSentryEntity().getHealth() > 0;
                 }
             }
 
@@ -157,6 +161,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         {
             sentryStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("sentryStack"));
             sentryData = Armory.itemSentry.getData(sentryStack);
+            sentry = new Sentry(sentryData);
         }
         loadSentryData();
         super.readFromNBT(nbt);
@@ -166,12 +171,11 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     {
         if (sentryData != null && getSentry() == null && isServer())
         {
-            sentry = new EntitySentry(world());
-            getSentry().setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5); //TODO adjust based on data
-            getSentry().setData(sentryData);
-            getSentry().base = this;
-            world().spawnEntityInWorld(sentry);
-            setSentry(sentry);
+            sentryEntity = new EntitySentry(world());
+            getSentryEntity().setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5); //TODO adjust based on data
+            getSentryEntity().host = this;
+            world().spawnEntityInWorld(sentryEntity);
+            setSentryEntity(sentryEntity);
         }
     }
 
@@ -227,7 +231,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     {
         if (world() != null && isServer())
         {
-            PacketTile packetTile = new PacketTile(this, 2, getSentry() == null ? -1 : getSentry().getEntityId());
+            PacketTile packetTile = new PacketTile(this, 2, getSentry() == null ? -1 : getSentryEntity().getEntityId());
             Engine.instance.packetHandler.sendToAllAround(packetTile, this);
         }
     }
@@ -236,7 +240,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     public void writeDescPacket(ByteBuf buf)
     {
         super.writeDescPacket(buf);
-        buf.writeInt(getSentry() == null ? -1 : getSentry().getEntityId());
+        buf.writeInt(getSentry() == null ? -1 : getSentryEntity().getEntityId());
         buf.writeBoolean(sentryHasAmmo);
         buf.writeBoolean(sentryIsAlive);
         ByteBufUtils.writeItemStack(buf, sentryStack != null ? sentryStack : new ItemStack(Items.apple));
@@ -268,15 +272,21 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         return "TileSentryBase[" + (world() != null && world().provider != null ? world().provider.dimensionId : "?") + "w, " + xCoord + "x, " + yCoord + "y, " + zCoord + "z, " + sentryData + "]@" + hashCode();
     }
 
-    public EntitySentry getSentry()
+    public EntitySentry getSentryEntity()
     {
-        return sentry;
+        return sentryEntity;
     }
 
-    public void setSentry(EntitySentry sentry)
+    public void setSentryEntity(EntitySentry sentryEntity)
     {
-        this.sentry = sentry;
-        this.sentry.setData(sentryData);
+        this.sentryEntity = sentryEntity;
+        this.sentryEntity.setSentry(sentry);
         sendSentryIDToClient();
+    }
+
+    @Override
+    public Sentry getSentry()
+    {
+        return sentry;
     }
 }

@@ -2,7 +2,7 @@ package com.builtbroken.armory.server;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.CommonProxy;
-import com.builtbroken.armory.content.sentry.TileSentry;
+import com.builtbroken.armory.content.sentry.tile.TileSentry;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.

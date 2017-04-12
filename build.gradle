@@ -98,6 +98,7 @@ jacocoTestReport {
     }
 }
 
+//task to make changelog
 task makeChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
     filePath = "changelog.html"
     untaggedName = "Current release ${project.version}"

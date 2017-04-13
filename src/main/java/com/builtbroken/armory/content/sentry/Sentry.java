@@ -10,6 +10,8 @@ import com.builtbroken.jlib.data.network.IByteBufReader;
 import com.builtbroken.jlib.data.network.IByteBufWriter;
 import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.IWorldPosition;
+import com.builtbroken.mc.api.energy.IEnergyBuffer;
+import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
 import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
@@ -28,6 +30,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import java.awt.*;
 import java.util.Collections;
@@ -39,7 +42,7 @@ import java.util.List;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/11/2017.
  */
-public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter
+public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter, IEnergyBufferProvider
 {
     //TODO implement log system (enemy detected, enemy killed, ammo consumed, power failed, etc. with time stamps and custom log limits)
     /** Desired aim angle, updated every tick if target != null */
@@ -141,7 +144,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                     Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
 
 
-                    if(aimPoint != null)
+                    if (aimPoint != null)
                     {
                         //Debug ray trace
                         packet = new PacketSpawnStream(world().provider.dimensionId, center, aimPoint, 2);
@@ -244,7 +247,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     {
         float width = (float) Math.max(sentryData != null ? sentryData.getBarrelLength() : 0, halfWidth);
 
-        bulletSpawnOffset = (Pos)new Pos(0, 0, -width).transform(currentAim);
+        bulletSpawnOffset = (Pos) new Pos(0, 0, -width).transform(currentAim);
 
         if (sentryData != null && sentryData.getBarrelOffset() != null)
         {
@@ -533,5 +536,11 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         gunInstance.save(gunTag);
         ByteBufUtils.writeTag(buf, gunTag);
         return buf;
+    }
+
+    @Override
+    public IEnergyBuffer getEnergyBuffer(ForgeDirection side)
+    {
+        return host instanceof IEnergyBufferProvider ? ((IEnergyBufferProvider) host).getEnergyBuffer(side) : null;
     }
 }

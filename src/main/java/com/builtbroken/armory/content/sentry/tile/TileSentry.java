@@ -1,11 +1,13 @@
 package com.builtbroken.armory.content.sentry.tile;
 
+import cofh.api.energy.IEnergyHandler;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.gui.ContainerSentry;
 import com.builtbroken.armory.content.sentry.imp.ISentryHost;
 import com.builtbroken.armory.data.sentry.SentryData;
+import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
 import com.builtbroken.mc.api.tile.access.IGuiTile;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketIDReceiver;
@@ -32,7 +34,7 @@ import net.minecraft.util.AxisAlignedBB;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/26/2017.
  */
-public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost
+public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler
 {
     protected Sentry sentry;
     private ItemStack sentryStack;

@@ -10,6 +10,7 @@ import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.data.weapon.*;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
 import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
+import com.builtbroken.mc.api.items.energy.IEnergyItem;
 import com.builtbroken.mc.api.items.weapons.IItemAmmo;
 import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.modules.IModule;
@@ -138,7 +139,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             chamberNextRound();
 
             //Only fire if we have a round in the chamber
-            if (getChamberedRound() != null)
+            if (getChamberedRound() != null && hasEnergyToFire())
             {
                 //TODO apply upgrades
 
@@ -323,34 +324,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             if (!consumeAmmo)
             {
                 ReloadType reloadType = getGunData().getReloadType();
-
                 if (reloadType.requiresItems())
                 {
                     _chamberedRound = null;
                 }
-                else if (reloadType == ReloadType.ENERGY)
-                {
-                    if (weaponUser instanceof IEnergyBufferProvider && getChamberedRound().getEnergyCost() > 0)
-                    {
-                        IEnergyBuffer buffer = ((IEnergyBufferProvider) weaponUser).getEnergyBuffer(ForgeDirection.UNKNOWN);
-                        if (buffer != null)
-                        {
-                            int energyOut = buffer.removeEnergyFromStorage(getChamberedRound().getEnergyCost(), true);
-                            if (Engine.runningAsDev && energyOut < getChamberedRound().getEnergyCost())
-                            {
-                                Armory.INSTANCE.logger().error("Error, energy out did not match expected [" + energyOut + " < " + getChamberedRound().getEnergyCost() + "]. Entity: " + weaponUser + " Ammo: " + getChamberedRound());
-                            }
-                        }
-                        else if (Engine.runningAsDev)
-                        {
-                            Armory.INSTANCE.logger().error("Error no buffer provided to drain energy for firing shot. Entity: " + weaponUser + " Ammo: " + getChamberedRound());
-                        }
-                    }
-                }
-                else if (reloadType == ReloadType.FLUID)
-                {
-                    //TODO implement
-                }
+                consumeEnergy();
             }
             playAudio("round.consume");
             weaponUser.updateWeaponStack(toStack(), "consume ammo");
@@ -808,6 +786,33 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             return overrideRound;
         }
         return _chamberedRound;
+    }
+
+    protected boolean hasEnergyToFire()
+    {
+        return getChamberedRound() != null && consumeEnergy(false) >= getChamberedRound().getEnergyCost();
+    }
+
+    protected boolean consumeEnergy()
+    {
+        return getChamberedRound() != null && consumeEnergy(true) > 0;
+    }
+
+    protected int consumeEnergy(boolean doAction)
+    {
+        if (item != null && item.getItem() instanceof IEnergyItem)
+        {
+            return ((IEnergyItem) item.getItem()).discharge(item, getChamberedRound().getEnergyCost(), doAction);
+        }
+        else if (weaponUser instanceof IEnergyBufferProvider)
+        {
+            IEnergyBuffer buffer = ((IEnergyBufferProvider) weaponUser).getEnergyBuffer(ForgeDirection.UNKNOWN);
+            if (buffer != null)
+            {
+                return buffer.removeEnergyFromStorage(getChamberedRound().getEnergyCost(), doAction);
+            }
+        }
+        return 0;
     }
 
     @Override

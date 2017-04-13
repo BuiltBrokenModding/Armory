@@ -156,7 +156,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 final Pos target = aimPointOverride != null ? aimPointOverride : entityPos.add(aim.multiply(500));
 
                 playAudio("round.fired");
-                playEffect("round.fired", bulletStartPoint, aim, false); //TODO check with ammo if it has an effect to play then use this as backup
+                playEffect("round.fired", bulletStartPoint, aim, aim, false, new NBTTagCompound()); //TODO check with ammo if it has an effect to play then use this as backup
 
                 //Fire round out of gun
                 if (getChamberedRound().getProjectileVelocity() <= 0 || getChamberedRound().getProjectileVelocity() > PROJECTILE_SPEED_LIMIT)
@@ -175,7 +175,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     //TODO implement ejection collectors
                     Pos ejectionPoint = weaponUser.getProjectileSpawnOffset().add(getGunData().getEjectionSpawnOffset());
                     playAudio("round.eject");
-                    playEffect("round.eject", ejectionPoint, getGunData().getEjectionSpawnVector(), false);
+                    playEffect("round.eject", ejectionPoint, getGunData().getEjectionSpawnVector(), aim, false, new NBTTagCompound());
                     for (ItemStack stack : droppedItems)
                     {
                         EntityItem item = InventoryUtility.dropItemStack(world, ejectionPoint, stack, 5 + world.rand.nextInt(20), 0.3f);
@@ -289,11 +289,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             {
                 nextRound.onImpactGround(weaponUser.getShooter(), world, hit.blockX, hit.blockY, hit.blockZ, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity());
             }
-            playEffect("round.fired.rayTrace", start, new Pos(hit.hitVec), true);
+            playEffect("round.fired.rayTrace", start, new Pos(hit.hitVec), aim, true, new NBTTagCompound());
         }
         else
         {
-            playEffect("round.fired.rayTrace", start, end, true);
+            playEffect("round.fired.rayTrace", start, end, aim, true, new NBTTagCompound());
         }
     }
 
@@ -429,18 +429,23 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
     }
 
-    public void playEffect(String key, Pos pos, Pos aim, boolean endPoint)
+    public void playEffect(String key, Pos pos, Pos end, Pos aim, boolean endPoint, NBTTagCompound nbt)
     {
-        playEffect(key, pos.x(), pos.y(), pos.z(), aim.x(), aim.y(), aim.z(), endPoint);
+        playEffect(key, pos.x(), pos.y(), pos.z(), end.x(), end.y(), end.z(), aim, endPoint, nbt);
     }
 
-    public void playEffect(String key, double x, double y, double z, double mx, double my, double mz, boolean endPoint)
+    public void playEffect(String key, double x, double y, double z, double mx, double my, double mz, Pos aim, boolean endPoint, NBTTagCompound nbt)
     {
         //Checks for JUnit testing TODO fix
         if (Engine.instance != null && Engine.proxy != null && Engine.instance.packetHandler != null)
         {
-            //TODO get weapon position
-            Engine.proxy.playJsonEffect(weaponUser.world(), gunData.getUniqueID() + "." + key, x, y, z, mx, my, mz, endPoint, null);
+            //Send extra rotation and aim data to client to help translate renders
+            nbt.setTag("aim", aim.toNBT());
+            nbt.setFloat("yaw", (float) weaponUser.yaw());
+            nbt.setFloat("pitch", (float) weaponUser.pitch());
+
+            //Trigger data to be sent
+            Engine.proxy.playJsonEffect(weaponUser.world(), gunData.getUniqueID() + "." + key, x, y, z, mx, my, mz, endPoint, nbt);
         }
     }
 

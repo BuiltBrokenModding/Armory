@@ -77,6 +77,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     public boolean running = false;
     public boolean turnedOn = true;
     public boolean sentryHasAmmo = false;
+    public boolean enableAimDebugRays = false;
 
     //Stats vars
     public float health = 0;
@@ -113,7 +114,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                 running = false;
                 sentryHasAmmo = false;
                 //Debug
-                if (Engine.runningAsDev)
+                if (enableAimDebugRays && Engine.runningAsDev)
                 {
                     Pos hand = center.add(bulletSpawnOffset);
                     //Debug ray trace

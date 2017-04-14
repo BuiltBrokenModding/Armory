@@ -9,6 +9,7 @@ import com.builtbroken.jlib.lang.DebugPrinter;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.json.JsonContentLoader;
 import com.builtbroken.mc.lib.json.loading.JsonProcessorInjectionMap;
+import com.builtbroken.mc.lib.json.override.IModifableJson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +20,7 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
  */
-public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData>
+public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData> implements IModifableJson<SentryData>
 {
     protected final JsonProcessorInjectionMap keyHandler;
     protected final DebugPrinter debugPrinter;
@@ -99,5 +100,32 @@ public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData>
 
         debugPrinter.end("Done...");
         return sentryData;
+    }
+
+    @Override
+    public void addData(String key, JsonElement data, SentryData generatedObject)
+    {
+        if (keyHandler.handle(generatedObject, key, data, true, "add"))
+        {
+            debugPrinter.log("Injected Add Override >> Key: " + key + " Data: " + data);
+        }
+    }
+
+    @Override
+    public void removeData(String key, SentryData generatedObject)
+    {
+        if (keyHandler.handle(generatedObject, key, null, true, "remove"))
+        {
+            debugPrinter.log("Injected Remove Override >> Key: " + key);
+        }
+    }
+
+    @Override
+    public void replaceData(String key, JsonElement data, SentryData generatedObject)
+    {
+        if (keyHandler.handle(generatedObject, key, data, true, "replace"))
+        {
+            debugPrinter.log("Injected Replacement Override >> Key: " + key + " Data: " + data);
+        }
     }
 }

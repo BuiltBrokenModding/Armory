@@ -62,4 +62,5 @@ public class AmmoType extends ArmoryEntry implements IAmmoType
     {
         return "AmmoType[" + getUniqueID() + "]@" + hashCode();
     }
+
 }

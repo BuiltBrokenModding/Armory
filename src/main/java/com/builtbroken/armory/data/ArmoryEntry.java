@@ -80,6 +80,12 @@ public abstract class ArmoryEntry extends JsonGenData implements IData
         return ID;
     }
 
+    @Override
+    public String getContentID()
+    {
+        return getUniqueID();
+    }
+
     public final String getUnlocalizedName()
     {
         if (translationKey == null)

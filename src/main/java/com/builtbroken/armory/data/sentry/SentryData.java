@@ -6,6 +6,7 @@ import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import com.builtbroken.mc.lib.json.loading.JsonProcessorData;
+import com.builtbroken.mc.lib.json.override.JsonOverride;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -73,6 +74,7 @@ public class SentryData extends ArmoryEntry
         return inventorySize;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "inventorySize", type = "int")
     public void setInventorySize(int inventorySize)
     {
@@ -84,6 +86,7 @@ public class SentryData extends ArmoryEntry
         return inventoryAmmoStart;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "inventoryAmmoStart", type = "int")
     public void setInventoryAmmoStart(int inventoryAmmoStart)
     {
@@ -95,6 +98,7 @@ public class SentryData extends ArmoryEntry
         return inventoryAmmoEnd;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "inventoryAmmoEnd", type = "int")
     public void setInventoryAmmoEnd(int inventoryAmmoEnd)
     {
@@ -126,6 +130,7 @@ public class SentryData extends ArmoryEntry
         return energyCost;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "energyCostTick", type = "int")
     public void setEnergyCost(int energyCost)
     {
@@ -137,6 +142,7 @@ public class SentryData extends ArmoryEntry
         return energyBuffer;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "energyBufferSize", type = "int")
     public void setEnergyBuffer(int energyBuffer)
     {
@@ -148,6 +154,7 @@ public class SentryData extends ArmoryEntry
         return armor;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "armorValue", type = "int")
     public void setArmor(int armor)
     {
@@ -159,6 +166,7 @@ public class SentryData extends ArmoryEntry
         return maxHealth;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "healthMax", type = "int")
     public void setMaxHealth(int hp)
     {
@@ -171,6 +179,7 @@ public class SentryData extends ArmoryEntry
         return range;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "targetRange", type = "int")
     public void setRange(int range)
     {
@@ -183,6 +192,7 @@ public class SentryData extends ArmoryEntry
         return targetSearchDelay;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "targetSearchDelay", type = "int")
     public void setTargetSearchDelay(int targetSearchDelay)
     {
@@ -195,6 +205,7 @@ public class SentryData extends ArmoryEntry
         return targetAttackDelay;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "targetAttackDelay", type = "int")
     public void setTargetAttackDelay(int targetAttackDelay)
     {
@@ -207,6 +218,7 @@ public class SentryData extends ArmoryEntry
         return targetLossTimer;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "targetLossDelay", type = "int")
     public void setTargetLossTimer(int targetLossTimer)
     {
@@ -218,6 +230,7 @@ public class SentryData extends ArmoryEntry
         return barrelLength;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "barrelLength", type = "float")
     public void setBarrelLength(float barrelLength)
     {
@@ -229,6 +242,7 @@ public class SentryData extends ArmoryEntry
         return bodyWidth;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "bodyWidth", type = "float")
     public void setBodyWidth(float bodyWidth)
     {
@@ -240,6 +254,7 @@ public class SentryData extends ArmoryEntry
         return bodyHeight;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "bodyHeight", type = "float")
     public void setBodyHeight(float bodyHeight)
     {
@@ -251,6 +266,7 @@ public class SentryData extends ArmoryEntry
         return centerOffset;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "centerOffset", type = "pos")
     public void setCenterOffset(Pos centerOffset)
     {
@@ -262,6 +278,7 @@ public class SentryData extends ArmoryEntry
         return barrelOffset;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "barrelOffset", type = "pos")
     public void setBarrelOffset(Pos barrelOffset)
     {
@@ -273,6 +290,7 @@ public class SentryData extends ArmoryEntry
         return rotationSpeed;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "rotationSpeed", type = "float")
     public void setRotationSpeed(float rotationSpeed)
     {

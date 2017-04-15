@@ -3,7 +3,7 @@
     "name": "armory"
   },
   "render": {
-    "contentID": "armory.test.shotgun",
+    "contentID": "armory:shotgun.12g.test",
     "type":"gun",
     "states": [
       {

@@ -1,0 +1,8 @@
+{
+"texture": {
+    "key": "armory:handgun",
+    "domain": "armory",
+    "name": "handgun",
+    "type": "item"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "render": {
+    "contentID": "armory:handgun.9mm.test",
+    "type":"gun",
+    "states": [
+      {
+        "id": "item.inventory",
+        "textureID": "armory:handgun"
+      }
+    ]
+  }
+}

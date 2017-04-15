@@ -18,6 +18,7 @@ import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.json.JsonContentLoader;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
+import com.builtbroken.mc.mods.nei.NEIProxy;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -97,6 +98,9 @@ public final class Armory extends AbstractMod
         itemClip = getManager().newItem("armoryClip", new ItemClip());
         itemAmmo = getManager().newItem("armoryAmmo", new ItemAmmo());
         itemSentry = getManager().newItem("armorySentry", new ItemSentry());
+
+        blockSentry.setCreativeTab(null);
+        NEIProxy.hideItem(blockSentry);
     }
 
     @Mod.EventHandler

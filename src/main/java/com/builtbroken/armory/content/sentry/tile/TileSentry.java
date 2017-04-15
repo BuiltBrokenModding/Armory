@@ -128,6 +128,16 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     }
 
     @Override
+    public ItemStack toItemStack()
+    {
+        if (sentryStack != null)
+        {
+            return sentryStack;
+        }
+        return super.toItemStack();
+    }
+
+    @Override
     public void readFromNBT(NBTTagCompound nbt)
     {
         if (nbt.hasKey("sentryStack"))

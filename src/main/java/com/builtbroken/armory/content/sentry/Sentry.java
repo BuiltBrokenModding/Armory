@@ -374,7 +374,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         //Check fi has ammo, then fire
         if (gunInstance.getChamberedRound() != null)
         {
-            gunInstance.fireWeapon(world(), 1, aimPoint, aim.toPos()); //TODO get firing ticks
+            gunInstance.fireWeapon(world(), 1, aimPoint, bulletSpawnOffset); //TODO get firing ticks
         }
     }
 

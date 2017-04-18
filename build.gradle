@@ -31,6 +31,9 @@ apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'jacoco'
 apply from: 'https://raw.githubusercontent.com/BuiltBrokenModding/BuiltBrokenScripts/buildScripts/scripts/forge/deps.gradle'
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 minecraft {
     replace "required-after:voltzengine", "required-after:voltzengine@[$voltz_engine_version,)"
 }

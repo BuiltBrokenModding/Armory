@@ -372,7 +372,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         gunInstance.debugRayTrace(center, getEntityAim(), aimPoint, bulletSpawnOffset);
 
         //Check fi has ammo, then fire
-        if (gunInstance.getChamberedRound() != null)
+        if (gunInstance.chamberNextRound())
         {
             gunInstance.fireWeapon(world(), 1, aimPoint, bulletSpawnOffset); //TODO get firing ticks
         }

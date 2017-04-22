@@ -144,7 +144,7 @@ public class TileSentryClient extends TileSentry
                 for (String key : new String[]{"entity.sentry.base.dead" + emptyS, "entity.sentry.base.dead", "entity.sentry.base" + emptyS, "entity.sentry.base"})
                 {
                     IRenderState renderState = renderData.getState(key);
-                    if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                    if (renderState instanceof IModelState && ((IModelState) renderState).render(false))
                     {
                         rendered = true;
                         break;
@@ -156,7 +156,7 @@ public class TileSentryClient extends TileSentry
                 for (String key : new String[]{"entity.sentry.yaw.dead" + emptyS, "entity.sentry.yaw.dead", "entity.sentry.yaw" + emptyS, "entity.sentry.yaw"})
                 {
                     IRenderState renderState = renderData.getState(key);
-                    if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                    if (renderState instanceof IModelState && ((IModelState) renderState).render(false))
                     {
                         rendered = true;
                         break;
@@ -167,7 +167,7 @@ public class TileSentryClient extends TileSentry
                 for (String key : new String[]{"entity.sentry.pitch.dead" + emptyS, "entity.sentry.pitch.dead", "entity.sentry.pitch" + emptyS, "entity.sentry.pitch"})
                 {
                     IRenderState renderState = renderData.getState(key);
-                    if (renderState instanceof IModelState && ((IModelState) renderState).render())
+                    if (renderState instanceof IModelState && ((IModelState) renderState).render(false))
                     {
                         rendered = true;
                         break;

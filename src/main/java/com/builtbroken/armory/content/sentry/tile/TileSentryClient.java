@@ -51,7 +51,7 @@ public class TileSentryClient extends TileSentry
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player)
     {
-        return new GuiSentry(player, this);
+        return new GuiSentry(player, this, ID);
     }
 
     @Override

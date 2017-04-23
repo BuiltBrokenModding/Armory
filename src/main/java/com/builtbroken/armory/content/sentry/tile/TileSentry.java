@@ -12,6 +12,7 @@ import com.builtbroken.mc.api.tile.access.IGuiTile;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketIDReceiver;
 import com.builtbroken.mc.core.network.packet.PacketTile;
+import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.imp.transform.region.Cube;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.ExternalInventory;
@@ -36,6 +37,7 @@ import net.minecraft.util.AxisAlignedBB;
  */
 public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler
 {
+    public static final int MAX_GUI_TABS = 5;
     protected Sentry sentry;
     private ItemStack sentryStack;
     private EntitySentry sentryEntity;
@@ -208,6 +210,28 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     }
 
     @Override
+    public boolean read(ByteBuf buf, int id, EntityPlayer player, PacketType type)
+    {
+        if (!super.read(buf, id, player, type))
+        {
+            if (isServer())
+            {
+                if (id == 3)
+                {
+                    getSentry().turnedOn = buf.readBoolean();
+                    return true;
+                }
+            }
+            else
+            {
+
+            }
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     protected ExternalInventory createInventory()
     {
         if (getSentry() != null && getSentry().getSentryData() != null && getSentry().getSentryData().getInventorySize() > 0)
@@ -255,7 +279,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     @Override
     public Object getServerGuiElement(int ID, EntityPlayer player)
     {
-        return new ContainerSentry(player, this);
+        return new ContainerSentry(player, this, ID);
     }
 
     @Override
@@ -263,6 +287,18 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     {
         return null;
     }
+
+    @Override
+    public boolean openGui(EntityPlayer player, int requestedID)
+    {
+        if (requestedID >= 0 && requestedID < MAX_GUI_TABS)
+        {
+            player.openGui(Armory.INSTANCE, requestedID, world(), xi(), yi(), zi());
+            return true;
+        }
+        return false;
+    }
+
 
     public EntitySentry getSentryEntity()
     {

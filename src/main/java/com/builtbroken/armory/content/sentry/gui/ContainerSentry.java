@@ -11,29 +11,37 @@ import net.minecraft.inventory.Slot;
  */
 public class ContainerSentry extends ContainerBase
 {
-    public ContainerSentry(EntityPlayer player, TileSentry sentry)
+    private final int id;
+
+    public final TileSentry sentry;
+
+    public ContainerSentry(EntityPlayer player, TileSentry sentry, int id)
     {
         super(player, sentry);
-        int slotID = 0;
-        //Inventory slots
-        if(sentry != null && sentry.getSentry() != null)
+        this.sentry = sentry;
+        this.id = id;
+        if (id == 0)
         {
-            int ammoBaySize = (sentry.getSentry().getSentryData().getInventoryAmmoEnd() - sentry.getSentry().getSentryData().getInventoryAmmoStart());
-            int rows = (ammoBaySize / 5) + 1;
-            for (int y = 0; y < rows; y++)
+            int slotID = 0;
+            //Inventory slots
+            if (sentry != null && sentry.getSentry() != null)
             {
-                for (int x = 0; x < 5; x++)
+                int ammoBaySize = (sentry.getSentry().getSentryData().getInventoryAmmoEnd() - sentry.getSentry().getSentryData().getInventoryAmmoStart());
+                int rows = (ammoBaySize / 5) + 1;
+                for (int y = 0; y < rows; y++)
                 {
-                    addSlotToContainer(new Slot(sentry, slotID++, 10 + 18 * x, 10 + 18 * y));
+                    for (int x = 0; x < 5; x++)
+                    {
+                        addSlotToContainer(new Slot(sentry, slotID++, 10 + 18 * x, 10 + 18 * y));
+                    }
                 }
+
+                //Battery slots
+                addSlotToContainer(new Slot(sentry, slotID++, 120, 10));
+                addSlotToContainer(new Slot(sentry, slotID++, 120, 29));
             }
-
-            //Battery slots
-            addSlotToContainer(new Slot(sentry, slotID++, 120, 10));
-            addSlotToContainer(new Slot(sentry, slotID++, 120, 29));
+            //Player inventory
+            addPlayerInventory(player);
         }
-
-        //Player inventory
-        addPlayerInventory(player);
     }
 }

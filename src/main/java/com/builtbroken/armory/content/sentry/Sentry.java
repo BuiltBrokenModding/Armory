@@ -12,6 +12,9 @@ import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
 import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
+import com.builtbroken.mc.api.tile.IFoFProvider;
+import com.builtbroken.mc.api.tile.ILinkable;
+import com.builtbroken.mc.api.tile.IPassCode;
 import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
@@ -27,6 +30,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -42,7 +46,7 @@ import java.util.List;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/11/2017.
  */
-public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter, IEnergyBufferProvider
+public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter, IEnergyBufferProvider, ILinkable
 {
     //TODO implement log system (enemy detected, enemy killed, ammo consumed, power failed, etc. with time stamps and custom log limits)
     /** Desired aim angle, updated every tick if target != null */
@@ -84,6 +88,11 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
 
     //Stats vars
     public float health = 0;
+
+    /** Location of FoF station */
+    public Pos fofStationPos;
+    /** Cached fof station tile */
+    public IFoFProvider fofStation;
 
     public Sentry(SentryData sentryData)
     {
@@ -313,7 +322,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
      */
     protected boolean isValidTarget(Entity entity)
     {
-        if (entity != null && entity.isEntityAlive())
+        if (entity != null && entity.isEntityAlive() && (getFoFStation() == null || !getFoFStation().isFriendly(entity)))
         {
             //Get aim position of entity
             final Pos aimPoint = getAimPoint(entity); //TODO retry with lower and higher aim value
@@ -488,6 +497,10 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         {
             gunInstance.load(nbt.getCompoundTag("gunInstance"));
         }
+        if (nbt.hasKey("fofStationPos"))
+        {
+            fofStationPos = new Pos(nbt.getCompoundTag("fofStationPos"));
+        }
     }
 
     @Override
@@ -500,6 +513,10 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         NBTTagCompound gunTag = new NBTTagCompound();
         gunInstance.save(gunTag);
         nbt.setTag("gunInstance", gunTag);
+        if (fofStationPos != null)
+        {
+            nbt.setTag("fofStationPos", fofStationPos.toNBT());
+        }
         return nbt;
     }
 
@@ -542,5 +559,69 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     public IEnergyBuffer getEnergyBuffer(ForgeDirection side)
     {
         return host instanceof IEnergyBufferProvider ? ((IEnergyBufferProvider) host).getEnergyBuffer(side) : null;
+    }
+
+
+
+    public IFoFProvider getFoFStation()
+    {
+        if ((fofStation == null || fofStation instanceof TileEntity && ((TileEntity) fofStation).isInvalid()) && fofStationPos != null)
+        {
+            TileEntity tile = fofStationPos.getTileEntity(world());
+            if (tile instanceof IFoFProvider)
+            {
+                fofStation = (IFoFProvider) tile;
+            }
+            else
+            {
+                fofStationPos = null;
+            }
+        }
+        return fofStation;
+    }
+
+    @Override
+    public String link(Location loc, short code)
+    {
+        //Validate location data
+        if (loc.world != world())
+        {
+            return "link.error.world.match";
+        }
+
+        Pos pos = loc.toPos();
+        if (!pos.isAboveBedrock())
+        {
+            return "link.error.pos.invalid";
+        }
+        if (center.distance(pos) > 200) //TODO place in static var with config
+        {
+            return "link.error.pos.distance.max";
+        }
+
+        //Compare tile pass code
+        TileEntity tile = pos.getTileEntity(loc.world());
+        if (tile instanceof IPassCode && ((IPassCode) tile).getCode() != code)
+        {
+            return "link.error.code.match";
+        }
+        else if (tile instanceof IFoFProvider)
+        {
+           IFoFProvider station = getFoFStation();
+            if (station == tile)
+            {
+                return "link.error.tile.already.added";
+            }
+            else
+            {
+                fofStation = (IFoFProvider) tile;
+                fofStationPos = new Pos(tile);
+            }
+            return "";
+        }
+        else
+        {
+            return "link.error.tile.invalid";
+        }
     }
 }

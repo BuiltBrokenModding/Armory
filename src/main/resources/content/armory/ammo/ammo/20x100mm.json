@@ -1,0 +1,14 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "ammo": {
+    "name": "20x100mm.basic",
+    "id": "armory:20x100mm.basic",
+    "ammoType": "20x100mm",
+    "damage": {
+      "value": 8,
+      "type": "impact"
+    }
+  }
+}

@@ -3,6 +3,8 @@ package com.builtbroken.armory.content.sentry.imp;
 import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.mc.api.IWorldPosition;
 
+import java.util.UUID;
+
 /**
  * Applied to objects that host a sentry gun
  *
@@ -12,4 +14,8 @@ import com.builtbroken.mc.api.IWorldPosition;
 public interface ISentryHost extends IWorldPosition
 {
     Sentry getSentry();
+
+    String getOwnerName();
+
+    UUID getOwnerID();
 }

@@ -44,6 +44,9 @@ public class SentryData extends ArmoryEntry
     private Pos centerOffset;
     private Pos barrelOffset;
 
+    private String[] defaultTargetTypes = new String[]{"mobs"};
+    private String[] allowedTargetTypes = new String[]{"mobs"};
+
     public SentryData(IJsonProcessor processor, String id, String name)
     {
         super(processor, id, "sentry", name);
@@ -295,5 +298,43 @@ public class SentryData extends ArmoryEntry
     public void setRotationSpeed(float rotationSpeed)
     {
         this.rotationSpeed = rotationSpeed;
+    }
+
+    public String[] getDefaultTargetTypes()
+    {
+        return defaultTargetTypes;
+    }
+
+    @JsonOverride
+    @JsonProcessorData(value = "defaultTargetTypes", type = "array.string")
+    public void setDefaultTargetTypes(String[] types)
+    {
+        this.defaultTargetTypes = types;
+        if(defaultTargetTypes != null)
+        {
+            for(int i = 0; i < defaultTargetTypes.length; i++)
+            {
+                defaultTargetTypes[i] = defaultTargetTypes[i].toLowerCase().trim();
+            }
+        }
+    }
+
+    public String[] getAllowedTargetTypes()
+    {
+        return allowedTargetTypes;
+    }
+
+    @JsonOverride
+    @JsonProcessorData(value = "allowedTargetTypes", type = "array.string")
+    public void setAllowedTargetTypes(String[] types)
+    {
+        this.allowedTargetTypes = types;
+        if(allowedTargetTypes != null)
+        {
+            for(int i = 0; i < allowedTargetTypes.length; i++)
+            {
+                allowedTargetTypes[i] = allowedTargetTypes[i].toLowerCase().trim();
+            }
+        }
     }
 }

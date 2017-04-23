@@ -1,2 +1,17 @@
 ## Master language file
 itemGroup.armory=Armory
+
+
+
+ammoType.armory:20x100mm.name=20x100mm Ammo
+ammoType.armory:9mm.name=9mm Ammo
+
+clip.armory:20x100mm.box.name=20x100mm 240 Ammo Box
+clip.armory:20x100mm.20.mag.name=20x100mm 20 Box Clip
+clip.armory:9mm.clip.15.name=15 round 9mm clip
+clip.armory:9mm.clip.30.name=30 round 9mm clip
+
+ammo.armory:20x100mm.basic.name=Basic 20x100mm Round
+ammo.armory:9mm.basic.name=Basic 9mm Round
+ammo.armory:9mm.advanced.name=Advanced 9mm Round
+ammo.armory:9mm.elite.name=Elite 9mm Round

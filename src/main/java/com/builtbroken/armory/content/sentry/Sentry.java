@@ -19,6 +19,10 @@ import com.builtbroken.mc.api.tile.IPassCode;
 import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
+import com.builtbroken.mc.framework.access.AccessProfile;
+import com.builtbroken.mc.framework.access.GlobalAccessSystem;
+import com.builtbroken.mc.framework.access.IProfileContainer;
+import com.builtbroken.mc.framework.access.Permissions;
 import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.rotation.IRotation;
 import com.builtbroken.mc.imp.transform.vector.Location;
@@ -27,6 +31,7 @@ import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.command.IEntitySelector;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -48,7 +53,7 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/11/2017.
  */
-public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter, IEnergyBufferProvider, ILinkable
+public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter, IEnergyBufferProvider, ILinkable, IProfileContainer
 {
     //TODO implement log system (enemy detected, enemy killed, ammo consumed, power failed, etc. with time stamps and custom log limits)
     /** Desired aim angle, updated every tick if target != null */
@@ -96,6 +101,8 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     /** Cached fof station tile */
     public IFoFProvider fofStation;
 
+    public String profileID = null;
+
     public EntityTargetSelector targetSelector;
 
     public final HashMap<String, TargetMode> targetModes = new HashMap();
@@ -140,132 +147,139 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                 }
             }
             //Update logic every other tick
-            else if (ticks % 2 == 0 && turnedOn)
+            else if (ticks % 2 == 0)
             {
-                //Calculate bullet offset
-                calculateBulletSpawnOffset();
-
-                status = "unknown";
-
-                //Invalid entity
-                if (host == null || getSentryData() == null)
+                if (!turnedOn)
                 {
-                    status = "invalid";
+                    status = "powered down"; //TODO translate
                 }
                 else
                 {
-                    //Reset state system
-                    running = false;
-                    sentryHasAmmo = false;
-                    //Debug
-                    if (enableAimDebugRays && Engine.runningAsDev)
+                    //Calculate bullet offset
+                    calculateBulletSpawnOffset();
+
+                    status = "unknown"; //TODO translate
+
+                    //Invalid entity
+                    if (host == null || getSentryData() == null)
                     {
-                        Pos hand = center.add(bulletSpawnOffset);
-                        //Debug ray trace
-                        PacketSpawnStream packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.1, 0), hand.add(0, 0.1, 0), 2);
-                        packet.red = (Color.MAGENTA.getRed() / 255f);
-                        packet.green = (Color.MAGENTA.getGreen() / 255f);
-                        packet.blue = (Color.MAGENTA.getBlue() / 255f);
-                        Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
-
-                        hand = center.add(getEntityAim());
-                        //Debug ray trace
-                        packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.2, 0), hand.add(0, 0.2, 0), 2);
-                        packet.red = (Color.blue.getRed() / 255f);
-                        packet.green = (Color.blue.getGreen() / 255f);
-                        packet.blue = (Color.blue.getBlue() / 255f);
-                        Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
-
-                        hand = center.add(aim.toPos());
-                        //Debug ray trace
-                        packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.3, 0), hand.add(0, 0.3, 0), 2);
-                        packet.red = (Color.CYAN.getRed() / 255f);
-                        packet.green = (Color.CYAN.getGreen() / 255f);
-                        packet.blue = (Color.CYAN.getBlue() / 255f);
-                        Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
-
-
-                        if (aimPoint != null)
-                        {
-                            //Debug ray trace
-                            packet = new PacketSpawnStream(world().provider.dimensionId, center, aimPoint, 2);
-                            packet.red = (Color.yellow.getRed() / 255f);
-                            packet.green = (Color.yellow.getGreen() / 255f);
-                            packet.blue = (Color.yellow.getBlue() / 255f);
-                            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
-                        }
+                        status = "invalid"; //TODO translate
                     }
-
-                    //Can only function if we have a gun
-                    if (gunInstance != null)
+                    else
                     {
-                        //Trigger reload mod if out of ammo
-                        if (!gunInstance.hasMagWithAmmo() && gunInstance.getChamberedRound() == null)
+                        //Reset state system
+                        running = false;
+                        sentryHasAmmo = false;
+                        //Debug
+                        if (enableAimDebugRays && Engine.runningAsDev)
                         {
-                            reloading = true;
-                        }
-                        else
-                        {
-                            sentryHasAmmo = true;
-                        }
+                            Pos hand = center.add(bulletSpawnOffset);
+                            //Debug ray trace
+                            PacketSpawnStream packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.1, 0), hand.add(0, 0.1, 0), 2);
+                            packet.red = (Color.MAGENTA.getRed() / 255f);
+                            packet.green = (Color.MAGENTA.getGreen() / 255f);
+                            packet.blue = (Color.MAGENTA.getBlue() / 255f);
+                            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
 
-                        if (reloading)
-                        {
-                            status = "reloading";
-                            loadAmmo();
-                            if (gunInstance.isFullOnAmmo())
+                            hand = center.add(getEntityAim());
+                            //Debug ray trace
+                            packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.2, 0), hand.add(0, 0.2, 0), 2);
+                            packet.red = (Color.blue.getRed() / 255f);
+                            packet.green = (Color.blue.getGreen() / 255f);
+                            packet.blue = (Color.blue.getBlue() / 255f);
+                            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+
+                            hand = center.add(aim.toPos());
+                            //Debug ray trace
+                            packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.3, 0), hand.add(0, 0.3, 0), 2);
+                            packet.red = (Color.CYAN.getRed() / 255f);
+                            packet.green = (Color.CYAN.getGreen() / 255f);
+                            packet.blue = (Color.CYAN.getBlue() / 255f);
+                            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+
+
+                            if (aimPoint != null)
                             {
-                                reloading = false;
+                                //Debug ray trace
+                                packet = new PacketSpawnStream(world().provider.dimensionId, center, aimPoint, 2);
+                                packet.red = (Color.yellow.getRed() / 255f);
+                                packet.green = (Color.yellow.getGreen() / 255f);
+                                packet.blue = (Color.yellow.getBlue() / 255f);
+                                Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
                             }
                         }
-                        else
-                        {
-                            //If no target try to find one
-                            if (target == null)
-                            {
-                                status = "searching";
-                                targetingDelay = 0;
-                                targetingLoseTimer = 0;
 
-                                if (targetSearchTimer++ >= getSentryData().getTargetSearchDelay())
+                        //Can only function if we have a gun
+                        if (gunInstance != null)
+                        {
+                            //Trigger reload mod if out of ammo
+                            if (!gunInstance.hasMagWithAmmo() && gunInstance.getChamberedRound() == null)
+                            {
+                                reloading = true;
+                            }
+                            else
+                            {
+                                sentryHasAmmo = true;
+                            }
+
+                            if (reloading)
+                            {
+                                status = "reloading"; //TODO translate
+                                loadAmmo();
+                                if (gunInstance.isFullOnAmmo())
                                 {
-                                    targetSearchTimer = 0;
-                                    findTargets();
+                                    reloading = false;
                                 }
                             }
-                            //If target and valid try to attack
-                            else if (isValidTarget(target))
+                            else
                             {
-                                status = "aiming";
-                                //Delay before attack
-                                if (targetingDelay >= getSentryData().getTargetAttackDelay())
+                                //If no target try to find one
+                                if (target == null)
                                 {
-                                    //Update aim point
-                                    aimPoint = getAimPoint(target);
+                                    status = "searching"; //TODO translate
+                                    targetingDelay = 0;
+                                    targetingLoseTimer = 0;
 
-                                    aim.set(center.toEulerAngle(aimPoint).clampTo360());
-
-                                    if (isAimed())
+                                    if (targetSearchTimer++ >= getSentryData().getTargetSearchDelay())
                                     {
-                                        status = "attacking";
-                                        fireAtTarget();
+                                        targetSearchTimer = 0;
+                                        findTargets();
+                                    }
+                                }
+                                //If target and valid try to attack
+                                else if (isValidTarget(target))
+                                {
+                                    status = "aiming"; //TODO translate
+                                    //Delay before attack
+                                    if (targetingDelay >= getSentryData().getTargetAttackDelay())
+                                    {
+                                        //Update aim point
+                                        aimPoint = getAimPoint(target);
+
+                                        aim.set(center.toEulerAngle(aimPoint).clampTo360());
+
+                                        if (isAimed())
+                                        {
+                                            status = "attacking"; //TODO translate
+                                            fireAtTarget();
+                                        }
+                                        else
+                                        {
+                                            aimAtTarget(deltaTime);
+                                        }
                                     }
                                     else
                                     {
-                                        aimAtTarget(deltaTime);
+                                        targetingDelay++;
                                     }
                                 }
-                                else
+                                //If target is not null and invalid, count until invalidated
+                                else if (target != null && targetingLoseTimer++ >= getSentryData().getTargetLossTimer())
                                 {
-                                    targetingDelay++;
+                                    status = "target lost"; //TODO translate
+                                    target = null;
+                                    targetingLoseTimer = 0;
                                 }
-                            }
-                            //If target is not null and invalid, count until invalidated
-                            else if (target != null && targetingLoseTimer++ >= getSentryData().getTargetLossTimer())
-                            {
-                                status = "target lost";
-                                target = null;
-                                targetingLoseTimer = 0;
                             }
                         }
                     }
@@ -677,5 +691,45 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         {
             return "link.error.tile.invalid";
         }
+    }
+
+    @Override
+    public AccessProfile getAccessProfile()
+    {
+        return GlobalAccessSystem.getProfile(profileID);
+    }
+
+    @Override
+    public void setAccessProfile(AccessProfile profile)
+    {
+        //N/A sentry does not support local profiles
+    }
+
+    @Override
+    public boolean canAccess(String username)
+    {
+        if (username.equalsIgnoreCase(host.getOwnerName()))
+        {
+            return true;
+        }
+        return hasNode(username, Permissions.machineOpen.id);
+    }
+
+    @Override
+    public boolean hasNode(EntityPlayer player, String node)
+    {
+        return getAccessProfile() == null || getAccessProfile().hasNode(player, node);
+    }
+
+    @Override
+    public boolean hasNode(String username, String node)
+    {
+        return getAccessProfile() == null || getAccessProfile().hasNode(username, node);
+    }
+
+    @Override
+    public void onProfileChange()
+    {
+
     }
 }

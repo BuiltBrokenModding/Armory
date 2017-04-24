@@ -140,7 +140,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                 }
             }
             //Update logic every other tick
-            else if (ticks % 2 == 0)
+            else if (ticks % 2 == 0 && turnedOn)
             {
                 //Calculate bullet offset
                 calculateBulletSpawnOffset();

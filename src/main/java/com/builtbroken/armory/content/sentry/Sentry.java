@@ -116,11 +116,27 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     {
         if (!world().isRemote)
         {
-            if (targetModes.isEmpty())
+            if (ticks == 1)
             {
-                for (String key : sentryData.getDefaultTargetTypes())
+                for (String key : sentryData.getAllowedTargetTypes())
                 {
-                    targetModes.put(key, TargetMode.HOSTILE);
+                    if (!targetModes.containsKey(key))
+                    {
+                        boolean added = false;
+                        for (String k : sentryData.getDefaultTargetTypes())
+                        {
+                            if (k.equals(key))
+                            {
+                                targetModes.put(key, TargetMode.HOSTILE);
+                                added = true;
+                                break;
+                            }
+                        }
+                        if (!added)
+                        {
+                            targetModes.put(key, TargetMode.NONE);
+                        }
+                    }
                 }
             }
             //Update logic every other tick

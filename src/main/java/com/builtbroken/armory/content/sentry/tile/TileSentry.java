@@ -3,6 +3,7 @@ package com.builtbroken.armory.content.sentry.tile;
 import cofh.api.energy.IEnergyHandler;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.sentry.Sentry;
+import com.builtbroken.armory.content.sentry.TargetMode;
 import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.gui.ContainerSentry;
 import com.builtbroken.armory.content.sentry.imp.ISentryHost;
@@ -28,6 +29,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+
+import java.util.Map;
 
 /**
  * Reference point and storage point for {@link EntitySentry}
@@ -96,7 +99,6 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     public void update()
     {
         super.update();
-
         //Server logic
         if (isServer() && getSentry() != null)
         {
@@ -116,6 +118,25 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
             {
                 sendDescPacket();
             }
+        }
+    }
+
+    @Override
+    public void doUpdateGuiUsers()
+    {
+        super.doUpdateGuiUsers();
+        if (ticks % 3 == 0)
+        {
+            PacketTile packet = new PacketTile(this, 1);
+            //Write target data
+            packet.data().writeInt(getSentry().targetModes.size());
+            for (Map.Entry<String, TargetMode> entry : getSentry().targetModes.entrySet())
+            {
+                ByteBufUtils.writeUTF8String(packet.data(), entry.getKey());
+                packet.data().writeByte(entry.getValue().ordinal());
+            }
+            //Send
+            sendPacketToGuiUsers(packet);
         }
     }
 
@@ -221,10 +242,34 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
                     getSentry().turnedOn = buf.readBoolean();
                     return true;
                 }
+                else if (id == 4)
+                {
+                    String key = ByteBufUtils.readUTF8String(buf);
+                    byte value = buf.readByte();
+                    if (value >= 0 && value < TargetMode.values().length)
+                    {
+                        getSentry().targetModes.put(key, TargetMode.values()[value]);
+                    }
+                    return true;
+                }
             }
             else
             {
-
+                if (id == 1)
+                {
+                    getSentry().targetModes.clear();
+                    final int l = buf.readInt();
+                    for (int i = 0; i < l; i++)
+                    {
+                        String key = ByteBufUtils.readUTF8String(buf);
+                        byte value = buf.readByte();
+                        if (value >= 0 && value < TargetMode.values().length)
+                        {
+                            getSentry().targetModes.put(key, TargetMode.values()[value]);
+                        }
+                    }
+                    return true;
+                }
             }
             return false;
         }

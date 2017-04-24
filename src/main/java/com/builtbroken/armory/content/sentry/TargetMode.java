@@ -13,5 +13,7 @@ public enum TargetMode
     /** Attack hostiles */
     HOSTILE,
     /** Attack neutrals */
-    NEUTRIAL
+    NEUTRAL,
+    /** Target nothing */
+    NONE
 }

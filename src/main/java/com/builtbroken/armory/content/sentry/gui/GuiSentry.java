@@ -68,8 +68,8 @@ public class GuiSentry extends GuiContainerBase
         settingsWindowButton = addButton(GuiImageButton.newButton18(4, x, y + 19 * 4, 5, 0).setTexture(GUI_BUTTONS));
 
         //Power buttons
-        onButton = addButton(GuiButton9px.newOnButton(10, x, y - 10).setEnabled(!tile.getSentry().turnedOn));
-        offButton = addButton(GuiButton9px.newOffButton(11, x + 9, y - 10).setEnabled(tile.getSentry().turnedOn));
+        onButton = (GuiButton2) add(GuiButton9px.newOnButton(10, x, y - 10).setEnabled(!tile.getSentry().turnedOn));
+        offButton = (GuiButton2) add(GuiButton9px.newOffButton(11, x + 9, y - 10).setEnabled(tile.getSentry().turnedOn));
 
 
         //Per tab components
@@ -108,10 +108,10 @@ public class GuiSentry extends GuiContainerBase
                 //Add scroll bar buttons
                 x = guiLeft + 161;
                 y = guiTop + 14;
-                scrollUpButton = addButton(GuiButton9px.newUpButton(12, x, y).disable()); //Up is disabled by default
+                scrollUpButton = (GuiButton2) add(GuiButton9px.newUpButton(12, x, y).disable()); //Up is disabled by default
 
                 y = guiTop + 69;
-                scrollDownButton = addButton(GuiButton9px.newDownButton(13, x, y).setEnabled(tile.getSentry().getSentryData().getAllowedTargetTypes().length > 6)); //Down is disabled if not enough entries
+                scrollDownButton = (GuiButton2) add(GuiButton9px.newDownButton(13, x, y).setEnabled(tile.getSentry().getSentryData().getAllowedTargetTypes().length > 6)); //Down is disabled if not enough entries
                 break;
             case 2:
                 x += 153;

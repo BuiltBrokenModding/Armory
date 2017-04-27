@@ -1,6 +1,7 @@
 package com.builtbroken.armory.data;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.mc.lib.helper.NBTUtility;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -98,7 +99,7 @@ public class ArmoryDataHandler
         public ArmoryData(File saveFolder, String name)
         {
             this.name = name;
-            save = new File(saveFolder, "bbm/armory/" + name + "Index.json");
+            save = new File(saveFolder, NBTUtility.BBM_FOLDER + "armory/" + name + "Index.json");
         }
 
         public void add(E entry)

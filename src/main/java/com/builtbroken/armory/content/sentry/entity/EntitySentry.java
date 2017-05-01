@@ -16,6 +16,8 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.UUID;
+
 /**
  * AI driven entity for handling how the sentry gun works
  *
@@ -158,6 +160,18 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
     public Sentry getSentry()
     {
         return sentry;
+    }
+
+    @Override
+    public String getOwnerName()
+    {
+        return host != null ? host.getOwnerName() : null;
+    }
+
+    @Override
+    public UUID getOwnerID()
+    {
+        return host != null ? host.getOwnerID() : null;
     }
 
     public void setSentry(Sentry sentry)

@@ -271,4 +271,14 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     {
         return itemIcon;
     }
+
+    @Override
+    public String getRenderKey(ItemStack stack)
+    {
+        if (getAmmoCount(stack) <= 0)
+        {
+            return "empty";
+        }
+        return null;
+    }
 }

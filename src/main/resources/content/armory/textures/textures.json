@@ -1,8 +1,44 @@
 {
-"texture": {
+  "texture": {
     "key": "armory:handgun",
     "domain": "armory",
     "name": "handgun",
+    "type": "item"
+  },
+  "texture:1": {
+    "key": "armory:arrow",
+    "domain": "armory",
+    "name": "arrow",
+    "type": "item"
+  },
+  "texture:2": {
+    "key": "armory:casing",
+    "domain": "armory",
+    "name": "casing",
+    "type": "item"
+  },
+  "texture:3": {
+    "key": "armory:clip.box",
+    "domain": "armory",
+    "name": "clip.box",
+    "type": "item"
+  },
+  "texture:4": {
+    "key": "armory:clip.box.filled",
+    "domain": "armory",
+    "name": "clip.box.filled",
+    "type": "item"
+  },
+  "texture:5": {
+    "key": "armory:ammoCase",
+    "domain": "armory",
+    "name": "ammoCase",
+    "type": "item"
+  },
+  "texture:6": {
+    "key": "armory:ammoCase.filled",
+    "domain": "armory",
+    "name": "ammoCase.filled",
     "type": "item"
   }
 }

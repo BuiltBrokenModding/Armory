@@ -44,9 +44,56 @@ public class SentryData extends ArmoryEntry
     private Pos centerOffset;
     private Pos barrelOffset;
 
+    private String[] defaultTargetTypes = new String[]{"mobs"};
+    private String[] allowedTargetTypes = new String[]{"living", "players", "flying", "animals", "tameable", "mobs", "npcs"};
+
     public SentryData(IJsonProcessor processor, String id, String name)
     {
         super(processor, id, "sentry", name);
+    }
+
+
+    @Override
+    public void validate()
+    {
+        super.validate();
+        //Ensure battery arrays do not share values
+        if (getBatteryIn() != null && getBatteryOut() != null)
+        {
+            for (int i = 0; i < getBatteryIn().length; i++)
+            {
+                for (int z = 0; z < getBatteryOut().length; z++)
+                {
+                    if (getBatteryIn()[i] == getBatteryOut()[z])
+                    {
+                        throw new IllegalArgumentException("Slot IDS can not be shared between battery in and out arrays");
+                    }
+                }
+            }
+        }
+        //Ensure that allowed group contains everything in default types
+        if (getDefaultTargetTypes() != null && getAllowedTargetTypes() != null)
+        {
+            for (int i = 0; i < getDefaultTargetTypes().length; i++)
+            {
+                boolean contained = false;
+                for (int z = 0; z < getAllowedTargetTypes().length; z++)
+                {
+                    if (getDefaultTargetTypes()[i].equals(getAllowedTargetTypes()[z]))
+                    {
+                        contained = true;
+                    }
+                }
+                if (!contained)
+                {
+                    throw new IllegalArgumentException("Allow types does not contain '" + getDefaultTargetTypes()[i] + "'");
+                }
+            }
+        }
+        else
+        {
+            throw new IllegalArgumentException("Allow or default types can not be null");
+        }
     }
 
     public GunData getGunData()
@@ -295,5 +342,43 @@ public class SentryData extends ArmoryEntry
     public void setRotationSpeed(float rotationSpeed)
     {
         this.rotationSpeed = rotationSpeed;
+    }
+
+    public String[] getDefaultTargetTypes()
+    {
+        return defaultTargetTypes;
+    }
+
+    @JsonOverride
+    @JsonProcessorData(value = "defaultTargetTypes", type = "array.string")
+    public void setDefaultTargetTypes(String[] types)
+    {
+        this.defaultTargetTypes = types;
+        if (defaultTargetTypes != null)
+        {
+            for (int i = 0; i < defaultTargetTypes.length; i++)
+            {
+                defaultTargetTypes[i] = defaultTargetTypes[i].toLowerCase().trim();
+            }
+        }
+    }
+
+    public String[] getAllowedTargetTypes()
+    {
+        return allowedTargetTypes;
+    }
+
+    @JsonOverride
+    @JsonProcessorData(value = "allowedTargetTypes", type = "array.string")
+    public void setAllowedTargetTypes(String[] types)
+    {
+        this.allowedTargetTypes = types;
+        if (allowedTargetTypes != null)
+        {
+            for (int i = 0; i < allowedTargetTypes.length; i++)
+            {
+                allowedTargetTypes[i] = allowedTargetTypes[i].toLowerCase().trim();
+            }
+        }
     }
 }

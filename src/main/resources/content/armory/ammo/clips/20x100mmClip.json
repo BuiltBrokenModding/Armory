@@ -1,0 +1,47 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "clip": {
+    "name": "20x100mm.20.mag",
+    "id": "armory:clip.20x100mm.20",
+    "reloadType": "clip",
+    "ammoType": "20x100mm",
+    "maxAmmo": 20
+  },
+  "clip:1": {
+    "name": "20x100mm.box",
+    "id": "armory:clip.20x100mm.240",
+    "reloadType": "clip",
+    "ammoType": "20x100mm",
+    "maxAmmo": 240
+  },
+  "render": {
+    "contentID": "armory:clip.20x100mm.20",
+    "type": "gun",
+    "states": [
+      {
+        "id": "item.inventory",
+        "textureID": "armory:clip.box.filled"
+      },
+      {
+        "id": "item.inventory.empty",
+        "textureID": "armory:clip.box"
+      }
+    ]
+  },
+  "render:1": {
+    "contentID": "armory:clip.20x100mm.240",
+    "type": "gun",
+    "states": [
+      {
+        "id": "item.inventory",
+        "textureID": "armory:ammoCase.filled"
+      },
+      {
+        "id": "item.inventory.empty",
+        "textureID": "armory:ammoCase"
+      }
+    ]
+  }
+}

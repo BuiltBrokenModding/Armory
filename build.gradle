@@ -46,7 +46,7 @@ targetCompatibility = 1.8
 def currentJvm = org.gradle.internal.jvm.Jvm.current()
 //println "Current Java version = " + currentJvm
 
-def gitHash = 'unknown'
+/*def gitHash = 'unknown'
 if (new File(projectDir, '.git').exists()) {
     def repo = Grgit.open(project.file('.'))
     gitHash = repo.log().find().abbreviatedId
@@ -84,15 +84,11 @@ sourcesJar {
             "Git-Hash": gitHash,
             "FMLAT": "ICBM_at.cfg")
 }
-
+*/
 
 dependencies
 {
-    if (project.hasProperty("bambooshortPlanName") && project.getProperty("bambooshortPlanName") == "BBM-Dev")
-    compile "dev.builtbroken.voltzengine:VoltzEngine:1.7.10-$voltz_engine_version+:deobf-dev"
-    else
-    compile "com.builtbroken.voltzengine:VoltzEngine:1.7.10-$voltz_engine_version+:deobf"
-    //compile "com.builtbroken.voltzengine:VoltzEngine:1.7.10-$voltz_engine_version+:templetes"
+    compile ("com.builtbroken.voltzengine:VoltzEngine:1.7.10-$voltz_engine_version+:deobf") { changing = true }
 }
 
 jacocoTestReport {

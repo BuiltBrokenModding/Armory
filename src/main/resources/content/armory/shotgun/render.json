@@ -4,10 +4,11 @@
   },
   "render": {
     "contentID": "armory:shotgun.12g.test",
-    "type":"gun",
+    "type": "gun",
     "states": [
       {
         "id": "item.inventory",
+        "renderType": "item",
         "textureID": "armory:shotgunTestIcon"
       }
     ]

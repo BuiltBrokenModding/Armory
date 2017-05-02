@@ -4,10 +4,11 @@
   },
   "render": {
     "contentID": "armory:ammo.12g.he",
-    "type":"item",
+    "type": "item",
     "states": [
       {
         "id": "item.inventory",
+        "renderType": "item",
         "textureID": "armory:shotgunTestIcon.he"
       }
     ]

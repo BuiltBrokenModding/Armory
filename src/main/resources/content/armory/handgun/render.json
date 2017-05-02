@@ -8,6 +8,7 @@
     "states": [
       {
         "id": "item.inventory",
+        "renderType":"item",
         "textureID": "armory:handgun"
       }
     ]

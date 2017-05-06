@@ -80,7 +80,8 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     @Override
     public IAmmoData getAmmoData(ItemStack stack)
     {
-        return null;
+        Stack<IAmmoData> ammo = getStoredAmmo(stack);
+        return ammo != null ? ammo.peek() : null;
     }
 
     @Override

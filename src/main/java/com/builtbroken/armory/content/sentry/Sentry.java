@@ -20,8 +20,8 @@ import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
 import com.builtbroken.mc.framework.access.AccessProfile;
-import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
 import com.builtbroken.mc.framework.access.api.IProfileContainer;
+import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
 import com.builtbroken.mc.framework.access.perm.Permissions;
 import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.rotation.IRotation;
@@ -149,6 +149,9 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
             //Update logic every other tick
             else if (ticks % 2 == 0)
             {
+                //Runs debug
+                doDebugLasers();
+
                 if (!turnedOn)
                 {
                     status = "powered down"; //TODO translate
@@ -167,61 +170,42 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                     }
                     else
                     {
-                        //Reset state system
+                        //Reset power state
                         running = false;
-                        sentryHasAmmo = false;
-                        //Debug
-                        if (enableAimDebugRays && Engine.runningAsDev)
+                        //Check if we have power and consume power
+                        if (getSentryData().getEnergyCost() > 0)
                         {
-                            Pos hand = center.add(bulletSpawnOffset);
-                            //Debug ray trace
-                            PacketSpawnStream packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.1, 0), hand.add(0, 0.1, 0), 2);
-                            packet.red = (Color.MAGENTA.getRed() / 255f);
-                            packet.green = (Color.MAGENTA.getGreen() / 255f);
-                            packet.blue = (Color.MAGENTA.getBlue() / 255f);
-                            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
-
-                            hand = center.add(getEntityAim());
-                            //Debug ray trace
-                            packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.2, 0), hand.add(0, 0.2, 0), 2);
-                            packet.red = (Color.blue.getRed() / 255f);
-                            packet.green = (Color.blue.getGreen() / 255f);
-                            packet.blue = (Color.blue.getBlue() / 255f);
-                            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
-
-                            hand = center.add(aim.toPos());
-                            //Debug ray trace
-                            packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.3, 0), hand.add(0, 0.3, 0), 2);
-                            packet.red = (Color.CYAN.getRed() / 255f);
-                            packet.green = (Color.CYAN.getGreen() / 255f);
-                            packet.blue = (Color.CYAN.getBlue() / 255f);
-                            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
-
-
-                            if (aimPoint != null)
+                            IEnergyBuffer buffer = getEnergyBuffer(ForgeDirection.UNKNOWN);
+                            if (buffer != null && buffer.removeEnergyFromStorage(getSentryData().getEnergyCost(), false) >= getSentryData().getEnergyCost())
                             {
-                                //Debug ray trace
-                                packet = new PacketSpawnStream(world().provider.dimensionId, center, aimPoint, 2);
-                                packet.red = (Color.yellow.getRed() / 255f);
-                                packet.green = (Color.yellow.getGreen() / 255f);
-                                packet.blue = (Color.yellow.getBlue() / 255f);
-                                Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+                                running = true;
+                                buffer.removeEnergyFromStorage(getSentryData().getEnergyCost(), true);
                             }
                         }
-
-                        //Can only function if we have a gun
-                        if (gunInstance != null)
+                        else
                         {
-                            //Trigger reload mod if out of ammo
-                            if (!gunInstance.hasMagWithAmmo() && gunInstance.getChamberedRound() == null)
-                            {
-                                reloading = true;
-                            }
-                            else
-                            {
-                                sentryHasAmmo = true;
-                            }
+                            running = true;
+                        }
 
+                        //Reset ammo state
+                        sentryHasAmmo = false;
+                        //Trigger reload mod if out of ammo
+                        if (!gunInstance.hasMagWithAmmo() && gunInstance.getChamberedRound() == null)
+                        {
+                            reloading = true;
+                        }
+                        else
+                        {
+                            sentryHasAmmo = true;
+                        }
+
+                        if (!running)
+                        {
+                            status = "no power";
+                        }
+                        //Can only function if we have a gun
+                        else if (gunInstance != null)
+                        {
                             if (reloading)
                             {
                                 status = "reloading"; //TODO translate
@@ -731,5 +715,47 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     public void onProfileChange()
     {
 
+    }
+
+    protected void doDebugLasers()
+    {
+        //Debug
+        if (enableAimDebugRays && Engine.runningAsDev)
+        {
+            Pos hand = center.add(bulletSpawnOffset);
+            //Debug ray trace
+            PacketSpawnStream packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.1, 0), hand.add(0, 0.1, 0), 2);
+            packet.red = (Color.MAGENTA.getRed() / 255f);
+            packet.green = (Color.MAGENTA.getGreen() / 255f);
+            packet.blue = (Color.MAGENTA.getBlue() / 255f);
+            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+
+            hand = center.add(getEntityAim());
+            //Debug ray trace
+            packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.2, 0), hand.add(0, 0.2, 0), 2);
+            packet.red = (Color.blue.getRed() / 255f);
+            packet.green = (Color.blue.getGreen() / 255f);
+            packet.blue = (Color.blue.getBlue() / 255f);
+            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+
+            hand = center.add(aim.toPos());
+            //Debug ray trace
+            packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.3, 0), hand.add(0, 0.3, 0), 2);
+            packet.red = (Color.CYAN.getRed() / 255f);
+            packet.green = (Color.CYAN.getGreen() / 255f);
+            packet.blue = (Color.CYAN.getBlue() / 255f);
+            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+
+
+            if (aimPoint != null)
+            {
+                //Debug ray trace
+                packet = new PacketSpawnStream(world().provider.dimensionId, center, aimPoint, 2);
+                packet.red = (Color.yellow.getRed() / 255f);
+                packet.green = (Color.yellow.getGreen() / 255f);
+                packet.blue = (Color.yellow.getBlue() / 255f);
+                Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+            }
+        }
     }
 }

@@ -30,7 +30,6 @@ public class TestItemClip extends AbstractArmoryTest
     public void testInit()
     {
         assertTrue(item.isClip(null));
-        assertNull(item.getAmmoData(null));
     }
 
     public void testGetAmmoCount()

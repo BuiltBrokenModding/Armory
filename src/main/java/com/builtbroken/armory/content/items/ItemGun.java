@@ -60,7 +60,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
 
     public ItemGun()
     {
-        super("gun", "gun");
+        super("armoryGun", "gun", "gun");
         FMLCommonHandler.instance().bus().register(this);
     }
 

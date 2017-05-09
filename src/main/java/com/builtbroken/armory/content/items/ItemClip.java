@@ -32,7 +32,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
 {
     public ItemClip()
     {
-        super("clip", "clip");
+        super("armoryClip", "clip", "clip");
     }
 
     @Override

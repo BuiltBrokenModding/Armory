@@ -20,7 +20,7 @@ public class ItemSentry extends ItemMetaArmoryEntry<SentryData>
 {
     public ItemSentry()
     {
-        super("sentry", "sentry");
+        super("armorySentry", "sentry", "sentry");
     }
 
 

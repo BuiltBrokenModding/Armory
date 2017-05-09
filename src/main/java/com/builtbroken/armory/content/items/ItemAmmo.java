@@ -25,7 +25,7 @@ public class ItemAmmo extends ItemMetaArmoryEntry<AmmoData> implements IItemAmmo
 {
     public ItemAmmo()
     {
-        super("ammo", "ammo");
+        super("armoryAmmo", "ammo", "ammo");
     }
 
     @Override

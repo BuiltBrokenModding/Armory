@@ -36,9 +36,9 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
     /** Type of the item @see {@link ArmoryDataHandler} */
     public final String typeName;
 
-    public ItemMetaArmoryEntry(String name, String typeName)
+    public ItemMetaArmoryEntry(String id, String name, String typeName)
     {
-        super(Armory.DOMAIN, name);
+        super(id, Armory.DOMAIN, name);
         ArmoryDataHandler.INSTANCE.get(typeName).add(this);
         this.typeName = typeName;
         this.setHasSubtypes(true);
@@ -49,7 +49,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
     {
         if (getData(meta) == null)
         {
-            return owner + ":" + typeName;
+            return node.owner + ":" + typeName;
         }
         return getData(meta).getUniqueID();
     }

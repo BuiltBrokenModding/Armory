@@ -58,6 +58,19 @@ public abstract class ArmoryEntryJsonProcessor<E extends ArmoryEntry> extends Js
             }
         }
 
+        final JsonElement creativeTab = object.get("showInCreativeTab");
+        if (creativeTab != null)
+        {
+            if (creativeTab.isJsonPrimitive())
+            {
+                e.showInCreativeTab = creativeTab.getAsBoolean();
+            }
+            else
+            {
+                throw new IllegalArgumentException("Invalid showInCreativeTab value " + creativeTab + " when reading " + object);
+            }
+        }
+
         final JsonElement contentGroup = object.get("contentGroup");
         if (contentGroup != null)
         {

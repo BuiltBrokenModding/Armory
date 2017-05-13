@@ -494,16 +494,20 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     IItemClip itemClip = ((IItemClip) stack.getItem());
                     if (itemClip.isAmmo(stack) && itemClip.isClip(stack))
                     {
-                        IAmmoType type = itemClip.getClipData(stack).getAmmoType();
-                        if (type == gunData.getAmmoType())
+                        IClipData clipData = itemClip.getClipData(stack);
+                        if (clipData != null)
                         {
-                            if (bestClip == null || bestClip.getAmmoCount() < itemClip.getAmmoCount(stack))
+                            IAmmoType type = clipData.getAmmoType();
+                            if (type == gunData.getAmmoType())
                             {
-                                IClip clip = itemClip.toClip(stack);
-                                if (clip != null)
+                                if (bestClip == null || bestClip.getAmmoCount() < itemClip.getAmmoCount(stack))
                                 {
-                                    bestClip = clip;
-                                    slot = it.slot();
+                                    IClip clip = itemClip.toClip(stack);
+                                    if (clip != null)
+                                    {
+                                        bestClip = clip;
+                                        slot = it.slot();
+                                    }
                                 }
                             }
                         }

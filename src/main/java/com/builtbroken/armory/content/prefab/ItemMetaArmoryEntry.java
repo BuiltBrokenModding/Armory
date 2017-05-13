@@ -138,7 +138,10 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
         Map<Integer, E> map = ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry;
         for (Map.Entry<Integer, E> entry : map.entrySet())
         {
-            getSubItems(item, entry.getKey(), entry.getValue(), tab, items);
+            if(entry.getValue().showInCreativeTab)
+            {
+                getSubItems(item, entry.getKey(), entry.getValue(), tab, items);
+            }
         }
     }
 

@@ -22,10 +22,12 @@
     "states": [
       {
         "id": "item.inventory",
+        "renderType":"item",
         "textureID": "armory:clip.box.filled"
       },
       {
         "id": "item.inventory.empty",
+        "renderType":"item",
         "textureID": "armory:clip.box"
       }
     ]
@@ -36,10 +38,12 @@
     "states": [
       {
         "id": "item.inventory",
+        "renderType":"item",
         "textureID": "armory:ammoCase.filled"
       },
       {
         "id": "item.inventory.empty",
+        "renderType":"item",
         "textureID": "armory:ammoCase"
       }
     ]

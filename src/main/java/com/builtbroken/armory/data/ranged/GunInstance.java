@@ -311,7 +311,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         double deltaY = end.y() - start.y();
         double deltaZ = end.z() - start.z();
 
-        projectile.setThrowableHeading(deltaX, deltaY, deltaZ, 10, 0);
+        projectile.setThrowableHeading(deltaX, deltaY, deltaZ, nextRound.getProjectileVelocity(), 0);
 
         world.spawnEntityInWorld(projectile);
 

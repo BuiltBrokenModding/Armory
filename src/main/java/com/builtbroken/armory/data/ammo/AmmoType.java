@@ -1,7 +1,7 @@
 package com.builtbroken.armory.data.ammo;
 
 import com.builtbroken.armory.data.ArmoryEntry;
-import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
+import com.builtbroken.mc.api.data.EnumProjectileTypes;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
@@ -55,6 +55,12 @@ public class AmmoType extends ArmoryEntry implements IAmmoType
     public String getAmmoType()
     {
         return name();
+    }
+
+    @Override
+    public EnumProjectileTypes getProjectileType()
+    {
+        return projectileType;
     }
 
     @Override

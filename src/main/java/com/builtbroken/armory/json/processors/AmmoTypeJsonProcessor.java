@@ -1,7 +1,7 @@
 package com.builtbroken.armory.json.processors;
 
 import com.builtbroken.armory.data.ammo.AmmoType;
-import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
+import com.builtbroken.mc.api.data.EnumProjectileTypes;
 import com.builtbroken.armory.json.ArmoryEntryJsonProcessor;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,7 +36,7 @@ public class AmmoTypeJsonProcessor extends ArmoryEntryJsonProcessor<AmmoType>
         String name = object.get("name").getAsString();
 
         //Get projectile type
-        String projectileType = object.get("projectileType").getAsString();
+        String projectileType = object.get("projectileType").getAsString().toLowerCase();
         EnumProjectileTypes type = EnumProjectileTypes.get(projectileType);
 
         //Create object

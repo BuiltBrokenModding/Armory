@@ -4,7 +4,7 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
-import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
+import com.builtbroken.mc.api.data.EnumProjectileTypes;
 import com.builtbroken.armory.json.processors.ClipJsonProcessor;
 import com.builtbroken.mc.testing.junit.AbstractTest;
 import com.builtbroken.mc.testing.junit.VoltzTestRunner;

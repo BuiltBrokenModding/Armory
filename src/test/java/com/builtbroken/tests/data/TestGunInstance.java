@@ -7,7 +7,7 @@ import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.armory.data.damage.simple.DamageSimple;
-import com.builtbroken.armory.data.projectiles.EnumProjectileTypes;
+import com.builtbroken.mc.api.data.EnumProjectileTypes;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.armory.data.user.WeaponUserEntity;

@@ -1,6 +1,7 @@
 package com.builtbroken.armory.content.entity.projectile;
 
 import com.builtbroken.armory.data.ArmoryDataHandler;
+import com.builtbroken.mc.api.data.EnumProjectileTypes;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.modules.weapon.IGun;
 import com.builtbroken.mc.core.Engine;
@@ -11,6 +12,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
@@ -29,6 +31,7 @@ public class EntityAmmoProjectile extends EntityProjectile implements IEntityAdd
     {
         super(world);
         this.setSize(0.1F, 0.1F); //TODO set size based on projectile data
+        hasHealth = true;
     }
 
     public EntityAmmoProjectile(World world, IAmmoData data, IGun firingWeapon, Entity shooter)
@@ -38,6 +41,45 @@ public class EntityAmmoProjectile extends EntityProjectile implements IEntityAdd
         this.weapon = firingWeapon;
         this.shootingEntity = shooter;
         this.shootingEntityUUID = shooter.getUniqueID();
+        hasHealth = true;
+    }
+
+    @Override
+    public float getMaxHealth()
+    {
+        return 4; //TODO get HP based on ammo
+    }
+
+    @Override
+    protected void onDestroyedBy(DamageSource source, float damage)
+    {
+        super.onDestroyedBy(source, damage);
+        if (!worldObj.isRemote)
+        {
+            if (ammoData != null)
+            {
+                ammoData.onImpactGround(shootingEntity, worldObj, xTile, yTile, zTile, x(), y(), z(), getSpeed());
+            }
+        }
+    }
+
+    @Override
+    protected void decreaseMotion()
+    {
+        //TODO implement bullet physics
+        //TODO rockets should not lose velocity until out of fuel
+    }
+
+    @Override
+    public boolean canBeCollidedWith()
+    {
+        return ammoData == null || ammoData.getAmmoType().getProjectileType() != EnumProjectileTypes.LASER;
+    }
+
+    @Override
+    public EnumProjectileTypes getProjectileType()
+    {
+        return ammoData != null ? ammoData.getAmmoType().getProjectileType() : null;
     }
 
     @Override
@@ -51,7 +93,7 @@ public class EntityAmmoProjectile extends EntityProjectile implements IEntityAdd
         {
             if (ammoData != null)
             {
-                if (ammoData.onImpactGround(shootingEntity, worldObj, xTile, yTile, zTile, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, getVelocity()))
+                if (ammoData.onImpactGround(shootingEntity, worldObj, xTile, yTile, zTile, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, getSpeed()))
                 {
                     this.setDead();
                 }

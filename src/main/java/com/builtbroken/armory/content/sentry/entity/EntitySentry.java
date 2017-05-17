@@ -177,8 +177,11 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
     public void setSentry(Sentry sentry)
     {
         this.sentry = sentry;
-        this.sentry.host = this;
-        setSize(sentry.getSentryData().getBodyWidth(), sentry.getSentryData().getBodyHeight());
+        if(this.sentry != null)
+        {
+            this.sentry.host = this;
+            setSize(sentry.getSentryData().getBodyWidth(), sentry.getSentryData().getBodyHeight());
+        }
     }
 
     @Override

@@ -182,24 +182,19 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
             SentryData data = Armory.itemSentry.getData(sentryStack);
             if (data != null)
             {
-                sentry = new Sentry(data);
+                setSentry(new Sentry(data));
             }
             else
             {
                 Armory.INSTANCE.logger().error("Could not read sentry data from " + stack, new RuntimeException());
-                setSentryStack(null);
+                setSentry(null);
             }
         }
         else
         {
-            sentry = null;
-            if (getSentryEntity() != null)
-            {
-                world().removeEntity(getSentryEntity());
-            }
+            setSentry(null);
         }
     }
-
 
     @Override
     public void writeToNBT(NBTTagCompound nbt)
@@ -353,8 +348,11 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     public void setSentryEntity(EntitySentry sentryEntity)
     {
         this.sentryEntity = sentryEntity;
-        this.sentryEntity.setSentry(sentry);
-        sendSentryIDToClient();
+        if (sentryEntity != null)
+        {
+            this.sentryEntity.setSentry(getSentry());
+            sendSentryIDToClient();
+        }
     }
 
     @Override
@@ -363,6 +361,21 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         return sentry;
     }
 
+    public void setSentry(Sentry sentry)
+    {
+        this.sentry = sentry;
+        if (sentryEntity != null)
+        {
+            if (sentry != null)
+            {
+                sentryEntity.setSentry(sentry);
+            }
+            else
+            {
+                world().removeEntity(getSentryEntity());
+            }
+        }
+    }
 
     @Override
     public String toString()

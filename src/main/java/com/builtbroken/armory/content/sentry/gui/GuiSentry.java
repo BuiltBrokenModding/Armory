@@ -136,41 +136,44 @@ public class GuiSentry extends GuiContainerBase
     {
         super.updateScreen();
 
-        //Update power state
-        if (tile.getSentry().turnedOn)
+        if(tile != null && tile.getSentry() != null)
         {
-            onButton.disable();
-            offButton.enable();
-        }
-        else
-        {
-            onButton.enable();
-            offButton.disable();
-        }
-
-        //Target settings GUI
-        if (id == 1)
-        {
-            //Update check state for target mode settings
-            if (targetListButtons != null)
+            //Update power state
+            if (tile.getSentry().turnedOn)
             {
-                for (int i = 0; i < targetListButtons.length; i++)
+                onButton.disable();
+                offButton.enable();
+            }
+            else
+            {
+                onButton.enable();
+                offButton.disable();
+            }
+
+            //Target settings GUI
+            if (id == 1)
+            {
+                //Update check state for target mode settings
+                if (targetListButtons != null)
                 {
-                    int index = i + scrollTargetList;
-                    if (index < tile.getSentry().getSentryData().getAllowedTargetTypes().length)
+                    for (int i = 0; i < targetListButtons.length; i++)
                     {
-                        String key = tile.getSentry().getSentryData().getAllowedTargetTypes()[index];
-                        TargetMode mode = tile.getSentry().targetModes.get(key);
-                        if (mode != null)
+                        int index = i + scrollTargetList;
+                        if (index < tile.getSentry().getSentryData().getAllowedTargetTypes().length)
                         {
-                            //Enable all buttons
-                            for (int z = 0; z < targetListButtons[i].length; z++)
+                            String key = tile.getSentry().getSentryData().getAllowedTargetTypes()[index];
+                            TargetMode mode = tile.getSentry().targetModes.get(key);
+                            if (mode != null)
                             {
-                                targetListButtons[i][z].enable();
-                                targetListButtons[i][z].uncheck();
+                                //Enable all buttons
+                                for (int z = 0; z < targetListButtons[i].length; z++)
+                                {
+                                    targetListButtons[i][z].enable();
+                                    targetListButtons[i][z].uncheck();
+                                }
+                                targetListButtons[i][mode.ordinal()].disable();
+                                targetListButtons[i][mode.ordinal()].check();
                             }
-                            targetListButtons[i][mode.ordinal()].disable();
-                            targetListButtons[i][mode.ordinal()].check();
                         }
                     }
                 }

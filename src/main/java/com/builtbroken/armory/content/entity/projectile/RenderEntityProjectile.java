@@ -1,5 +1,6 @@
 package com.builtbroken.armory.content.entity.projectile;
 
+import com.builtbroken.armory.Armory;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.client.json.render.RenderData;
@@ -37,14 +38,21 @@ public class RenderEntityProjectile extends RenderEntity
                 GL11.glRotated(entity.rotationYaw, 0, 1, 0);
                 GL11.glRotated(-entity.rotationPitch, 1, 0, 0);
 
-                rendered = data.render("projectile");
+                try
+                {
+                    rendered = data.render("projectile");
+                }
+                catch (Exception e)
+                {
+                    Armory.INSTANCE.logger().error("RenderEntityProjectile: Error rendering projectile " + entity, e);
+                }
 
                 GL11.glPopMatrix();
             }
         }
 
         //Backup render
-        if (rendered)
+        if (!rendered)
         {
             FMLClientHandler.instance().getClient().renderEngine.bindTexture(SharedAssets.GREY_TEXTURE);
             renderOffsetAABB(entity.boundingBox, rx - entity.lastTickPosX, ry - entity.lastTickPosY, rz - entity.lastTickPosZ);

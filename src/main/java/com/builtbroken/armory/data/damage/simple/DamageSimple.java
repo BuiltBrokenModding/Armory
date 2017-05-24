@@ -1,8 +1,11 @@
 package com.builtbroken.armory.data.damage.simple;
 
+import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.damage.DamageData;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 
 import java.util.HashMap;
@@ -14,11 +17,6 @@ import java.util.HashMap;
 public class DamageSimple extends DamageData
 {
     public static final HashMap<String, DamageType> damageTypes = new HashMap();
-
-    static
-    {
-
-    }
 
     public final float damage;
     public final String damageName;
@@ -56,14 +54,42 @@ public class DamageSimple extends DamageData
                 }
             }
 
+            //Fix for entities being immune to attacks after being hit once
+            if (Armory.overrideDamageDelay)
+            {
+                entity.hurtResistantTime = 0;
+            }
+
             if (attacker != null)
             {
-                entity.attackEntityFrom(new DamageSourceShooter(damageName, attacker, damageSource), this.damage * scale);
+                float hp = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).getHealth() : -1;
+                if (entity.attackEntityFrom(new DamageSourceShooter(damageName, attacker, damageSource), this.damage * scale))
+                {
+                    if (Engine.runningAsDev)
+                    {
+                        Armory.INSTANCE.logger().info("Damage(" + attacker + ", " + entity + ", .... ) applied damage");
+                    }
+                }
+                else
+                {
+                    if (Engine.runningAsDev)
+                    {
+                        Armory.INSTANCE.logger().info("Damage(" + attacker + ", " + entity + ", .... ) applied no damage");
+                    }
+                }
+                float hp2 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).getHealth() : -1;
+                float damage = hp - hp2;
+                if (Engine.runningAsDev)
+                {
+                    Armory.INSTANCE.logger().info("\tDamage = " + damage);
+                }
             }
             else
             {
                 entity.attackEntityFrom(damageSource, this.damage * scale);
             }
+
+
         }
 
         return true;

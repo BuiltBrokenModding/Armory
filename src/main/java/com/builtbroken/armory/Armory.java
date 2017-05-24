@@ -60,6 +60,10 @@ public final class Armory extends AbstractMod
     public static ItemMetaArmoryEntry<AmmoData> itemAmmo;
     public static ItemMetaArmoryEntry<SentryData> itemSentry;
 
+    //Configs
+    /** Overrides the delay between attacks on entities */
+    public static boolean overrideDamageDelay = true;
+
     public Armory()
     {
         super(DOMAIN, "Armory");

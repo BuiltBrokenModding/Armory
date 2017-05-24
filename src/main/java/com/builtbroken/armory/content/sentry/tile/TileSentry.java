@@ -23,12 +23,14 @@ import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.Map;
 
@@ -53,6 +55,39 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         this.renderNormalBlock = true;
         this.renderTileEntity = true;
         this.isOpaque = false;
+    }
+
+    @Override
+    public boolean isSolid(int side)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean canPlaceBlockOnSide(ForgeDirection side)
+    {
+        return side == ForgeDirection.UP && canPlaceBlockAt();
+    }
+
+    @Override
+    public boolean canPlaceBlockAt()
+    {
+        if (world() != null)
+        {
+            Block block = world().getBlock(xi(), yi(), zi());
+            if (block != null)
+            {
+                if (block.isReplaceable(world(), xi(), yi(), zi()))
+                {
+                    block = world().getBlock(xi(), yi() - 1, zi());
+                    if (block != null)
+                    {
+                        return block.isBlockSolid(world(), xi(), yi() - 1, zi(), ForgeDirection.UP.ordinal());
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override

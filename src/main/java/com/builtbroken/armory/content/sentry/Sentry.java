@@ -240,7 +240,8 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                                         //Update aim point
                                         aimPoint = getAimPoint(target);
 
-                                        aim.set(center.toEulerAngle(aimPoint).clampTo360());
+                                        aim.set(center.toEulerAngle(aimPoint));
+                                        aim.setYaw(EulerAngle.clampAngle(aim.yaw(), 0, 360));
 
                                         if (isAimed())
                                         {

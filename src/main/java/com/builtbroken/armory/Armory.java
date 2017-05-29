@@ -27,8 +27,9 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
@@ -96,23 +97,44 @@ public final class Armory extends AbstractMod
         if (!configFolder.exists())
         {
             configFolder.mkdirs();
-            if (oldConfigFolder.exists() && oldConfigFolder.isDirectory())
+            try
             {
-                for (File file : oldConfigFolder.listFiles())
+                if (oldConfigFolder.exists() && oldConfigFolder.isDirectory())
                 {
-                    try
+                    for (File file : oldConfigFolder.listFiles())
                     {
-                        File newFile = new File(configFolder, file.getName());
-                        if (!newFile.exists())
+                        try
                         {
-                            Files.move(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            File newFile = new File(configFolder, file.getName());
+                            if (!newFile.exists())
+                            {
+                                Files.move(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            throw new RuntimeException("Error moving file: " + file, e);
                         }
                     }
-                    catch (IOException e)
+                }
+            }
+            catch (Exception e)
+            {
+                logger().error("Failed to move files from old config folder to new config folder. If you want to keep these settings it will need to be manually moved.", e);
+                if (!GraphicsEnvironment.isHeadless())
+                {
+                    int reply = JOptionPane.showConfirmDialog(null, "Failed to move config files from old folder to new folder." +
+                                    "\nDo you want to close Minecraft to manual move files?" +
+                                    "\nClick no to ignore but be warned can cause issues",
+                            "Error moving files", JOptionPane.YES_OPTION);
+                    if (reply == JOptionPane.YES_OPTION)
                     {
-                        logger().error("Failed to move file[" + file + "] from old config folder to new config folder. If you want to keep these settings it will need to be manually moved.", e);
-                        //TODO show GUI asking to open file for manual move
+                        throw new RuntimeException("Exiting");
                     }
+                }
+                else
+                {
+                    throw new RuntimeException("Failed to move files, see log for details and manually move files to correct for the issues.\n" + oldConfigFolder + " needs to be moved to " + configFolder);
                 }
             }
         }

@@ -27,6 +27,11 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 /**
  * Created by robert on 11/18/2014.
  */
@@ -84,6 +89,34 @@ public final class Armory extends AbstractMod
         Engine.requestSimpleTools();
         Engine.requestCircuits();
         Engine.requestCraftingParts();
+
+        //Fix configs being in the wrong place
+        File oldConfigFolder = new File(References.BBM_CONFIG_FOLDER, "bbm/armory");
+        File configFolder = new File(References.BBM_CONFIG_FOLDER, "armory");
+        if (!configFolder.exists())
+        {
+            configFolder.mkdirs();
+            if (oldConfigFolder.exists() && oldConfigFolder.isDirectory())
+            {
+                for (File file : oldConfigFolder.listFiles())
+                {
+                    try
+                    {
+                        File newFile = new File(configFolder, file.getName());
+                        if (!newFile.exists())
+                        {
+                            Files.move(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        logger().error("Failed to move file[" + file + "] from old config folder to new config folder. If you want to keep these settings it will need to be manually moved.", e);
+                        //TODO show GUI asking to open file for manual move
+                    }
+                }
+            }
+        }
+
 
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "gun"));
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "ammo"));

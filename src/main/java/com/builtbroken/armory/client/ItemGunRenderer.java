@@ -112,6 +112,11 @@ public class ItemGunRenderer extends ItemJsonRenderer
             {
                 GunInstance gun = ((ItemGun) item.getItem()).getGunInstance(item, entity);
                 String key = ((ItemGun) item.getItem()).getRenderKey(gun);
+                //If gun instance doesn't provide data use ItemStack raw data
+                if (key == null)
+                {
+                    key = ((ItemGun) item.getItem()).getRenderKey(item);
+                }
                 if (gun.isSighted)
                 {
                     if (key == null)
@@ -137,12 +142,6 @@ public class ItemGunRenderer extends ItemJsonRenderer
                     }
                 }
                 list.add(key);
-            }
-
-            //If gun instance doesn't provide data use ItemStack raw data
-            if (list.isEmpty())
-            {
-                list.add(((ItemGun) item.getItem()).getRenderKey(item));
             }
             return list.isEmpty() ? null : list;
         }

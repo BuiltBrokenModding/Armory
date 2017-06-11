@@ -54,6 +54,7 @@ public class TestGunInstance extends AbstractArmoryTest
         ItemStack stack = new ItemStack(itemGun, 1, 0);
         GunInstance instance = newInstance(stack, world);
         instance.getLoadedClip().loadAmmo((IAmmoData) ArmoryDataHandler.INSTANCE.get("ammo").get("ammo0"), 6);
+        instance.isLowered = false;
 
         for (int i = 0; i < 6; i++)
         {

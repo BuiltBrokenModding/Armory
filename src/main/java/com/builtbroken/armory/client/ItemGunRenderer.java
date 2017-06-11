@@ -119,27 +119,12 @@ public class ItemGunRenderer extends ItemJsonRenderer
                 }
                 if (gun.isSighted)
                 {
-                    if (key == null)
-                    {
-                        list.add("sighted");
-                        list.add("aimed");
-                    }
-                    else
-                    {
-                        list.add(key + ".sighted");
-                        list.add(key + ".aimed");
-                    }
+                    list.add(key + ".sighted"); //legacy
+                    list.add(key + ".aimed");
                 }
                 else if (gun.isLowered)
                 {
-                    if (key == null)
-                    {
-                        list.add("lowered");
-                    }
-                    else
-                    {
-                        list.add(key + ".lowered");
-                    }
+                    list.add(key + ".lowered");
                 }
                 list.add(key);
             }

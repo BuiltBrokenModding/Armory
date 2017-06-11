@@ -236,6 +236,18 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                             {
                                 ((EntityPlayer) entity).stopUsingItem();
                             }
+                            else if(!gun.isLowered)
+                            {
+                                boolean shouldLower = System.currentTimeMillis() - gun.lastTimeUnLowered > 10 * 1000; //10 seconds
+                                shouldLower = shouldLower && System.currentTimeMillis() - gun.lastTimeFired > 3 * 1000; //3 seconds
+                                //TODO do check for hostiles in sight
+                                //TODO do check for manual raised state
+
+                                if(shouldLower)
+                                {
+                                    gun.isLowered = true;
+                                }
+                            }
                         }
                     }
                 }

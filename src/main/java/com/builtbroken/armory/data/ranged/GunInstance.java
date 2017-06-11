@@ -72,10 +72,16 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public boolean doReload = false;
     /** Is the weapon sighted */
     public boolean isSighted = false;
+
     /** True = infinite ammo */
     public boolean consumeAmmo = false;
     /** Delay before reloading */
     public int reloadDelay = -1;
+
+    /** Is the weapon in a lowered, unarmed, state */
+    public boolean isLowered = true;
+    /** Last time the weapon was taken out of lowered state */
+    public long lastTimeUnLowered = 0L;
 
     public GunInstance(ItemStack gunStack, IWeaponUser weaponUser, IGunData gun)
     {
@@ -111,6 +117,15 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     public void fireWeapon(World world, int ticksFired, Pos aimPoint, Pos aim)
     {
+        //First click raises the weapon
+        if(isLowered)
+        {
+            isLowered = false;
+            lastTimeUnLowered = System.currentTimeMillis();
+            return;
+        }
+
+        //Check if sighted is required to fire
         if (isSighted || !gunData.isSightedRequiredToFire())
         {
             Long deltaTime = System.currentTimeMillis() - lastTimeFired;

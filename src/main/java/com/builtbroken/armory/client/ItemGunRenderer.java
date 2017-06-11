@@ -6,8 +6,8 @@ import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.client.json.ClientDataHandler;
-import com.builtbroken.mc.client.json.render.item.ItemJsonRenderer;
 import com.builtbroken.mc.client.json.render.RenderData;
+import com.builtbroken.mc.client.json.render.item.ItemJsonRenderer;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.render.model.loader.EngineModelLoader;
 import cpw.mods.fml.client.FMLClientHandler;
@@ -112,21 +112,34 @@ public class ItemGunRenderer extends ItemJsonRenderer
             {
                 GunInstance gun = ((ItemGun) item.getItem()).getGunInstance(item, entity);
                 String key = ((ItemGun) item.getItem()).getRenderKey(gun);
-                if(gun.isSighted)
+                if (gun.isSighted)
                 {
-                    if(key == null)
+                    if (key == null)
                     {
                         list.add("sighted");
+                        list.add("aimed");
                     }
                     else
                     {
                         list.add(key + ".sighted");
+                        list.add(key + ".aimed");
+                    }
+                }
+                else if (gun.isLowered)
+                {
+                    if (key == null)
+                    {
+                        list.add("lowered");
+                    }
+                    else
+                    {
+                        list.add(key + ".lowered");
                     }
                 }
                 list.add(key);
             }
 
-            //If gun instance didn't work
+            //If gun instance doesn't provide data use ItemStack raw data
             if (list.isEmpty())
             {
                 list.add(((ItemGun) item.getItem()).getRenderKey(item));

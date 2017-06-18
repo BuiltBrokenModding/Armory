@@ -39,25 +39,25 @@ public class ClipInstanceItem extends AbstractModule implements IClip
     @Override
     public int getAmmoCount()
     {
-        return ((IItemClip) item.getItem()).getAmmoCount(item);
+        return ((IItemClip) getItem().getItem()).getAmmoCount(getItem());
     }
 
     @Override
     public Stack<IAmmoData> getAmmo()
     {
-        return ((IItemClip) item.getItem()).getStoredAmmo(item);
+        return ((IItemClip) getItem().getItem()).getStoredAmmo(getItem());
     }
 
     @Override
     public void consumeAmmo(int count)
     {
-        ((IItemClip) item.getItem()).consumeAmmo(null, null, item, count);
+        ((IItemClip) getItem().getItem()).consumeAmmo(null, null, getItem(), count);
     }
 
     @Override
     public int loadAmmo(IAmmoData data, int count)
     {
-        return ((IItemClip) item.getItem()).loadAmmo(item, data, count);
+        return ((IItemClip) getItem().getItem()).loadAmmo(getItem(), data, count);
     }
 
     @Override
@@ -71,15 +71,15 @@ public class ClipInstanceItem extends AbstractModule implements IClip
     {
         if (getAmmoCount() <= 0)
         {
-            item.setTagCompound(null);
+            getItem().setTagCompound(null);
         }
-        return item;
+        return getItem();
     }
 
     @Override
     public ItemStack save()
     {
-        return item;
+        return getItem();
     }
 
     @Override

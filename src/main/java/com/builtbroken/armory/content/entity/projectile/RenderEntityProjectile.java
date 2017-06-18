@@ -3,6 +3,8 @@ package com.builtbroken.armory.content.entity.projectile;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.client.json.ClientDataHandler;
+import com.builtbroken.mc.client.json.imp.IModelState;
+import com.builtbroken.mc.client.json.imp.IRenderState;
 import com.builtbroken.mc.client.json.render.RenderData;
 import cpw.mods.fml.client.FMLClientHandler;
 import net.minecraft.client.renderer.entity.RenderEntity;
@@ -40,7 +42,11 @@ public class RenderEntityProjectile extends RenderEntity
 
                 try
                 {
-                    rendered = data.render("projectile");
+                    IRenderState state = data.getState("projectile");
+                    if (state instanceof IModelState)
+                    {
+                        rendered = ((IModelState) state).render(false, entity.rotationYaw, -entity.rotationPitch, 0);
+                    }
                 }
                 catch (Exception e)
                 {

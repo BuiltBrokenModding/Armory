@@ -79,7 +79,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public int reloadDelay = -1;
 
     /** Is the weapon in a lowered, unarmed, state */
-    public boolean isLowered = true;
+    public boolean isLowered = false;
     /** Last time the weapon was taken out of lowered state */
     public long lastTimeUnLowered = 0L;
 
@@ -117,14 +117,6 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     public void fireWeapon(World world, int ticksFired, Pos aimPoint, Pos aim)
     {
-        //First click raises the weapon
-        if(isLowered)
-        {
-            isLowered = false;
-            lastTimeUnLowered = System.currentTimeMillis();
-            return;
-        }
-
         //Check if sighted is required to fire
         if (isSighted || !gunData.isSightedRequiredToFire())
         {
@@ -819,9 +811,9 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     protected int consumeEnergy(boolean doAction)
     {
-        if (item != null && item.getItem() instanceof IEnergyItem)
+        if (getItem() != null && getItem().getItem() instanceof IEnergyItem)
         {
-            return ((IEnergyItem) item.getItem()).discharge(item, getChamberedRound().getEnergyCost(), doAction);
+            return ((IEnergyItem) getItem().getItem()).discharge(getItem(), getChamberedRound().getEnergyCost(), doAction);
         }
         else if (weaponUser instanceof IEnergyBufferProvider)
         {

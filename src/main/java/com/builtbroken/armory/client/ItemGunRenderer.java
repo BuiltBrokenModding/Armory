@@ -43,10 +43,7 @@ public class ItemGunRenderer extends ItemJsonRenderer
             GunInstance instance = item.getGunInstance(stack, event.entityPlayer);
             if (instance != null)
             {
-                if (instance.isSighted)
-                {
-                    render.modelArmorChestplate.aimedBow = render.modelArmor.aimedBow = render.modelBipedMain.aimedBow = true;
-                }
+                render.modelArmorChestplate.aimedBow = render.modelArmor.aimedBow = render.modelBipedMain.aimedBow = instance.isSighted;
             }
         }
         //event.renderer.modelBipedMain.bipedRightArm.showModel = false;

@@ -205,7 +205,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //Load next round to fire
                 chamberNextRound();
             }
-            weaponUser.updateWeaponStack(toStack(), "_doFire");
+            weaponUser.updateWeaponStack(this, toStack(), "_doFire");
         }
 
         if (!hasMagWithAmmo())
@@ -228,7 +228,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             {
                 _chamberedRound = getLoadedClip().getAmmo().peek();
                 getLoadedClip().consumeAmmo(1);
-                weaponUser.updateWeaponStack(toStack(), "chamber round");
+                weaponUser.updateWeaponStack(this, toStack(), "chamber round");
                 playAudio("round.chamber");
             }
             return getChamberedRound() != null;
@@ -338,7 +338,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 consumeEnergy();
             }
             playAudio("round.consume");
-            weaponUser.updateWeaponStack(toStack(), "consume ammo");
+            weaponUser.updateWeaponStack(this, toStack(), "consume ammo");
         }
     }
 
@@ -352,6 +352,15 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public boolean hasMagWithAmmo()
     {
         return getLoadedClip() != null && getLoadedClip().getAmmoCount() > 0;
+    }
+
+    /**
+     * Checks if the gun still has ammo to fire
+     * @return
+     */
+    public boolean hasAmmo()
+    {
+        return hasMagWithAmmo() || getChamberedRound() != null;
     }
 
     public boolean isFullOnAmmo()
@@ -482,7 +491,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
         if (reloaded && doAction)
         {
-            weaponUser.updateWeaponStack(toStack(), "reload weapon");
+            weaponUser.updateWeaponStack(this, toStack(), "reload weapon");
         }
         return reloaded;
     }
@@ -675,7 +684,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 }
                 _clip = null;
             }
-            weaponUser.updateWeaponStack(toStack(), "unloadWeapon");
+            weaponUser.updateWeaponStack(this, toStack(), "unloadWeapon");
         }
     }
 

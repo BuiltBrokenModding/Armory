@@ -46,14 +46,9 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     public static final HashMap<Entity, GunInstance> gunCache = new HashMap();
     /** Who has the left click held down */
     public static final Map<EntityPlayer, Integer> leftClickHeld = new HashMap();
-    //TODO handle what type of gun
-    //TODO handle damage to weapon
-    //TODO handle damage to weapon parts
-    //TODO handle to & from stack conversions
-    //TODO handle ammo
-    //TODO handle reloading
-    //TODO handle firing
-    //TODO handle aiming
+
+    /** CLIENT SIDE ONLY, is the player aiming the gun */
+    public static boolean isAiming = false;
 
     private GunInstance clientSideGun;
     private long lastDebugKeyHit = 0;
@@ -134,6 +129,14 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             if (gun != null)
             {
                 gun.isSighted = state;
+
+                //Client side temp fix
+                if(player.worldObj.isRemote)
+                {
+                    isAiming = state;
+                }
+
+                //Audio event for aiming
                 if (!player.getEntityWorld().isRemote)
                 {
                     gun.playAudio("aimed");
@@ -156,6 +159,12 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                 }
             }
         }
+    }
+
+    @Override
+    public boolean shouldCancelMouseEvent(ItemStack stack, EntityPlayer player, int button, boolean state)
+    {
+        return true;
     }
 
     @Override
@@ -222,19 +231,6 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                                         ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("" + time));
                                     }
                                 }
-                            }
-
-                            //Sight weapon
-                            if (gun.isSighted)
-                            {
-                                if (!((EntityPlayer) entity).isUsingItem())
-                                {
-                                    ((EntityPlayer) entity).setItemInUse(stack, getMaxItemUseDuration(stack));
-                                }
-                            }
-                            else if (((EntityPlayer) entity).isUsingItem())
-                            {
-                                ((EntityPlayer) entity).stopUsingItem();
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package com.builtbroken.armory.data.user;
 
+import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,13 +43,15 @@ public class WeaponUserPlayer extends WeaponUserEntity<EntityPlayer>
     }
 
     @Override
-    public void updateWeaponStack(ItemStack updated, String name)
+    public void updateWeaponStack(GunInstance instance, ItemStack updated, String name)
     {
         ItemStack stack = entity.getHeldItem();
         if (stack != null && stack.isItemEqual(updated))
         {
             getInventory().setInventorySlotContents(getInventory().currentItem, updated);
             entity.inventoryContainer.detectAndSendChanges();
+
+            //Debug
             if (Engine.runningAsDev)
             {
                 Engine.logger().info("Updated gun stack: " + name);

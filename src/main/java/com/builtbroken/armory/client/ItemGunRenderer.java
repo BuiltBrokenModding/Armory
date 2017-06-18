@@ -12,6 +12,7 @@ import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.lib.render.model.loader.EngineModelLoader;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
@@ -114,7 +115,7 @@ public class ItemGunRenderer extends ItemJsonRenderer
                 {
                     key = ((ItemGun) item.getItem()).getRenderKey(item);
                 }
-                if (gun.isSighted)
+                if (gun.isSighted || entity == Minecraft.getMinecraft().thePlayer && ItemGun.isAiming)
                 {
                     list.add(key + ".sighted"); //legacy
                     list.add(key + ".aimed");

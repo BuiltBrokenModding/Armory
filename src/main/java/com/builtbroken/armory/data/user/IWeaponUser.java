@@ -1,5 +1,6 @@
 package com.builtbroken.armory.data.user;
 
+import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.imp.transform.rotation.IRotation;
 import com.builtbroken.mc.imp.transform.vector.Pos;
@@ -64,7 +65,7 @@ public interface IWeaponUser extends IWorldPosition, IRotation
      */
     boolean isAmmoSlot(int slot);
 
-    default void updateWeaponStack(ItemStack stack, String editor)
+    default void updateWeaponStack(GunInstance instance, ItemStack stack, String editor)
     {
 
     }

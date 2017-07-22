@@ -1,6 +1,5 @@
 package com.builtbroken.armory.content.entity.projectile;
 
-import com.builtbroken.armory.Armory;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.client.json.imp.IModelState;
@@ -17,53 +16,74 @@ import org.lwjgl.opengl.GL11;
  */
 public class RenderEntityProjectile extends RenderEntity
 {
+    public static final String[] renderKeys = new String[]{"projectile", "entity"};
+
     @Override
-    public void doRender(Entity entity, double rx, double ry, double rz, float p_76986_8_, float p_76986_9_)
+    public void doRender(Entity entity, double x, double y, double z, float f, float f1)
     {
         GL11.glPushMatrix();
+        GL11.glTranslated(x, y, z);
 
-        //Get render data
-        RenderData data = null;
+        float pitch = interpolateRotation(entity.prevRotationPitch, entity.rotationPitch, f1);
+        float yaw = interpolateRotation(entity.prevRotationYaw, entity.rotationYaw, f1);
+        boolean rendered = false;
         if (entity instanceof EntityAmmoProjectile && ((EntityAmmoProjectile) entity).ammoData != null)
         {
-            data = ClientDataHandler.INSTANCE.getRenderData(((EntityAmmoProjectile) entity).ammoData.getUniqueID());
+            rendered = renderProjectile(((EntityAmmoProjectile) entity).ammoData.getUniqueID(), yaw, pitch);
         }
 
-        //Render object
-        boolean rendered = false;
-        if (data != null)
-        {
-            if (data.canRenderState("projectile"))
-            {
-                GL11.glPushMatrix();
-                GL11.glTranslated(rx, ry, rz);
-                GL11.glRotated(entity.rotationYaw, 0, 1, 0);
-                GL11.glRotated(-entity.rotationPitch, 1, 0, 0);
-
-                try
-                {
-                    IRenderState state = data.getState("projectile");
-                    if (state instanceof IModelState)
-                    {
-                        rendered = ((IModelState) state).render(false, entity.rotationYaw, -entity.rotationPitch, 0);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Armory.INSTANCE.logger().error("RenderEntityProjectile: Error rendering projectile " + entity, e);
-                }
-
-                GL11.glPopMatrix();
-            }
-        }
-
-        //Backup render
         if (!rendered)
         {
             FMLClientHandler.instance().getClient().renderEngine.bindTexture(SharedAssets.GREY_TEXTURE);
-            renderOffsetAABB(entity.boundingBox, rx - entity.lastTickPosX, ry - entity.lastTickPosY, rz - entity.lastTickPosZ);
+            renderOffsetAABB(entity.boundingBox, x - entity.lastTickPosX, y - entity.lastTickPosY, z - entity.lastTickPosZ);
+        }
+        GL11.glPopMatrix();
+    }
+
+    /**
+     * Called to render a missile
+     * <p>
+     * Does not translate or wrap in push & pop matrix calls
+     *
+     * @param yaw
+     * @param pitch
+     */
+    public static boolean renderProjectile(String contentID, float yaw, float pitch)
+    {
+        RenderData data = ClientDataHandler.INSTANCE.getRenderData(contentID);
+        if (data != null)
+        {
+            for (String stateID : renderKeys)
+            {
+                IRenderState state = data.getState(stateID);
+                if (state instanceof IModelState)
+                {
+                    if (((IModelState) state).render(false, yaw, pitch, 0))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+
+
+    }
+
+    public static float interpolateRotation(float prev, float rotation, float f)
+    {
+        float f3 = rotation - prev;
+
+        while (f3 < -180.0F)
+        {
+            f3 += 360.0F;
         }
 
-        GL11.glPopMatrix();
+        while (f3 >= 180.0F)
+        {
+            f3 -= 360.0F;
+        }
+
+        return prev + f * f3;
     }
 }

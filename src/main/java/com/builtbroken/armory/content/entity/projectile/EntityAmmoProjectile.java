@@ -4,7 +4,10 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.mc.api.data.EnumProjectileTypes;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.modules.weapon.IGun;
+import com.builtbroken.mc.client.json.ClientDataHandler;
+import com.builtbroken.mc.client.json.imp.IEffectData;
 import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.entity.EntityProjectile;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
@@ -68,6 +71,28 @@ public class EntityAmmoProjectile extends EntityProjectile implements IEntityAdd
     {
         //TODO implement bullet physics
         //TODO rockets should not lose velocity until out of fuel
+    }
+
+    @Override
+    protected void updateMotion()
+    {
+        super.updateMotion();
+        if(world().isRemote && ammoData != null)
+        {
+            String contentID = ammoData.getUniqueID();
+            IEffectData data = ClientDataHandler.INSTANCE.getEffect(contentID + ".motion.tick");
+            if (data != null)
+            {
+                Pos motion = new Pos(motionX, motionY, motionZ).normalize();
+                Pos vel = new Pos((worldObj.rand.nextFloat() - 0.5f) / 8f, (worldObj.rand.nextFloat() - 0.5f) / 8f, (worldObj.rand.nextFloat() - 0.5f) / 8f);
+                vel = vel.multiply(motion);
+
+                data.trigger(
+                        world(), x(), y(), z(),
+                        vel.x(), vel.y(), vel.z(),
+                        false);
+            }
+        }
     }
 
     @Override

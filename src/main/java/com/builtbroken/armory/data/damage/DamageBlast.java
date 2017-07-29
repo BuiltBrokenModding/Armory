@@ -79,12 +79,12 @@ public class DamageBlast extends DamageData
             }
             else
             {
-                DebugHelper.outputMethodDebug(Armory.INSTANCE.logger(), "doAOE", "null blast from " + handler, attacker, world, x, y, z, velocity, scale);
+                DebugHelper.outputMethodDebug(Armory.INSTANCE.logger(), "doAOE", "\nnull blast from " + handler, attacker, world, x, y, z, velocity, scale);
             }
         }
         else
         {
-            DebugHelper.outputMethodDebug(Armory.INSTANCE.logger(), "doAOE", "no blast handler for " + this, attacker, world, x, y, z, velocity, scale);
+            DebugHelper.outputMethodDebug(Armory.INSTANCE.logger(), "doAOE", "\nno blast handler for " + this, attacker, world, x, y, z, velocity, scale);
         }
     }
 }

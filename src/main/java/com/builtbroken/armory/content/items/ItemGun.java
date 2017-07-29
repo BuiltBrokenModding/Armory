@@ -56,7 +56,10 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     public ItemGun()
     {
         super("armoryGun", "gun", "gun");
-        FMLCommonHandler.instance().bus().register(this);
+        if (!Engine.isJUnitTest())
+        {
+            FMLCommonHandler.instance().bus().register(this);
+        }
     }
 
     @Override
@@ -131,7 +134,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                 gun.isSighted = state;
 
                 //Client side temp fix
-                if(player.worldObj.isRemote)
+                if (player.worldObj.isRemote)
                 {
                     isAiming = state;
                 }

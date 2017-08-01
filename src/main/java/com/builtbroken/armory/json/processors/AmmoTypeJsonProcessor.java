@@ -1,5 +1,6 @@
 package com.builtbroken.armory.json.processors;
 
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.mc.api.data.EnumProjectileTypes;
 import com.builtbroken.armory.json.ArmoryEntryJsonProcessor;
@@ -16,7 +17,7 @@ public class AmmoTypeJsonProcessor extends ArmoryEntryJsonProcessor<AmmoType>
 {
     public AmmoTypeJsonProcessor()
     {
-        super("ammoType");
+        super(ArmoryAPI.AMMO_TYPE_ID);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.builtbroken.armory.json.processors;
 
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.clip.ClipData;
@@ -17,19 +18,19 @@ public class ClipJsonProcessor extends ArmoryEntryJsonProcessor<ClipData>
 {
     public ClipJsonProcessor()
     {
-        super("clip");
+        super(ArmoryAPI.CLIP_ID);
     }
 
     @Override
     public String getJsonKey()
     {
-        return "clip";
+        return ArmoryAPI.CLIP_ID;
     }
 
     @Override
     public String getLoadOrder()
     {
-        return "after:ammoType";
+        return "after:" + ArmoryAPI.AMMO_TYPE_ID;
     }
 
     @Override

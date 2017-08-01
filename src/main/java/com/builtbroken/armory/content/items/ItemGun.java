@@ -1,6 +1,7 @@
 package com.builtbroken.armory.content.items;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ranged.GunData;
@@ -55,7 +56,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
 
     public ItemGun()
     {
-        super("armoryGun", "gun", "gun");
+        super("armoryGun", ArmoryAPI.GUN_ID, ArmoryAPI.GUN_ID);
         if (!Engine.isJUnitTest())
         {
             FMLCommonHandler.instance().bus().register(this);

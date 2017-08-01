@@ -1,6 +1,7 @@
 package com.builtbroken.armory.content.items;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.clip.ClipData;
@@ -32,7 +33,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
 {
     public ItemClip()
     {
-        super("armoryClip", "clip", "clip");
+        super("armoryClip", ArmoryAPI.CLIP_ID, ArmoryAPI.CLIP_ID);
     }
 
     @Override

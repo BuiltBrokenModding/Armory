@@ -1,9 +1,11 @@
 package com.builtbroken.armory;
 
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.content.items.ItemAmmo;
 import com.builtbroken.armory.content.items.ItemClip;
 import com.builtbroken.armory.content.items.ItemGun;
+import com.builtbroken.armory.content.items.ItemThrownWeapon;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.tile.ItemSentry;
@@ -11,10 +13,12 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.armory.data.ranged.GunData;
+import com.builtbroken.armory.data.ranged.ThrowableData;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.armory.json.processors.*;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
+import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.lib.json.JsonContentLoader;
 import com.builtbroken.mc.lib.mod.AbstractMod;
 import com.builtbroken.mc.lib.mod.ModCreativeTab;
@@ -65,6 +69,7 @@ public final class Armory extends AbstractMod
     public static ItemMetaArmoryEntry<ClipData> itemClip;
     public static ItemMetaArmoryEntry<AmmoData> itemAmmo;
     public static ItemMetaArmoryEntry<SentryData> itemSentry;
+    public static ItemMetaArmoryEntry<ThrowableData> itemThrownWeapon;
 
     //Configs
     /** Overrides the delay between attacks on entities */
@@ -76,6 +81,24 @@ public final class Armory extends AbstractMod
         CREATIVE_TAB = new ModCreativeTab("armory");
         getManager().setTab(CREATIVE_TAB);
         modIssueTracker = "https://github.com/BuiltBrokenModding/Armory/issues";
+    }
+
+    @Override
+    public void loadJsonContentHandlers()
+    {
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.GUN_ID));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.AMMO_ID));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.AMMO_TYPE_ID));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.CLIP_ID));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.SENTRY_ID));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.THROWABLE_WEAPON_ID));
+
+        JsonContentLoader.INSTANCE.add(new AmmoTypeJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new AmmoJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new ClipJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new GunJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new SentryJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new ThrownJsonProcessor());
     }
 
     @Mod.EventHandler
@@ -91,6 +114,42 @@ public final class Armory extends AbstractMod
         Engine.requestCircuits();
         Engine.requestCraftingParts();
 
+        fixConfig();
+    }
+
+    @Override
+    public void loadItems(ModManager manager)
+    {
+        itemGun = manager.newItem("armoryGun", new ItemGun());
+        itemClip = manager.newItem("armoryClip", new ItemClip());
+        itemAmmo = manager.newItem("armoryAmmo", new ItemAmmo());
+        itemSentry = manager.newItem("armorySentry", new ItemSentry());
+        itemThrownWeapon = manager.newItem("armoryThrownWeapon", new ItemThrownWeapon());
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event)
+    {
+        super.init(event);
+
+        //Hide turret block
+        blockSentry.setCreativeTab(null);
+        NEIProxy.hideItem(blockSentry);
+
+        //Register entities
+        EntityRegistry.registerModEntity(EntityAmmoProjectile.class, "ArmoryProjectile", 0, this, 500, 1, true);
+        EntityRegistry.registerModEntity(EntitySentry.class, "ArmorySentry", 1, this, 500, 1, true);
+    }
+
+    @Mod.EventHandler
+    public void postInit(FMLPostInitializationEvent event)
+    {
+        super.postInit(event);
+    }
+
+    protected void fixConfig()
+    {
+        //TODO remove in 1.12 port
         //Fix configs being in the wrong place
         File oldConfigFolder = new File(References.BBM_CONFIG_FOLDER, "bbm/armory");
         File configFolder = new File(References.BBM_CONFIG_FOLDER, "armory");
@@ -138,42 +197,6 @@ public final class Armory extends AbstractMod
                 }
             }
         }
-
-
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "gun"));
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "ammo"));
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "ammoType"));
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "clip"));
-        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, "sentry"));
-
-        JsonContentLoader.INSTANCE.add(new AmmoTypeJsonProcessor());
-        JsonContentLoader.INSTANCE.add(new AmmoJsonProcessor());
-        JsonContentLoader.INSTANCE.add(new ClipJsonProcessor());
-        JsonContentLoader.INSTANCE.add(new GunJsonProcessor());
-        JsonContentLoader.INSTANCE.add(new SentryJsonProcessor());
-
-        //TODO gen more guns if registered guns is greater than 32000 (Which should never happen)
-        itemGun = getManager().newItem("armoryGun", new ItemGun());
-        itemClip = getManager().newItem("armoryClip", new ItemClip());
-        itemAmmo = getManager().newItem("armoryAmmo", new ItemAmmo());
-        itemSentry = getManager().newItem("armorySentry", new ItemSentry());
-
-        blockSentry.setCreativeTab(null);
-        NEIProxy.hideItem(blockSentry);
-    }
-
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event)
-    {
-        super.init(event);
-        EntityRegistry.registerModEntity(EntityAmmoProjectile.class, "ArmoryProjectile", 0, this, 500, 1, true);
-        EntityRegistry.registerModEntity(EntitySentry.class, "ArmorySentry", 1, this, 500, 1, true);
-    }
-
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event)
-    {
-        super.postInit(event);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.builtbroken.armory.content.sentry.tile;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.sentry.SentryData;
 import net.minecraft.block.Block;
@@ -20,7 +21,7 @@ public class ItemSentry extends ItemMetaArmoryEntry<SentryData>
 {
     public ItemSentry()
     {
-        super("armorySentry", "sentry", "sentry");
+        super("armorySentry", ArmoryAPI.SENTRY_ID, ArmoryAPI.SENTRY_ID);
     }
 
 

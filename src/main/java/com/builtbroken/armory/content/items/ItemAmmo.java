@@ -1,6 +1,7 @@
 package com.builtbroken.armory.content.items;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
@@ -25,7 +26,7 @@ public class ItemAmmo extends ItemMetaArmoryEntry<AmmoData> implements IItemAmmo
 {
     public ItemAmmo()
     {
-        super("armoryAmmo", "ammo", "ammo");
+        super("armoryAmmo", ArmoryAPI.AMMO_ID, ArmoryAPI.AMMO_ID);
     }
 
     @Override

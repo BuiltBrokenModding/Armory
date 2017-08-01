@@ -1,5 +1,6 @@
 package com.builtbroken.armory.json.processors;
 
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.clip.ClipData;
@@ -28,7 +29,7 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
 
     public GunJsonProcessor()
     {
-        super("gun");
+        super(ArmoryAPI.GUN_ID);
         keyHandler = new JsonProcessorInjectionMap(GunData.class);
         debugPrinter = JsonContentLoader.INSTANCE != null ? JsonContentLoader.INSTANCE.debug : new DebugPrinter(LogManager.getLogger());
     }
@@ -36,13 +37,13 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
     @Override
     public String getJsonKey()
     {
-        return "gun";
+        return ArmoryAPI.GUN_ID;
     }
 
     @Override
     public String getLoadOrder()
     {
-        return "after:ammo";
+        return "after:" + ArmoryAPI.AMMO_ID;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.builtbroken.armory.json.processors;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ammo.AmmoType;
@@ -28,7 +29,7 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
 
     public AmmoJsonProcessor()
     {
-        super("ammo");
+        super(ArmoryAPI.AMMO_ID);
         keyHandler = new JsonProcessorInjectionMap(AmmoData.class);
         debugPrinter = JsonContentLoader.INSTANCE != null ? JsonContentLoader.INSTANCE.debug : new DebugPrinter(LogManager.getLogger());
     }
@@ -36,7 +37,7 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
     @Override
     public String getLoadOrder()
     {
-        return "after:ammoType";
+        return "after:" + ArmoryAPI.AMMO_TYPE_ID;
     }
 
     @Override

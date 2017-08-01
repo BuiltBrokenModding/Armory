@@ -1,5 +1,6 @@
 package com.builtbroken.armory.json.processors;
 
+import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.ranged.GunData;
@@ -27,7 +28,7 @@ public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData> im
 
     public SentryJsonProcessor()
     {
-        super("sentry");
+        super(ArmoryAPI.SENTRY_ID);
         keyHandler = new JsonProcessorInjectionMap(SentryData.class);
         debugPrinter = JsonContentLoader.INSTANCE != null ? JsonContentLoader.INSTANCE.debug : new DebugPrinter(LogManager.getLogger());
     }
@@ -35,7 +36,7 @@ public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData> im
     @Override
     public String getLoadOrder()
     {
-        return "after:gun";
+        return "after:" + ArmoryAPI.GUN_ID;
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.gui.ContainerSentry;
 import com.builtbroken.armory.content.sentry.imp.ISentryHost;
 import com.builtbroken.armory.data.sentry.SentryData;
+import com.builtbroken.mc.api.energy.IEMReceptiveDevice;
 import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
 import com.builtbroken.mc.api.tile.access.IGuiTile;
 import com.builtbroken.mc.core.Engine;
@@ -40,7 +41,7 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/26/2017.
  */
-public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler
+public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler, IEMReceptiveDevice
 {
     public static final int MAX_GUI_TABS = 5;
     protected Sentry sentry;
@@ -410,6 +411,17 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
                 world().removeEntity(getSentryEntity());
             }
         }
+    }
+
+    @Override
+    public double onElectromagneticRadiationApplied(double p, boolean doAction)
+    {
+        double power = p / 2; //TODO base on sentry size and shape compared to full block
+        if (doAction)
+        {
+            getSentry().onEMP(power);
+        }
+        return Math.min(power, getSentry().getSentryData().getEmpAbsorptionLimit());
     }
 
     @Override

@@ -74,10 +74,13 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
 
     protected Entity target;
 
-
+    //Target settings
     protected int targetSearchTimer = 0;
     protected int targetingDelay = 0;
     protected int targetingLoseTimer = 0;
+
+    //EMP settings
+    protected int empStunTimer = 0;
 
     /** Areas to search for targets */
     public AxisAlignedBB searchArea;
@@ -152,7 +155,12 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                 //Runs debug
                 doDebugLasers();
 
-                if (!turnedOn)
+                if (empStunTimer > 0)
+                {
+                    empStunTimer--;
+                    status = "stunned"; //TODO play EMP audio
+                }
+                else if (!turnedOn)
                 {
                     status = "powered down"; //TODO translate
                 }
@@ -758,5 +766,16 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                 Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
             }
         }
+    }
+
+    /**
+     * Called to apply stun time and damage to the sentry from the EMP
+     *
+     * @param power - power of the EMP
+     */
+    public void onEMP(double power)
+    {
+        int stun = (int) ((power / (double) getSentryData().getEmpStunTimerPerEnergyUnit()) * getSentryData().getEmpStunTimerPerEnergyUnit());
+        empStunTimer = Math.min(getSentryData().getEmpMaxStun(), empStunTimer + stun);
     }
 }

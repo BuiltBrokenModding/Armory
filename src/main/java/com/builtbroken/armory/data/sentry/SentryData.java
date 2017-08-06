@@ -36,6 +36,11 @@ public class SentryData extends ArmoryEntry
     private int targetAttackDelay = 3;
     private int targetLossTimer = 5;
 
+    protected int empStunTimerPerEnergyUnit = 20 * 60;
+    protected int empStunEnergyUnit = 200;
+    protected int empAbsorptionLimit = 200;
+    protected int empMaxStun = -1;
+
     private float barrelLength = 0.8f;
     private float bodyWidth = 0.7f;
     private float bodyHeight = 0.7f;
@@ -380,5 +385,55 @@ public class SentryData extends ArmoryEntry
                 allowedTargetTypes[i] = allowedTargetTypes[i].toLowerCase().trim();
             }
         }
+    }
+
+    public int getEmpStunTimerPerEnergyUnit()
+    {
+        return empStunTimerPerEnergyUnit;
+    }
+
+    @JsonOverride
+    @JsonProcessorData(value = "empStunTimer", type = "int")
+    public void setEmpStunTimerPerEnergyUnit(int empStunTimerPerEnergyUnit)
+    {
+        this.empStunTimerPerEnergyUnit = empStunTimerPerEnergyUnit;
+    }
+
+    public int getEmpStunEnergyUnit()
+    {
+        return empStunEnergyUnit;
+    }
+
+    @JsonOverride
+    @JsonProcessorData(value = "empStunEnergyCost", type = "int")
+    public void setEmpStunEnergyUnit(int empStunEnergyUnit)
+    {
+        this.empStunEnergyUnit = empStunEnergyUnit;
+    }
+
+    public int getEmpAbsorptionLimit()
+    {
+        return empAbsorptionLimit;
+    }
+
+    @JsonOverride
+    @JsonProcessorData(value = "empAbsorptionLimit", type = "int")
+    public void setEmpAbsorptionLimit(int empAbsorptionLimit)
+    {
+        this.empAbsorptionLimit = empAbsorptionLimit;
+    }
+
+    public void calcEmpData()
+    {
+        this.empMaxStun = (int) (((float) getEmpStunEnergyUnit() / (float) getEmpAbsorptionLimit()) * getEmpStunTimerPerEnergyUnit());
+    }
+
+    public int getEmpMaxStun()
+    {
+        if (empMaxStun == -1)
+        {
+            calcEmpData();
+        }
+        return empMaxStun;
     }
 }

@@ -115,10 +115,6 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         this.sentryData = sentryData;
         health = sentryData.getMaxHealth();
         gunInstance = new GunInstance(new ItemStack(Armory.blockSentry), this, getSentryData().getGunData());
-        if (!gunInstance.getGunData().getReloadType().requiresItems() && sentryData.getAmmoData() != null)
-        {
-            gunInstance.overrideRound = sentryData.getAmmoData();
-        }
         targetSelector = new EntityTargetSelector(this);
     }
 

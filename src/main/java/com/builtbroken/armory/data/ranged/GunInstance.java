@@ -356,6 +356,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
 
     /**
      * Checks if the gun still has ammo to fire
+     *
      * @return
      */
     public boolean hasAmmo()
@@ -804,6 +805,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         if (overrideRound != null)
         {
             return overrideRound;
+        }
+        if(getGunData().getOverrideAmmo() != null)
+        {
+            return getGunData().getOverrideAmmo();
         }
         return _chamberedRound;
     }

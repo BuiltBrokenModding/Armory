@@ -28,12 +28,6 @@ public class DamageJsonProcessorBlast extends DamageJsonProcessor
         String blast = blastObject.get("id").getAsJsonPrimitive().getAsString();
         float size = blastObject.get("size").getAsJsonPrimitive().getAsFloat();
 
-        //Get handler and check if is not null
-        IExplosiveHandler handler = ExplosiveRegistry.get(blast);
-        if (handler == null)
-        {
-            Armory.INSTANCE.logger().error("Failed to get a blast by name " + blast + " while parsing " + element + " this will most likely cause issues.");
-        }
-        return new DamageBlast(this, handler, size);
+        return new DamageBlast(this, blast, size);
     }
 }

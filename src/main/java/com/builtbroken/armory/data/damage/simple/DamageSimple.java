@@ -161,4 +161,10 @@ public class DamageSimple extends DamageData
     {
         return damage;
     }
+
+    @Override
+    public String toString()
+    {
+        return "DamageSimple[" + damageName + " " + damage + "hp]@" + hashCode();
+    }
 }

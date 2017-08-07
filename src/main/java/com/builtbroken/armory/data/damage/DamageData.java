@@ -67,4 +67,10 @@ public abstract class DamageData extends JsonGenData
     {
         return null;
     }
+
+    @Override
+    public String toString()
+    {
+        return "DamageData@" + hashCode();
+    }
 }

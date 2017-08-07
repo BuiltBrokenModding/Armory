@@ -77,4 +77,10 @@ public class DamageAOE extends DamageData
             Armory.INSTANCE.logger().error("doAOE(" + world.provider.dimensionId + ", " + x + "," + y + "," + z + "," + scale + ") was called without a damage type to apply.", new RuntimeException());
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return "DamageAOE[" + damageToApply + "  " + range + "m]@" + hashCode();
+    }
 }

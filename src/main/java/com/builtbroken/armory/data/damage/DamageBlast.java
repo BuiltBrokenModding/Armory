@@ -7,6 +7,7 @@ import com.builtbroken.mc.api.explosive.IExplosiveHandler;
 import com.builtbroken.mc.lib.debug.DebugHelper;
 import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
 import com.builtbroken.mc.lib.world.edit.WorldChangeHelper;
+import com.builtbroken.mc.lib.world.explosive.ExplosiveRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,14 +22,25 @@ import net.minecraft.world.World;
  */
 public class DamageBlast extends DamageData
 {
-    IExplosiveHandler handler;
-    float size;
+    public final String blastName;
 
-    public DamageBlast(IJsonProcessor processor, IExplosiveHandler handler, float size)
+    private IExplosiveHandler handlerCache;
+    private float size;
+
+    public DamageBlast(IJsonProcessor processor, String blastName, float size)
     {
         super(processor);
-        this.handler = handler;
+        this.blastName = blastName;
         this.size = size;
+    }
+
+    public IExplosiveHandler getExplosiveHandler()
+    {
+        if (handlerCache == null)
+        {
+            handlerCache = ExplosiveRegistry.get(blastName);
+        }
+        return handlerCache;
     }
 
     @Override
@@ -54,6 +66,7 @@ public class DamageBlast extends DamageData
 
     protected void doAOE(Entity attacker, World world, double x, double y, double z, float velocity, float scale)
     {
+        IExplosiveHandler handler = getExplosiveHandler();
         if (handler != null)
         {
             TriggerCause cause = new TriggerCause.TriggerCauseImpact(attacker, velocity);
@@ -86,5 +99,11 @@ public class DamageBlast extends DamageData
         {
             DebugHelper.outputMethodDebug(Armory.INSTANCE.logger(), "doAOE", "\nno blast handler for " + this, attacker, world, x, y, z, velocity, scale);
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return "DamageBlast[" + blastName + "@" + size + "]@" + hashCode();
     }
 }

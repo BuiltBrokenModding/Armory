@@ -9,10 +9,14 @@ import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.armory.data.user.IWeaponUser;
 import com.builtbroken.armory.data.user.WeaponUserEntity;
 import com.builtbroken.armory.data.user.WeaponUserPlayer;
+import com.builtbroken.mc.api.data.energy.IEnergyBufferData;
+import com.builtbroken.mc.api.data.energy.IEnergyChargeData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.IGunData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.mc.api.items.IMouseButtonHandler;
+import com.builtbroken.mc.api.items.energy.IEnergyBufferItem;
+import com.builtbroken.mc.api.items.energy.IEnergyItem;
 import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.items.weapons.IItemReloadableWeapon;
 import com.builtbroken.mc.core.Engine;
@@ -41,7 +45,7 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/16/2016.
  */
-public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButtonHandler, IItemReloadableWeapon
+public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButtonHandler, IItemReloadableWeapon, IEnergyItem, IEnergyBufferItem
 {
     /** Cache of the last weapon the entity has out */
     public static final HashMap<Entity, GunInstance> gunCache = new HashMap();
@@ -547,5 +551,149 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             lastDebugKeyHit = time;
             GunInstance.debugRayTraces = !GunInstance.debugRayTraces;
         }
+    }
+
+    @Override
+    public int recharge(ItemStack itemStack, int e, boolean doAction)
+    {
+        if (e > 0)
+        {
+            //Get gun data
+            GunData data = getData(itemStack);
+            if (data != null && data.getReloadType() == ReloadType.ENERGY)
+            {
+                //Get charge data
+                IEnergyChargeData chargeData = data.getChargeData();
+                if (chargeData != null)
+                {
+                    //Get charge limit
+                    int energy = Math.min(e, chargeData.getInputEnergyLimit());
+                    if (energy > 0)
+                    {
+                        //Get current state of item
+                        int capacity = getEnergyCapacity(itemStack);
+                        int prev = getEnergy(itemStack);
+                        int energyStorage = prev;
+                        int roomLeft = capacity - prev;
+
+                        int energyUsed;
+
+                        //Energy will fit into room left
+                        if (energy <= roomLeft)
+                        {
+                            energyStorage += energy;
+                            energyUsed = energy;
+                        }
+                        else
+                        {
+                            energyStorage = capacity;
+                            energyUsed = roomLeft;
+                        }
+
+                        //Only update item if we should do an action
+                        if (doAction)
+                        {
+                            setEnergy(itemStack, energyStorage);
+                        }
+
+                        return energyUsed;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public int discharge(ItemStack itemStack, int e, boolean doDischarge)
+    {
+        if (e > 0)
+        {
+            GunData data = getData(itemStack);
+            if (data != null)
+            {
+                IEnergyChargeData chargeData = data.getChargeData();
+                if (chargeData != null)
+                {
+                    int energy = Math.min(e, chargeData.getOutputEnergyLimit());
+                    if (energy > 0)
+                    {
+                        int currentEnergy = getEnergy(itemStack);
+                        if (currentEnergy <= energy)
+                        {
+                            if (doDischarge)
+                            {
+                                setEnergy(itemStack, 0);
+                            }
+                            return currentEnergy;
+                        }
+                        else
+                        {
+                            if (doDischarge)
+                            {
+                                setEnergy(itemStack, currentEnergy - energy);
+                            }
+                            return energy;
+                        }
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public int getEnergy(ItemStack itemStack)
+    {
+        return getEnergy(itemStack);
+    }
+
+    @Override
+    public int getEnergyCapacity(ItemStack itemStack)
+    {
+        GunData data = getData(itemStack);
+        if (data != null)
+        {
+            IEnergyBufferData bufferData = data.getBufferData();
+            if (bufferData != null)
+            {
+                return bufferData.getEnergyCapacity();
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public void setEnergy(ItemStack itemStack, int energy)
+    {
+        setItemEnergy(itemStack, energy);
+    }
+
+    public static int getItemEnergy(ItemStack itemStack)
+    {
+        if (itemStack.getTagCompound() != null)
+        {
+            return getItemEnergy(itemStack.getTagCompound());
+        }
+        return 0;
+    }
+
+    public static int getItemEnergy(NBTTagCompound tag)
+    {
+        return tag.getInteger("energy");
+    }
+
+    public static void setItemEnergy(ItemStack itemStack, int power)
+    {
+        if (itemStack.getTagCompound() == null)
+        {
+            itemStack.setTagCompound(new NBTTagCompound());
+        }
+        setItemEnergy(itemStack.getTagCompound(), power);
+    }
+
+    public static void setItemEnergy(NBTTagCompound tag, int power)
+    {
+        tag.setInteger("energy", power);
     }
 }

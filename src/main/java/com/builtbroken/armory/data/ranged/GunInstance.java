@@ -2,6 +2,7 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
+import com.builtbroken.armory.content.items.ItemGun;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.clip.ClipInstance;
 import com.builtbroken.armory.data.clip.ClipInstanceItem;
@@ -10,7 +11,6 @@ import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.data.weapon.*;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
 import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
-import com.builtbroken.mc.api.items.energy.IEnergyItem;
 import com.builtbroken.mc.api.items.weapons.IItemAmmo;
 import com.builtbroken.mc.api.items.weapons.IItemClip;
 import com.builtbroken.mc.api.modules.IModule;
@@ -77,6 +77,9 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public boolean consumeAmmo = false;
     /** Delay before reloading */
     public int reloadDelay = -1;
+
+    /** Power stored in the gun */
+    public int power = 0;
 
     /** Is the weapon in a lowered, unarmed, state */
     public boolean isLowered = false;
@@ -222,7 +225,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     public boolean chamberNextRound()
     {
-        if (overrideRound == null)
+        if (getChamberedRound() == null)
         {
             if (getChamberedRound() == null && hasMagWithAmmo())
             {
@@ -335,7 +338,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 {
                     _chamberedRound = null;
                 }
-                consumeEnergy();
+                consumeEnergyToFire();
             }
             playAudio("round.consume");
             weaponUser.updateWeaponStack(this, toStack(), "consume ammo");
@@ -760,6 +763,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 ((ClipInstance) _clip).load(clipTag);
             }
         }
+        power = tag.getInteger(ItemGun.NBT_ENERGY);
     }
 
     @Override
@@ -793,6 +797,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 nbt.setTag(NBT_CLIP, clipTag);
             }
         }
+        nbt.setInteger(ItemGun.NBT_ENERGY, power);
         return nbt;
     }
 
@@ -828,31 +833,58 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         return _chamberedRound;
     }
 
+    /**
+     * Called to check if enough energy exists to fire weapons
+     *
+     * @return true if enough energy exists to fire
+     */
     protected boolean hasEnergyToFire()
     {
-        return getChamberedRound() != null && consumeEnergy(false) >= getChamberedRound().getEnergyCost();
+        return getChamberedRound() != null && consumeEnergy(getChamberedRound().getEnergyCost(), false);
     }
 
-    protected boolean consumeEnergy()
+    /**
+     * Called to consume energy to fire the weapon
+     *
+     * @return true if energy was consumed for the operation
+     */
+    protected boolean consumeEnergyToFire()
     {
-        return getChamberedRound() != null && consumeEnergy(true) > 0;
+        return getChamberedRound() != null && consumeEnergy(getChamberedRound().getEnergyCost(), true);
     }
 
-    protected int consumeEnergy(boolean doAction)
+    /**
+     * Called to consume energy
+     *
+     * @param energyCost - cost of the operation
+     * @param doAction   - true to do action, false to test logic
+     * @return true if enough energy has been consumed
+     */
+    protected boolean consumeEnergy(int energyCost, boolean doAction)
     {
-        if (getItem() != null && getItem().getItem() instanceof IEnergyItem)
+        int energyNeeded = energyCost;
+        if (energyCost > 0)
         {
-            return ((IEnergyItem) getItem().getItem()).discharge(getItem(), getChamberedRound().getEnergyCost(), doAction);
-        }
-        else if (weaponUser instanceof IEnergyBufferProvider)
-        {
-            IEnergyBuffer buffer = ((IEnergyBufferProvider) weaponUser).getEnergyBuffer(ForgeDirection.UNKNOWN);
-            if (buffer != null)
+            //Consume internal power
+            energyNeeded -= power;
+            if (doAction)
             {
-                return buffer.removeEnergyFromStorage(getChamberedRound().getEnergyCost(), doAction);
+                power = Math.max(0, power - energyCost);
             }
+
+            //Consume external power
+            if (energyNeeded > 0 && weaponUser instanceof IEnergyBufferProvider) //TODO add checks if the gun allows this logic or if special gear is needed
+            {
+                IEnergyBuffer buffer = ((IEnergyBufferProvider) weaponUser).getEnergyBuffer(ForgeDirection.UNKNOWN);
+                if (buffer != null)
+                {
+                    energyNeeded -= buffer.removeEnergyFromStorage(getChamberedRound().getEnergyCost(), doAction);
+                }
+            }
+            //if energy needed is zero we consumed enough for the operation
+            return energyNeeded <= 0;
         }
-        return 0;
+        return true;
     }
 
     @Override

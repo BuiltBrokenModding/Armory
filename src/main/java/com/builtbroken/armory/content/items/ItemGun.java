@@ -49,6 +49,9 @@ import java.util.Map;
  */
 public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButtonHandler, IItemReloadableWeapon, IEnergyItem, IEnergyBufferItem
 {
+    public static final String NBT_RELOAD_ENERGY = "reloadEnergy";
+    public static final String NBT_ENERGY = "energy";
+
     /** Cache of the last weapon the entity has out */
     public static final HashMap<Entity, GunInstance> gunCache = new HashMap();
     /** Who has the left click held down */
@@ -89,10 +92,12 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                     //TODO show ammo type if gun has more than one option
                     if (gun.getGunData().getReloadType() == ReloadType.ENERGY)
                     {
-                        int power = getEnergy(stack);
-                        int cap = getEnergyCapacity(stack);
-                        int rounds = (int) Math.floor((float) power / (float) cap);
                         IAmmoData ammoData = gun.getChamberedRound();
+
+                        int power = gun.power;
+                        int cap = getEnergyCapacity(stack);
+                        int rounds = (int) Math.floor((float) power / (float) ammoData.getEnergyCost());
+
                         if (ammoData != null)
                         {
                             list.add("Rounds: " + rounds + " @ " + ammoData.getEnergyCost() + " watts each");
@@ -635,35 +640,42 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     @Override
     public int discharge(ItemStack itemStack, int e, boolean doDischarge)
     {
+        GunData data = getData(itemStack);
+        if (data != null)
+        {
+            IEnergyChargeData chargeData = data.getChargeData();
+            if (chargeData != null)
+            {
+                return consumeEnergy(itemStack, e, chargeData.getOutputEnergyLimit(), doDischarge);
+            }
+        }
+        return 0;
+    }
+
+    public int consumeEnergy(ItemStack itemStack, int e, int outputLimit, boolean doDischarge)
+    {
         if (e > 0)
         {
-            GunData data = getData(itemStack);
-            if (data != null)
+            int energy = Math.min(e, outputLimit);
+            if (energy > 0)
             {
-                IEnergyChargeData chargeData = data.getChargeData();
-                if (chargeData != null)
+                int currentEnergy = getEnergy(itemStack);
+                if (currentEnergy <= energy)
                 {
-                    int energy = Math.min(e, chargeData.getOutputEnergyLimit());
-                    if (energy > 0)
+                    if (doDischarge)
                     {
-                        int currentEnergy = getEnergy(itemStack);
-                        if (currentEnergy <= energy)
-                        {
-                            if (doDischarge)
-                            {
-                                setEnergy(itemStack, 0);
-                            }
-                            return currentEnergy;
-                        }
-                        else
-                        {
-                            if (doDischarge)
-                            {
-                                setEnergy(itemStack, currentEnergy - energy);
-                            }
-                            return energy;
-                        }
+                        setEnergy(itemStack, 0);
                     }
+                    return currentEnergy;
+                }
+                else
+                {
+                    int newEnergy = currentEnergy - energy;
+                    if (doDischarge)
+                    {
+                        setEnergy(itemStack, newEnergy);
+                    }
+                    return energy;
                 }
             }
         }
@@ -708,7 +720,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
 
     public static int getItemEnergy(NBTTagCompound tag)
     {
-        return tag.getInteger("energy");
+        return tag.getInteger(NBT_ENERGY);
     }
 
     public static void setItemEnergy(ItemStack itemStack, int power)
@@ -722,6 +734,6 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
 
     public static void setItemEnergy(NBTTagCompound tag, int power)
     {
-        tag.setInteger("energy", power);
+        tag.setInteger(NBT_ENERGY, power);
     }
 }

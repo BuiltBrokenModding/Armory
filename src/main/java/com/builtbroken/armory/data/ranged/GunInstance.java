@@ -878,7 +878,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 IEnergyBuffer buffer = ((IEnergyBufferProvider) weaponUser).getEnergyBuffer(ForgeDirection.UNKNOWN);
                 if (buffer != null)
                 {
-                    energyNeeded -= buffer.removeEnergyFromStorage(getChamberedRound().getEnergyCost(), doAction);
+                    energyNeeded -= buffer.removeEnergyFromStorage(energyNeeded, doAction);
                 }
             }
             //if energy needed is zero we consumed enough for the operation

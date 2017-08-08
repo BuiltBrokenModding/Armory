@@ -358,7 +358,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
      */
     protected boolean isValidTarget(Entity entity)
     {
-        if (entity != null && entity.isEntityAlive() && (getFoFStation() == null || !getFoFStation().isFriendly(entity)))
+        if (entity != null && entity.isEntityAlive() && getEntitySelector().isEntityApplicable (entity) && (getFoFStation() == null || !getFoFStation().isFriendly(entity)))
         {
             //Get aim position of entity
             final Pos aimPoint = getAimPoint(entity); //TODO retry with lower and higher aim value

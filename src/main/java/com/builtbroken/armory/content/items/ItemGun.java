@@ -9,8 +9,10 @@ import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.armory.data.user.IWeaponUser;
 import com.builtbroken.armory.data.user.WeaponUserEntity;
 import com.builtbroken.armory.data.user.WeaponUserPlayer;
+import com.builtbroken.jlib.data.Colors;
 import com.builtbroken.mc.api.data.energy.IEnergyBufferData;
 import com.builtbroken.mc.api.data.energy.IEnergyChargeData;
+import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.IGunData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
@@ -82,9 +84,30 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
             list.add("Ammo: " + data.getAmmoType().getDisplayString());
             if (gun != null)
             {
-                list.add("Chamber: " + (gun.getChamberedRound() != null ? gun.getChamberedRound().getDisplayString() : "empty"));
-                if (gun.getLoadedClip() != null)
+                if (!gun.getGunData().getReloadType().requiresItems())
                 {
+                    //TODO show ammo type if gun has more than one option
+                    if (gun.getGunData().getReloadType() == ReloadType.ENERGY)
+                    {
+                        int power = getEnergy(stack);
+                        int cap = getEnergyCapacity(stack);
+                        int rounds = (int) Math.floor((float) power / (float) cap);
+                        IAmmoData ammoData = gun.getChamberedRound();
+                        if (ammoData != null)
+                        {
+                            list.add("Rounds: " + rounds + " @ " + ammoData.getEnergyCost() + " watts each");
+                        }
+                        else
+                        {
+                            list.add("Rounds: " + Colors.RED.code + "Error no ammo data");
+                        }
+
+                        list.add("Energy: " + power + "/" + cap + " watts"); //TODO color code energy value (red lower, green high)
+                    }
+                }
+                else if (gun.getLoadedClip() != null)
+                {
+                    list.add("Chamber: " + (gun.getChamberedRound() != null ? gun.getChamberedRound().getDisplayString() : "empty"));
                     if (gun.getLoadedClip().getMaxAmmo() > 1)
                     {
                         list.add("Rounds: " + gun.getLoadedClip().getAmmoCount() + "/" + gun.getLoadedClip().getMaxAmmo());
@@ -217,14 +240,19 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                                 //Set reload delay if init
                                 if (gun.reloadDelay == -1)
                                 {
-                                    if (gun.reloadWeapon(((EntityPlayer) entity).inventory, false))
+                                    if (!gun.getGunData().getReloadType().requiresItems())
+                                    {
+                                        //TODO play empty audio as we can not reload
+                                        //TODO if weapon can reload via items remove this
+                                        gun.doReload = false;
+                                    }
+                                    else if (gun.reloadWeapon(((EntityPlayer) entity).inventory, false))
                                     {
                                         ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Reloading weapon.... eta: " + gun.getGunData().getReloadTime() + "s")); //TODO translate
                                     }
                                     else
                                     {
-                                        gun.doReload = false;
-                                        gun.reloadDelay = -1;
+                                        gun.cancelReload();
                                     }
                                 }
 
@@ -645,7 +673,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     @Override
     public int getEnergy(ItemStack itemStack)
     {
-        return getEnergy(itemStack);
+        return getItemEnergy(itemStack);
     }
 
     @Override

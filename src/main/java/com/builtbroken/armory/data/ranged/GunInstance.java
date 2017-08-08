@@ -386,20 +386,28 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         //Tick reload timer
         if (reloadDelay-- <= 0)
         {
-            //Reset timer
-            reloadDelay = -1;
-
             //Detect if single shot weapon
             boolean singleShot = gunData.getReloadType() == ReloadType.BREACH_LOADED || gunData.getReloadType() == ReloadType.FRONT_LOADED;
+            boolean itemDrainReload = !gunData.getReloadType().requiresItems();
 
             //If not single shot (clip) or single shot & no round, do reload
             if (!singleShot || getChamberedRound() == null)
             {
                 //Reload weapon
-                reloadWeapon(weaponUser.getInventory(), true);
-                //Chamber next round
-                chamberNextRound();
+                if (reloadWeapon(weaponUser.getInventory(), true))
+                {
+                    //Chamber next round
+                    chamberNextRound();
+                }
             }
+            else if (itemDrainReload)
+            {
+                //TODO add reload for items
+                //TODO if changed remove reload check from ItemGun
+                //TODO add extra check to reload to allow guns to turn off reload manual ability (for use with machine charged, external reloaded, or single use items)
+            }
+
+            cancelReload();
         }
         //Play animation or audio while reloading
         else
@@ -412,6 +420,13 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 playAudio("reload.tick");
             }
         }
+    }
+
+    public void cancelReload()
+    {
+        //End reload
+        doReload = false;
+        reloadDelay = -1;
     }
 
     public void playAudio(String key)
@@ -806,7 +821,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             return overrideRound;
         }
-        if(getGunData().getOverrideAmmo() != null)
+        if (getGunData().getOverrideAmmo() != null)
         {
             return getGunData().getOverrideAmmo();
         }

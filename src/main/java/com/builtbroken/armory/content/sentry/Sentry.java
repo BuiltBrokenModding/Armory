@@ -14,6 +14,7 @@ import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
 import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
 import com.builtbroken.mc.api.tile.IFoFProvider;
+import com.builtbroken.mc.api.tile.ILinkFeedback;
 import com.builtbroken.mc.api.tile.ILinkable;
 import com.builtbroken.mc.api.tile.IPassCode;
 import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
@@ -27,6 +28,7 @@ import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.rotation.IRotation;
 import com.builtbroken.mc.imp.transform.vector.Location;
 import com.builtbroken.mc.imp.transform.vector.Pos;
+import com.builtbroken.mc.lib.helper.MathUtility;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.command.IEntitySelector;
@@ -53,7 +55,7 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/11/2017.
  */
-public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter, IEnergyBufferProvider, ILinkable, IProfileContainer
+public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IByteBufReader, IByteBufWriter, IEnergyBufferProvider, ILinkable, IProfileContainer, ILinkFeedback, IPassCode
 {
     //TODO implement log system (enemy detected, enemy killed, ammo consumed, power failed, etc. with time stamps and custom log limits)
     /** Desired aim angle, updated every tick if target != null */
@@ -95,6 +97,13 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     public boolean turnedOn = true;
     public boolean sentryHasAmmo = false;
     public boolean enableAimDebugRays = false;
+
+
+    /** Security code used to prevent remote linking */
+    protected short link_code;
+
+    /** User customized display name for the launcher */
+    protected String customName;
 
     //Stats vars
     public float health = 0;
@@ -773,5 +782,21 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     {
         int stun = (int) ((power / (double) getSentryData().getEmpStunTimerPerEnergyUnit()) * getSentryData().getEmpStunTimerPerEnergyUnit());
         empStunTimer = Math.min(getSentryData().getEmpMaxStun(), empStunTimer + stun);
+    }
+
+    @Override
+    public short getCode()
+    {
+        if (link_code == 0)
+        {
+            link_code = MathUtility.randomShort();
+        }
+        return link_code;
+    }
+
+    @Override
+    public void onLinked(Location location)
+    {
+
     }
 }

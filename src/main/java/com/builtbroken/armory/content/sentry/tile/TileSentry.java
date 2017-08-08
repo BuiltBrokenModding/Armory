@@ -10,12 +10,17 @@ import com.builtbroken.armory.content.sentry.imp.ISentryHost;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.mc.api.energy.IEMReceptiveDevice;
 import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
+import com.builtbroken.mc.api.items.tools.IWorldPosItem;
+import com.builtbroken.mc.api.tile.ILinkFeedback;
+import com.builtbroken.mc.api.tile.ILinkable;
+import com.builtbroken.mc.api.tile.IPassCode;
 import com.builtbroken.mc.api.tile.access.IGuiTile;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.IPacketIDReceiver;
 import com.builtbroken.mc.core.network.packet.PacketTile;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.imp.transform.region.Cube;
+import com.builtbroken.mc.imp.transform.vector.Location;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.ExternalInventory;
 import com.builtbroken.mc.prefab.tile.Tile;
@@ -41,7 +46,7 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/26/2017.
  */
-public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler, IEMReceptiveDevice
+public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler, IEMReceptiveDevice, ILinkFeedback, ILinkable, IPassCode
 {
     public static final int MAX_GUI_TABS = 5;
     protected Sentry sentry;
@@ -336,11 +341,34 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     @Override
     protected boolean onPlayerRightClick(EntityPlayer player, int side, Pos hit)
     {
+        ItemStack heldItem = player.getHeldItem();
+        if (heldItem != null && heldItem.getItem() instanceof IWorldPosItem)
+        {
+            return true;
+        }
         if (isServer())
         {
             openGui(player, Armory.INSTANCE);
         }
-        return false;
+        return true;
+    }
+
+    @Override
+    public void onLinked(Location location)
+    {
+
+    }
+
+    @Override
+    public String link(Location loc, short pass)
+    {
+        return getSentry().link(loc, pass);
+    }
+
+    @Override
+    public short getCode()
+    {
+       return getSentry().getCode();
     }
 
     public void sendSentryIDToClient()

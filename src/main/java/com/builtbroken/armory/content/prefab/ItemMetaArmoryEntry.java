@@ -10,6 +10,7 @@ import com.builtbroken.mc.core.network.packet.PacketPlayerItem;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
 import com.builtbroken.mc.framework.item.ItemBase;
+import com.builtbroken.mc.lib.json.imp.IJSONMetaConvert;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
@@ -31,7 +32,7 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 11/20/2016.
  */
-public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase implements IPacketReceiver, IPostInit
+public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase implements IPacketReceiver, IPostInit, IJSONMetaConvert
 {
     /** Type of the item @see {@link ArmoryDataHandler} */
     public final String typeName;
@@ -138,7 +139,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
         Map<Integer, E> map = ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry;
         for (Map.Entry<Integer, E> entry : map.entrySet())
         {
-            if(entry.getValue().showInCreativeTab)
+            if (entry.getValue().showInCreativeTab)
             {
                 getSubItems(item, entry.getKey(), entry.getValue(), tab, items);
             }
@@ -149,5 +150,16 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
     protected void getSubItems(Item item, int meta, E armoryEntry, CreativeTabs tab, List items)
     {
         items.add(new ItemStack(item, 1, meta));
+    }
+
+    @Override
+    public int getMetaForValue(String value)
+    {
+        ArmoryDataHandler.ArmoryData data = ArmoryDataHandler.INSTANCE.get(typeName);
+        if (data != null && data.containsKey(value))
+        {
+            return data.get(value).meta;
+        }
+        return -1;
     }
 }

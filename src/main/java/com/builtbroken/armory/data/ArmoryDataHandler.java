@@ -103,7 +103,7 @@ public class ArmoryDataHandler
 
         public void add(E entry)
         {
-            put(entry.ID, entry);
+            put(entry.ID.toLowerCase(), entry);
         }
 
         public void add(Item item)
@@ -116,7 +116,7 @@ public class ArmoryDataHandler
 
         public E get(String key)
         {
-            return super.get(key);
+            return super.get(key.toLowerCase());
         }
 
         /**
@@ -201,7 +201,7 @@ public class ArmoryDataHandler
             for (Map.Entry<Integer, E> entry : metaToEntry.entrySet())
             {
                 JsonObject obj = new JsonObject();
-                obj.add("ID", new JsonPrimitive(entry.getValue().ID));
+                obj.add("ID", new JsonPrimitive(entry.getValue().ID.toLowerCase()));
                 obj.add("meta", new JsonPrimitive(entry.getKey()));
                 obj.add("writeTime", new JsonPrimitive(keyToWriteTime.containsKey(entry.getValue().ID) ? keyToWriteTime.get(entry.getValue().ID) : System.currentTimeMillis()));
                 array.add(obj);
@@ -256,7 +256,7 @@ public class ArmoryDataHandler
                     JsonObject element = array.get(i).getAsJsonObject();
                     Long lastWriteTime = element.getAsJsonPrimitive("writeTime").getAsLong();
                     Long delta = System.currentTimeMillis() - lastWriteTime;
-                    String name = element.getAsJsonPrimitive("ID").getAsString();
+                    String name = element.getAsJsonPrimitive("ID").getAsString().toLowerCase();
                     //If saved X many days ago and not contains then do not store the data (Del in other words)
                     if (delta < saveTimeLimit || get(name) != null)
                     {
@@ -280,10 +280,11 @@ public class ArmoryDataHandler
             //Loop threw existing entries and match them to known gun data
             for (Map.Entry<String, E> entry : entrySet())
             {
+                final String key = entry.getKey().toLowerCase();
                 //Data is already mapped so add to meta values
-                if (keyToMetaMap.containsKey(entry.getKey()))
+                if (keyToMetaMap.containsKey(key))
                 {
-                    metaToEntry.put(keyToMetaMap.get(entry.getKey()), entry.getValue());
+                    metaToEntry.put(keyToMetaMap.get(key), entry.getValue());
                 }
                 //New data, find a free slot to use
                 else
@@ -292,9 +293,9 @@ public class ArmoryDataHandler
                     {
                         if (!metaToKeyMap.containsKey(slotSearchIndex))
                         {
-                            metaToKeyMap.put(slotSearchIndex, entry.getKey());
-                            keyToMetaMap.put(entry.getKey(), slotSearchIndex);
-                            metaToEntry.put(slotSearchIndex, get(entry.getKey()));
+                            metaToKeyMap.put(slotSearchIndex, key);
+                            keyToMetaMap.put(key, slotSearchIndex);
+                            metaToEntry.put(slotSearchIndex, get(key));
                             slotSearchIndex++;
                             break;
                         }

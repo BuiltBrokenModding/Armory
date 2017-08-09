@@ -104,17 +104,17 @@ public final class Armory extends AbstractMod
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        super.preInit(event);
+        fixConfig();
 
-        Engine.requestOres();
+        super.preInit(event); //load items
+
+        Engine.requestOres(); //TODO move to event trigger
         Engine.requestResources();
         Engine.requestSheetMetalContent();
         Engine.requestMultiBlock();
         Engine.requestSimpleTools();
         Engine.requestCircuits();
         Engine.requestCraftingParts();
-
-        fixConfig();
     }
 
     @Override
@@ -125,6 +125,14 @@ public final class Armory extends AbstractMod
         itemAmmo = manager.newItem("armoryAmmo", new ItemAmmo());
         itemSentry = manager.newItem("armorySentry", new ItemSentry());
         itemThrownWeapon = manager.newItem("armoryThrownWeapon", new ItemThrownWeapon());
+
+        //TODO fire registry event for mods to add content before initializing data
+
+        ArmoryDataHandler.INSTANCE.get(itemGun.typeName).init(itemGun);
+        ArmoryDataHandler.INSTANCE.get(itemClip.typeName).init(itemClip);
+        ArmoryDataHandler.INSTANCE.get(itemAmmo.typeName).init(itemAmmo);
+        ArmoryDataHandler.INSTANCE.get(itemSentry.typeName).init(itemSentry);
+        ArmoryDataHandler.INSTANCE.get(itemThrownWeapon.typeName).init(itemThrownWeapon);
     }
 
     @Mod.EventHandler
@@ -144,7 +152,7 @@ public final class Armory extends AbstractMod
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
-        super.postInit(event);
+        super.postInit(event); //Nothing to really do
     }
 
     protected void fixConfig()

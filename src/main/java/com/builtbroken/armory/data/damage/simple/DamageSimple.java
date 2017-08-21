@@ -3,7 +3,7 @@ package com.builtbroken.armory.data.damage.simple;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.mc.core.Engine;
-import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;

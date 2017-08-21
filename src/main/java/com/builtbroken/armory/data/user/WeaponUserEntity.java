@@ -86,7 +86,7 @@ public class WeaponUserEntity<E extends Entity> implements IWeaponUser
     }
 
     @Override
-    public World world()
+    public World oldWorld()
     {
         return entity.worldObj;
     }

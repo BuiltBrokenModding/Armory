@@ -92,7 +92,7 @@ public class EntityAmmoProjectile extends EntityProjectile implements IEntityAdd
     protected void updateMotion()
     {
         super.updateMotion();
-        if (world().isRemote && ammoData != null)
+        if (oldWorld().isRemote && ammoData != null)
         {
             String contentID = ammoData.getUniqueID();
             IEffectData data = ClientDataHandler.INSTANCE.getEffect(contentID + ".motion.tick");
@@ -103,7 +103,7 @@ public class EntityAmmoProjectile extends EntityProjectile implements IEntityAdd
                 vel = vel.multiply(motion);
 
                 data.trigger(
-                        world(), x(), y(), z(),
+                        oldWorld(), x(), y(), z(),
                         vel.x(), vel.y(), vel.z(),
                         false);
             }

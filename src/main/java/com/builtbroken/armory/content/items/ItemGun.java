@@ -355,9 +355,13 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                         {
                             Armory.INSTANCE.logger().info("Gun cache contained null value for player '" + player + "'");
                         }
-                        else if (!InventoryUtility.stacksMatch(instance.toStack(), stack))
+                        else
                         {
-                            Armory.INSTANCE.logger().info("Gun cache contained value but it did not match player held item for player '" + player + "' stack '" + stack + "' expected '" + instance.toStack() + "'");
+                            final ItemStack instanceStack = instance.toStack();
+                            if (!InventoryUtility.stacksMatch(instanceStack, stack))
+                            {
+                                Armory.INSTANCE.logger().info("Gun cache contained value but it did not match player held item for player '" + player + "' stack '" + stack + "' expected '" + instance.toStack() + "'");
+                            }
                         }
                     }
                 }

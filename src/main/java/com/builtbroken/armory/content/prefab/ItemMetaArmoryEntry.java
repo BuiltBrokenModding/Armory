@@ -10,7 +10,7 @@ import com.builtbroken.mc.core.network.packet.PacketPlayerItem;
 import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
 import com.builtbroken.mc.framework.item.ItemBase;
-import com.builtbroken.mc.lib.json.imp.IJSONMetaConvert;
+import com.builtbroken.mc.framework.json.imp.IJSONMetaConvert;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
@@ -123,7 +123,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
     {
         PacketPlayerItem packet = new PacketPlayerItem(Item.getIdFromItem(this) * -1);
         ArmoryDataHandler.INSTANCE.get(typeName).writeBytes(packet.data());
-        Engine.instance.packetHandler.sendToPlayer(packet, player);
+        Engine.packetHandler.sendToPlayer(packet, player);
     }
 
     @Override

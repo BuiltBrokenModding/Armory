@@ -4,7 +4,7 @@ import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.IClipData;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
-import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 
 /**
  * Holds data about the clip

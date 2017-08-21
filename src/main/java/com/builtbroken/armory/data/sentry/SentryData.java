@@ -3,9 +3,9 @@ package com.builtbroken.armory.data.sentry;
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.mc.imp.transform.vector.Pos;
-import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
-import com.builtbroken.mc.lib.json.loading.JsonProcessorData;
-import com.builtbroken.mc.lib.json.override.JsonOverride;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
+import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
+import com.builtbroken.mc.framework.json.override.JsonOverride;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.

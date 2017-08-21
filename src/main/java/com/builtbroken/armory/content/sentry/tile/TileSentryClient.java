@@ -93,7 +93,7 @@ public class TileSentryClient extends TileSentry
     {
         if (entityID >= 0)
         {
-            Entity entity = world().getEntityByID(entityID);
+            Entity entity = oldWorld().getEntityByID(entityID);
             if (entity instanceof EntitySentry)
             {
                 setSentryEntity((EntitySentry) entity);

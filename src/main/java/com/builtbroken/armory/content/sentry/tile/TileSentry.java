@@ -78,17 +78,17 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     @Override
     public boolean canPlaceBlockAt()
     {
-        if (world() != null)
+        if (oldWorld() != null)
         {
-            Block block = world().getBlock(xi(), yi(), zi());
+            Block block = oldWorld().getBlock(xi(), yi(), zi());
             if (block != null)
             {
-                if (block.isReplaceable(world(), xi(), yi(), zi()))
+                if (block.isReplaceable(oldWorld(), xi(), yi(), zi()))
                 {
-                    block = world().getBlock(xi(), yi() - 1, zi());
+                    block = oldWorld().getBlock(xi(), yi() - 1, zi());
                     if (block != null)
                     {
-                        return block.isBlockSolid(world(), xi(), yi() - 1, zi(), ForgeDirection.UP.ordinal());
+                        return block.isBlockSolid(oldWorld(), xi(), yi() - 1, zi(), ForgeDirection.UP.ordinal());
                     }
                 }
             }
@@ -146,9 +146,9 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
             //Create entity if null
             if (getSentryEntity() == null)
             {
-                sentryEntity = new EntitySentry(world(), sentry, this);
+                sentryEntity = new EntitySentry(oldWorld(), sentry, this);
                 getSentryEntity().setPosition(xi() + 0.5, yi() + 0.5, zi() + 0.5);
-                world().spawnEntityInWorld(sentryEntity);
+                oldWorld().spawnEntityInWorld(sentryEntity);
             }
 
             //Force position of entity
@@ -187,7 +187,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         super.invalidate();
         if (getSentryEntity() != null)
         {
-            world().removeEntity(getSentryEntity());
+            oldWorld().removeEntity(getSentryEntity());
         }
     }
 
@@ -373,10 +373,10 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
 
     public void sendSentryIDToClient()
     {
-        if (world() != null && isServer())
+        if (oldWorld() != null && isServer())
         {
             PacketTile packetTile = new PacketTile(this, 2, getSentry() == null ? -1 : getSentryEntity().getEntityId());
-            Engine.instance.packetHandler.sendToAllAround(packetTile, this);
+            Engine.packetHandler.sendToAllAround(packetTile, this);
         }
     }
 
@@ -397,7 +397,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     {
         if (requestedID >= 0 && requestedID < MAX_GUI_TABS)
         {
-            player.openGui(Armory.INSTANCE, requestedID, world(), xi(), yi(), zi());
+            player.openGui(Armory.INSTANCE, requestedID, oldWorld(), xi(), yi(), zi());
             return true;
         }
         return false;
@@ -436,7 +436,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
             }
             else
             {
-                world().removeEntity(getSentryEntity());
+                oldWorld().removeEntity(getSentryEntity());
             }
         }
     }
@@ -455,6 +455,6 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     @Override
     public String toString()
     {
-        return "TileSentryBase[" + (world() != null && world().provider != null ? world().provider.dimensionId : "?") + "w, " + xCoord + "x, " + yCoord + "y, " + zCoord + "z, " + sentry + "]@" + hashCode();
+        return "TileSentryBase[" + (oldWorld() != null && oldWorld().provider != null ? oldWorld().provider.dimensionId : "?") + "w, " + xCoord + "x, " + yCoord + "y, " + zCoord + "z, " + sentry + "]@" + hashCode();
     }
 }

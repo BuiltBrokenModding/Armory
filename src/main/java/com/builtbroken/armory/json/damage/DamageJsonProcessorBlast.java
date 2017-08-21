@@ -1,10 +1,7 @@
 package com.builtbroken.armory.json.damage;
 
-import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.damage.DamageBlast;
 import com.builtbroken.armory.data.damage.DamageData;
-import com.builtbroken.mc.api.explosive.IExplosiveHandler;
-import com.builtbroken.mc.lib.world.explosive.ExplosiveRegistry;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

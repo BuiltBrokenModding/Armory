@@ -8,6 +8,8 @@ import com.builtbroken.armory.data.clip.ClipInstance;
 import com.builtbroken.armory.data.clip.ClipInstanceItem;
 import com.builtbroken.armory.data.user.IWeaponUser;
 import com.builtbroken.mc.api.ISave;
+import com.builtbroken.mc.api.abstraction.EffectInstance;
+import com.builtbroken.mc.api.abstraction.world.IWorld;
 import com.builtbroken.mc.api.data.weapon.*;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
 import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
@@ -17,7 +19,7 @@ import com.builtbroken.mc.api.modules.IModule;
 import com.builtbroken.mc.api.modules.weapon.IClip;
 import com.builtbroken.mc.api.modules.weapon.IGun;
 import com.builtbroken.mc.core.Engine;
-import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
+import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.imp.transform.vector.Location;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.InventoryIterator;
@@ -167,7 +169,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 final Pos target = aimPointOverride != null ? aimPointOverride : entityPos.add(aim.multiply(500));
 
                 playAudio("round.fired");
-                playEffect("round.fired", bulletStartPoint, aim, aim, false, new NBTTagCompound()); //TODO check with ammo if it has an effect to play then use this as backup
+                playEffect("round.fired", bulletStartPoint, aim, aim, false); //TODO check with ammo if it has an effect to play then use this as backup
 
                 //Fire round out of gun
                 if (getChamberedRound().getProjectileVelocity() <= 0 || getChamberedRound().getProjectileVelocity() > PROJECTILE_SPEED_LIMIT)
@@ -186,7 +188,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                     //TODO implement ejection collectors
                     Pos ejectionPoint = weaponUser.getProjectileSpawnOffset().add(getGunData().getEjectionSpawnOffset());
                     playAudio("round.eject");
-                    playEffect("round.eject", ejectionPoint, getGunData().getEjectionSpawnVector(), aim, false, new NBTTagCompound());
+                    playEffect("round.eject", ejectionPoint, getGunData().getEjectionSpawnVector(), aim, false);
                     for (ItemStack stack : droppedItems)
                     {
                         EntityItem item = InventoryUtility.dropItemStack(world, ejectionPoint, stack, 5 + world.rand.nextInt(20), 0.3f);
@@ -259,31 +261,35 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     public void debugRayTrace(Pos entityPos, Pos aim, Pos target, Pos bulletOffset)
     {
-        if ((debugRayTraces || doDebugRayTracesOnTthisGun) && Engine.instance != null && Engine.runningAsDev)
+        if ((debugRayTraces || doDebugRayTracesOnTthisGun) && Engine.loaderInstance != null && Engine.runningAsDev)
         {
             final Pos bulletStartPoint = entityPos.add(bulletOffset);
             final Pos start = entityPos.add(aim);
 
             Pos end = target;
-            MovingObjectPosition hit = start.rayTrace(weaponUser.world(), end, false, true, false);
+            MovingObjectPosition hit = start.rayTrace(weaponUser.oldWorld(), end, false, true, false);
             if (hit != null)
             {
                 end = new Pos(hit.hitVec);
             }
 
-            //Debug ray trace
-            PacketSpawnStream packet = new PacketSpawnStream(weaponUser.world().provider.dimensionId, start, end, 2);
-            packet.red = (Color.blue.getRed() / 255f);
-            packet.green = (Color.blue.getGreen() / 255f);
-            packet.blue = (Color.blue.getBlue() / 255f);
-            Engine.instance.packetHandler.sendToAllAround(packet, new Location(weaponUser), 200);
+            IWorld world = Engine.minecraft.getWorld(weaponUser.oldWorld().provider.dimensionId); //TODO remove once world is switch over to wrapper
 
-            //Debug ray trace
-            packet = new PacketSpawnStream(weaponUser.world().provider.dimensionId, bulletStartPoint, end, 2);
-            packet.red = (Color.GREEN.getRed() / 255f);
-            packet.green = (Color.GREEN.getGreen() / 255f);
-            packet.blue = (Color.GREEN.getBlue() / 255f);
-            Engine.instance.packetHandler.sendToAllAround(packet, new Location(weaponUser), 200);
+            //Test ray cast
+            EffectInstance effect = world.newEffect(References.LASER_EFFECT, start);
+            effect.setEndPoint(end);
+            effect.addData("red", (Color.blue.getRed() / 255f));
+            effect.addData("green", (Color.blue.getRed() / 255f));
+            effect.addData("blue", (Color.blue.getRed() / 255f));
+            effect.send();
+
+            //Test bullet ray case
+            effect.setPosition(bulletStartPoint);
+            effect.setEndPoint(end);
+            effect.addData("red", (Color.GREEN.getRed() / 255f));
+            effect.addData("green", (Color.GREEN.getRed() / 255f));
+            effect.addData("blue", (Color.GREEN.getRed() / 255f));
+            effect.send();
         }
     }
 
@@ -300,11 +306,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             {
                 nextRound.onImpactGround(weaponUser.getShooter(), world, hit.blockX, hit.blockY, hit.blockZ, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity());
             }
-            playEffect("round.fired.rayTrace", start, new Pos(hit.hitVec), aim, true, new NBTTagCompound());
+            playEffect("round.fired.rayTrace", start, new Pos(hit.hitVec), aim, true);
         }
         else
         {
-            playEffect("round.fired.rayTrace", start, end, aim, true, new NBTTagCompound());
+            playEffect("round.fired.rayTrace", start, end, aim, true);
         }
     }
 
@@ -435,30 +441,47 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public void playAudio(String key)
     {
         //Checks for JUnit testing TODO fix
-        if (Engine.instance != null && Engine.proxy != null && Engine.instance.packetHandler != null)
+        if (weaponUser != null && weaponUser.oldWorld() != null && weaponUser.oldWorld().provider != null)
         {
-            //TODO get weapon position
-            Engine.proxy.playJsonAudio(weaponUser.world(), gunData.getUniqueID() + "." + key, weaponUser.x(), weaponUser.y() + 1.1f, weaponUser.z(), 1, 1);
+            int dim = weaponUser.oldWorld().provider.dimensionId;
+            IWorld world = Engine.getWorld(dim);
+            if (world != null)
+            {
+                //TODO get weapon position
+                world.playAudio(gunData.getUniqueID() + "." + key, weaponUser.x(), weaponUser.y() + 1.1f, weaponUser.z(), 1, 1);
+            }
+            else if (Engine.runningAsDev)
+            {
+                Engine.logger().error("GunInstance#playAudio(" + key + ") failed to get world instance for dim[  " + dim + "  ]");
+            }
         }
     }
 
-    public void playEffect(String key, Pos pos, Pos end, Pos aim, boolean endPoint, NBTTagCompound nbt)
-    {
-        playEffect(key, pos.x(), pos.y(), pos.z(), end.x(), end.y(), end.z(), aim, endPoint, nbt);
-    }
-
-    public void playEffect(String key, double x, double y, double z, double mx, double my, double mz, Pos aim, boolean endPoint, NBTTagCompound nbt)
+    public void playEffect(String key, Pos pos, Pos end, Pos aim, boolean endPoint)
     {
         //Checks for JUnit testing TODO fix
-        if (Engine.instance != null && Engine.proxy != null && Engine.instance.packetHandler != null)
+        if (Engine.loaderInstance != null)
         {
-            //Send extra rotation and aim data to client to help translate renders
-            nbt.setTag("aim", aim.toNBT());
-            nbt.setFloat("yaw", (float) weaponUser.yaw());
-            nbt.setFloat("pitch", (float) weaponUser.pitch());
+            int dim = weaponUser.oldWorld().provider.dimensionId;
+            IWorld world = Engine.getWorld(dim);
+            if (world != null)
+            {
+                EffectInstance effect = world.newEffect(gunData.getUniqueID() + "." + key, pos);
+                effect.setMotion(end);
+                effect.endPoint = endPoint;
 
-            //Trigger data to be sent
-            Engine.proxy.playJsonEffect(weaponUser.world(), gunData.getUniqueID() + "." + key, x, y, z, mx, my, mz, endPoint, nbt);
+                //Send extra rotation and aim data to client to help translate renders
+                effect.addData("aim", aim.toNBT());
+                effect.addData("yaw", (float) weaponUser.yaw());
+                effect.addData("pitch", (float) weaponUser.pitch());
+
+                //Trigger data to be sent
+                effect.send();
+            }
+            else if (Engine.runningAsDev)
+            {
+                Engine.logger().error("GunInstance#playEffect(" + key + ",....) failed to get world instance for dim[  " + dim + "  ]");
+            }
         }
     }
 
@@ -797,7 +820,11 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 nbt.setTag(NBT_CLIP, clipTag);
             }
         }
-        nbt.setInteger(ItemGun.NBT_ENERGY, power);
+        //Only save power if not zero & we can use power
+        if (power != 0 && gunData.getBufferData() != null)
+        {
+            nbt.setInteger(ItemGun.NBT_ENERGY, power);
+        }
         return nbt;
     }
 

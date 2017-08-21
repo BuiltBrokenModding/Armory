@@ -1,7 +1,7 @@
 package com.builtbroken.armory.data.damage;
 
-import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
-import com.builtbroken.mc.lib.json.processors.JsonGenData;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
+import com.builtbroken.mc.framework.json.processors.JsonGenData;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 

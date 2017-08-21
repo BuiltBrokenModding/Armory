@@ -9,6 +9,8 @@ import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.armory.data.user.IWeaponUser;
 import com.builtbroken.jlib.data.network.IByteBufReader;
 import com.builtbroken.jlib.data.network.IByteBufWriter;
+import com.builtbroken.mc.api.abstraction.EffectInstance;
+import com.builtbroken.mc.api.abstraction.world.IWorld;
 import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
@@ -19,7 +21,7 @@ import com.builtbroken.mc.api.tile.ILinkable;
 import com.builtbroken.mc.api.tile.IPassCode;
 import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.core.Engine;
-import com.builtbroken.mc.core.network.packet.PacketSpawnStream;
+import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.framework.access.AccessProfile;
 import com.builtbroken.mc.framework.access.api.IProfileContainer;
 import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
@@ -129,7 +131,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
 
     public boolean update(int ticks, float deltaTime)
     {
-        if (!world().isRemote)
+        if (!oldWorld().isRemote)
         {
             if (ticks == 1)
             {
@@ -328,7 +330,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
             searchArea = AxisAlignedBB.getBoundingBox(x(), y(), z(), x(), y(), z()).expand(getSentryData().getRange(), getSentryData().getRange(), getSentryData().getRange());
         }
 
-        List<Entity> entityList = world().getEntitiesWithinAABBExcludingEntity(host instanceof Entity ? (Entity) host : null, searchArea, getEntitySelector());
+        List<Entity> entityList = oldWorld().getEntitiesWithinAABBExcludingEntity(host instanceof Entity ? (Entity) host : null, searchArea, getEntitySelector());
         Collections.sort(entityList, new SentryEntityTargetSorter(center));
 
         if (entityList != null && entityList.size() > 0)
@@ -367,7 +369,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
      */
     protected boolean isValidTarget(Entity entity)
     {
-        if (entity != null && entity.isEntityAlive() && getEntitySelector().isEntityApplicable (entity) && (getFoFStation() == null || !getFoFStation().isFriendly(entity)))
+        if (entity != null && entity.isEntityAlive() && getEntitySelector().isEntityApplicable(entity) && (getFoFStation() == null || !getFoFStation().isFriendly(entity)))
         {
             //Get aim position of entity
             final Pos aimPoint = getAimPoint(entity); //TODO retry with lower and higher aim value
@@ -378,7 +380,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
             {
                 //Trace to make sure no blocks are between shooter and target
                 EulerAngle aim = center.toEulerAngle(aimPoint).clampTo360();
-                MovingObjectPosition hit = center.add(aim.toPos().multiply(1.3)).rayTraceBlocks(world(), aimPoint);
+                MovingObjectPosition hit = center.add(aim.toPos().multiply(1.3)).rayTraceBlocks(oldWorld(), aimPoint);
 
                 return hit == null || hit.typeOfHit == MovingObjectPosition.MovingObjectType.MISS;
             }
@@ -429,7 +431,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         if (gunInstance.chamberNextRound())
         {
             aimPoint = getAimPoint(target);
-            gunInstance.fireWeapon(world(), 1, aimPoint, bulletSpawnOffset); //TODO get firing ticks
+            gunInstance.fireWeapon(oldWorld(), 1, aimPoint, bulletSpawnOffset); //TODO get firing ticks
         }
     }
 
@@ -439,9 +441,9 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     }
 
     @Override
-    public World world()
+    public World oldWorld()
     {
-        return host != null ? host.world() : null;
+        return host != null ? host.oldWorld() : null;
     }
 
     @Override
@@ -633,7 +635,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     {
         if ((fofStation == null || fofStation instanceof TileEntity && ((TileEntity) fofStation).isInvalid()) && fofStationPos != null)
         {
-            TileEntity tile = fofStationPos.getTileEntity(world());
+            TileEntity tile = fofStationPos.getTileEntity(oldWorld());
             if (tile instanceof IFoFProvider)
             {
                 fofStation = (IFoFProvider) tile;
@@ -650,7 +652,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     public String link(Location loc, short code)
     {
         //Validate location data
-        if (loc.world != world())
+        if (loc.world != oldWorld())
         {
             return "link.error.world.match";
         }
@@ -666,7 +668,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         }
 
         //Compare tile pass code
-        TileEntity tile = pos.getTileEntity(loc.world());
+        TileEntity tile = pos.getTileEntity(loc.oldWorld());
         if (tile instanceof IPassCode && ((IPassCode) tile).getCode() != code)
         {
             return "link.error.code.match";
@@ -737,38 +739,44 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         if (enableAimDebugRays && Engine.runningAsDev)
         {
             Pos hand = center.add(bulletSpawnOffset);
-            //Debug ray trace
-            PacketSpawnStream packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.1, 0), hand.add(0, 0.1, 0), 2);
-            packet.red = (Color.MAGENTA.getRed() / 255f);
-            packet.green = (Color.MAGENTA.getGreen() / 255f);
-            packet.blue = (Color.MAGENTA.getBlue() / 255f);
-            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
 
+            IWorld world = Engine.minecraft.getWorld(oldWorld().provider.dimensionId); //TODO remove once world is switch over to wrapper
+
+            //Test base aim
+            EffectInstance effect = world.newEffect(References.LASER_EFFECT, center.add(0, 0.1, 0));
+            effect.setEndPoint(hand.add(0, 0.1, 0));
+            effect.addData("red", (Color.MAGENTA.getRed() / 255f)); //TODO maybe convert to int to save bandwidth?
+            effect.addData("green", (Color.MAGENTA.getRed() / 255f));
+            effect.addData("blue", (Color.MAGENTA.getRed() / 255f));
+            effect.send();
+
+            //Test entity aim
             hand = center.add(getEntityAim());
-            //Debug ray trace
-            packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.2, 0), hand.add(0, 0.2, 0), 2);
-            packet.red = (Color.blue.getRed() / 255f);
-            packet.green = (Color.blue.getGreen() / 255f);
-            packet.blue = (Color.blue.getBlue() / 255f);
-            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+            effect.setPosition(center.add(0, 0.2, 0));
+            effect.setEndPoint(hand.add(0, 0.2, 0));
+            effect.addData("red", (Color.blue.getRed() / 255f));
+            effect.addData("green", (Color.blue.getRed() / 255f));
+            effect.addData("blue", (Color.blue.getRed() / 255f));
+            effect.send();
 
+            //Test aim
             hand = center.add(aim.toPos());
-            //Debug ray trace
-            packet = new PacketSpawnStream(world().provider.dimensionId, center.add(0, 0.3, 0), hand.add(0, 0.3, 0), 2);
-            packet.red = (Color.CYAN.getRed() / 255f);
-            packet.green = (Color.CYAN.getGreen() / 255f);
-            packet.blue = (Color.CYAN.getBlue() / 255f);
-            Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+            effect.setPosition(center.add(0, 0.3, 0));
+            effect.setEndPoint(hand.add(0, 0.3, 0));
+            effect.addData("red", (Color.CYAN.getRed() / 255f));
+            effect.addData("green", (Color.CYAN.getRed() / 255f));
+            effect.addData("blue", (Color.CYAN.getRed() / 255f));
+            effect.send();
 
 
             if (aimPoint != null)
             {
-                //Debug ray trace
-                packet = new PacketSpawnStream(world().provider.dimensionId, center, aimPoint, 2);
-                packet.red = (Color.yellow.getRed() / 255f);
-                packet.green = (Color.yellow.getGreen() / 255f);
-                packet.blue = (Color.yellow.getBlue() / 255f);
-                Engine.instance.packetHandler.sendToAllAround(packet, new Location(this), 200);
+                effect.setPosition(center);
+                effect.setEndPoint(aimPoint);
+                effect.addData("red", (Color.yellow.getRed() / 255f));
+                effect.addData("green", (Color.yellow.getRed() / 255f));
+                effect.addData("blue", (Color.yellow.getRed() / 255f));
+                effect.send();
             }
         }
     }

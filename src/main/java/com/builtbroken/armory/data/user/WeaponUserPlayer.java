@@ -25,7 +25,7 @@ public class WeaponUserPlayer extends WeaponUserEntity<EntityPlayer>
         double y = y();
         double z = z();
         // isRemote check to revert changes to ray trace position due to adding the eye height clientside and entity yOffset differences
-        y += (double) (world().isRemote ? entity.getEyeHeight() - entity.getDefaultEyeHeight() : entity.getEyeHeight());
+        y += (double) (oldWorld().isRemote ? entity.getEyeHeight() - entity.getDefaultEyeHeight() : entity.getEyeHeight());
         return new Pos(x, y, z);
     }
 

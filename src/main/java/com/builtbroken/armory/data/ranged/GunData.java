@@ -6,8 +6,8 @@ import com.builtbroken.mc.api.data.energy.IEnergyBufferData;
 import com.builtbroken.mc.api.data.energy.IEnergyChargeData;
 import com.builtbroken.mc.api.data.weapon.*;
 import com.builtbroken.mc.imp.transform.vector.Pos;
-import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
-import com.builtbroken.mc.lib.json.loading.JsonProcessorData;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
+import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 
 /**
  * Holds all data about a gun

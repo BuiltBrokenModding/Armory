@@ -38,7 +38,7 @@ public class TileTarget extends Tile
             //If redstone was not ticked check every other tick
             if (!redstoneTick && ticks % 2 == 0)
             {
-                redstoneTick = world().isBlockIndirectlyGettingPowered(xi(), yi(), zi());
+                redstoneTick = oldWorld().isBlockIndirectlyGettingPowered(xi(), yi(), zi());
             }
             //If redstone count down
             if (redstoneTick && deployCount-- <= deployDelay)
@@ -54,10 +54,10 @@ public class TileTarget extends Tile
         deployCount = deployDelay;
         if (type != null)
         {
-            target = type.getTarget(world());
+            target = type.getTarget(oldWorld());
             target.setLocationAndAngles(xi(), yi(), zi(), yaw, 0);
             type.applyTranslation(target);
-            world().spawnEntityInWorld(target);
+            oldWorld().spawnEntityInWorld(target);
         }
     }
 }

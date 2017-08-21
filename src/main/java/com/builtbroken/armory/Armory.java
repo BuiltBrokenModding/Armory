@@ -19,10 +19,9 @@ import com.builtbroken.armory.json.processors.*;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.core.registry.ModManager;
-import com.builtbroken.mc.lib.json.JsonContentLoader;
-import com.builtbroken.mc.lib.mod.AbstractMod;
-import com.builtbroken.mc.lib.mod.ModCreativeTab;
-import com.builtbroken.mc.mods.nei.NEIProxy;
+import com.builtbroken.mc.framework.json.JsonContentLoader;
+import com.builtbroken.mc.framework.mod.AbstractMod;
+import com.builtbroken.mc.framework.mod.ModCreativeTab;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -64,6 +63,9 @@ public final class Armory extends AbstractMod
     public static ModCreativeTab CREATIVE_TAB;
 
     public static Block blockSentry;
+
+    public static final String SENTRY_BLOCK_NAME = "sentryTile";
+    public static final String SENTRY_BLOCK_REG = PREFIX + "sentryTile";
 
     public static ItemMetaArmoryEntry<GunData> itemGun;
     public static ItemMetaArmoryEntry<ClipData> itemClip;
@@ -142,7 +144,6 @@ public final class Armory extends AbstractMod
 
         //Hide turret block
         blockSentry.setCreativeTab(null);
-        NEIProxy.hideItem(blockSentry);
 
         //Register entities
         EntityRegistry.registerModEntity(EntityAmmoProjectile.class, "ArmoryProjectile", 0, this, 500, 1, true);

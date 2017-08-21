@@ -4,7 +4,7 @@ import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.mc.api.data.EnumProjectileTypes;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
-import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 
 import java.util.ArrayList;
 import java.util.List;

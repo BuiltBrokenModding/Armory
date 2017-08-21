@@ -14,6 +14,6 @@ public class ServerProxy extends CommonProxy
     public void preInit()
     {
         super.preInit();
-        Armory.blockSentry = Armory.INSTANCE.getManager().newBlock("sentryTile", TileSentry.class);
+        Armory.blockSentry = Armory.INSTANCE.getManager().newBlock(Armory.SENTRY_BLOCK_NAME, TileSentry.class);
     }
 }

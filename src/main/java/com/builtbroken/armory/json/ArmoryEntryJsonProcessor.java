@@ -2,7 +2,7 @@ package com.builtbroken.armory.json;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.ArmoryEntry;
-import com.builtbroken.mc.lib.json.processors.JsonProcessor;
+import com.builtbroken.mc.framework.json.processors.JsonProcessor;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

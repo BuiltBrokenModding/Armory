@@ -2,7 +2,7 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.data.Weapon;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
-import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 
 /**
  * Any kind of weapon that is based on a ranged attack

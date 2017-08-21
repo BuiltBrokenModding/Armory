@@ -2,8 +2,8 @@ package com.builtbroken.armory.data;
 
 import com.builtbroken.mc.api.data.weapon.IData;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
-import com.builtbroken.mc.lib.json.imp.IJsonProcessor;
-import com.builtbroken.mc.lib.json.processors.JsonGenData;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
+import com.builtbroken.mc.framework.json.processors.JsonGenData;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 

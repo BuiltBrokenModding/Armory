@@ -3,7 +3,7 @@ package com.builtbroken.armory.json.damage;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.armory.data.damage.simple.DamageSimple;
-import com.builtbroken.mc.lib.json.processors.JsonProcessor;
+import com.builtbroken.mc.framework.json.processors.JsonProcessor;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

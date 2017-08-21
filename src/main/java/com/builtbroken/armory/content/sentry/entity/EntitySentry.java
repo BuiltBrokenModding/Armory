@@ -191,7 +191,7 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
     }
 
     @Override
-    public World world()
+    public World oldWorld()
     {
         return worldObj;
     }

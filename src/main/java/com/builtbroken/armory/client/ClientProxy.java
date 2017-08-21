@@ -28,7 +28,7 @@ public class ClientProxy extends CommonProxy
     {
         super.preInit();
         VisualEffectRegistry.addEffectProvider(new VEProviderGunSmoke());
-        Armory.blockSentry = Armory.INSTANCE.getManager().newBlock("sentryTile", TileSentryClient.class);
+        Armory.blockSentry = Armory.INSTANCE.getManager().newBlock(Armory.SENTRY_BLOCK_NAME, TileSentryClient.class);
     }
 
     @Override

@@ -179,10 +179,10 @@ public class TestGunInstance extends AbstractArmoryTest
         NBTTagCompound nbt = new NBTTagCompound();
         instance.save(nbt);
 
-        assertEquals(3, nbt.func_150296_c().size());
+        assertEquals(2, nbt.func_150296_c().size());
         assertTrue(nbt.hasKey(GunInstance.NBT_ROUND));
         assertTrue(nbt.hasKey(GunInstance.NBT_CLIP));
-        assertTrue(nbt.hasKey(ItemGun.NBT_ENERGY));
+        //assertTrue(nbt.hasKey(ItemGun.NBT_ENERGY)); does not save by default anymore
 
         //Any time this code is changed test for legacy loading of old data
     }

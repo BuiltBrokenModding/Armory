@@ -100,14 +100,16 @@ public class ItemThrownWeapon extends ItemMetaArmoryEntry<ThrowableData> impleme
                     //Create projectile
                     EntityAmmoProjectile projectile = new EntityAmmoProjectile(world, nextRound, null, weaponUser.getShooter());
 
-                    //(float) (this.getMaxItemUseDuration(itemStack) - ticks) / (float) this.getMaxItemUseDuration(itemStack)) //TODO implement throwing power
+                    float power = Math.min(1, (float) (this.getMaxItemUseDuration(itemStack) - ticks) / 4f);
 
                     //Set entity spawn point
                     Pos spawnPoint = entityPos.add(aim).add(weaponUser.getProjectileSpawnOffset());
                     projectile.setPosition(spawnPoint.x(), spawnPoint.y(), spawnPoint.z());
 
                     //Set velocity
-                    projectile.setThrowableHeading(aim.x(), aim.y(), aim.z(), nextRound.getProjectileVelocity(), 0);
+                    float velocity = nextRound.getProjectileVelocity();
+                    velocity *= power;
+                    projectile.setThrowableHeading(aim.x(), aim.y(), aim.z(), velocity, 0);
 
                     //Spawn
                     world.spawnEntityInWorld(projectile);

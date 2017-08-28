@@ -45,6 +45,7 @@ public abstract class ArmoryEntryJsonProcessor<E extends ArmoryEntry> extends Js
      */
     public E processExtraData(JsonObject object, E e)
     {
+        //TODO use JSON injection
         final JsonElement mass = object.get("mass");
         if (mass != null)
         {
@@ -81,6 +82,19 @@ public abstract class ArmoryEntryJsonProcessor<E extends ArmoryEntry> extends Js
             else
             {
                 throw new IllegalArgumentException("Invalid content group value " + contentGroup + " when reading " + object);
+            }
+        }
+
+        final JsonElement creativeTabName = object.get("creativeTab");
+        if (creativeTabName != null)
+        {
+            if (creativeTabName.isJsonPrimitive())
+            {
+                e.creativeTabToUse = creativeTabName.getAsString();
+            }
+            else
+            {
+                throw new IllegalArgumentException("Invalid creative tab value " + creativeTabName + " when reading " + object);
             }
         }
         return e;

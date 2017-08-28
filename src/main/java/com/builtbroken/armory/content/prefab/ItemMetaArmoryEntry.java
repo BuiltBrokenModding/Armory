@@ -25,6 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,8 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
 {
     /** Type of the item @see {@link ArmoryDataHandler} */
     public final String typeName;
+
+    public CreativeTabs[] creativeTabs;
 
     public ItemMetaArmoryEntry(String id, String name, String typeName)
     {
@@ -84,7 +87,12 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
 
     public E getData(int meta)
     {
-        return (E) ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry.get(meta);
+        return getArmoryData().metaToEntry.get(meta);
+    }
+
+    public ArmoryDataHandler.ArmoryData<E> getArmoryData()
+    {
+        return ArmoryDataHandler.INSTANCE.get(typeName);
     }
 
     @Override
@@ -136,14 +144,68 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
     @SideOnly(Side.CLIENT)
     public void getSubItems(Item item, CreativeTabs tab, List items)
     {
-        Map<Integer, E> map = ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry;
-        for (Map.Entry<Integer, E> entry : map.entrySet())
+        if(tab != null)
         {
-            if (entry.getValue().showInCreativeTab)
+            String tabName = tab.getTabLabel();
+            Map<Integer, E> map = ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry;
+            for (Map.Entry<Integer, E> entry : map.entrySet())
             {
-                getSubItems(item, entry.getKey(), entry.getValue(), tab, items);
+                E value = entry.getValue();
+                if (value != null && value.showInCreativeTab && (tab == getCreativeTab() && value.creativeTabToUse == null || tabName.equalsIgnoreCase(value.creativeTabToUse)))
+                {
+                    getSubItems(item, entry.getKey(), entry.getValue(), tab, items);
+                }
             }
         }
+    }
+
+    @Override
+    public CreativeTabs[] getCreativeTabs()
+    {
+        if (creativeTabs == null)
+        {
+            List<String> tabNames = new ArrayList();
+            for (E entry : getArmoryData().values())
+            {
+                if (entry.creativeTabToUse != null)
+                {
+                    String key = entry.creativeTabToUse.toLowerCase();
+                    if (!tabNames.contains(key))
+                    {
+                        tabNames.add(key);
+                    }
+                }
+            }
+
+            if (!tabNames.isEmpty())
+            {
+                List<CreativeTabs> tabs = new ArrayList();
+                for (CreativeTabs tab : CreativeTabs.creativeTabArray)
+                {
+                    if (tab != getCreativeTab())
+                    {
+                        String key = tab.getTabLabel().toLowerCase();
+                        if (tabNames.contains(key))
+                        {
+                            tabs.add(tab);
+                        }
+                    }
+                }
+
+                creativeTabs = new CreativeTabs[tabs.size() + 1];
+                creativeTabs[0] = getCreativeTab();
+                int i = 1;
+                for (CreativeTabs tab : tabs)
+                {
+                    creativeTabs[i++] = tab;
+                }
+            }
+            else
+            {
+                creativeTabs = new CreativeTabs[]{getCreativeTab()};
+            }
+        }
+        return creativeTabs;
     }
 
     @SideOnly(Side.CLIENT)

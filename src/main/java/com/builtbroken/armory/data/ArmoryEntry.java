@@ -27,6 +27,8 @@ public abstract class ArmoryEntry extends JsonGenData implements IData
     /** Group to cluster the items in, normally this is the mod domain or author name */
     public String contentGroup;
 
+    public String creativeTabToUse;
+
     public boolean showInCreativeTab = true;
 
     public Item itemFile;

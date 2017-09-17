@@ -110,7 +110,6 @@ public final class Armory extends AbstractMod
 
         super.preInit(event); //load items
 
-        Engine.requestOres(); //TODO move to event trigger
         Engine.requestResources();
         Engine.requestSheetMetalContent();
         Engine.requestMultiBlock();

@@ -65,7 +65,13 @@ public abstract class DamageData extends JsonGenData
     @Override
     public String getContentID()
     {
-        return null;
+        return null; //TODO implement
+    }
+
+    @Override
+    public String getUniqueID()
+    {
+        return null; //TODO implement
     }
 
     @Override

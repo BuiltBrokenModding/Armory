@@ -6,11 +6,13 @@ If this is a problem, use exact build numbers to track changes. As each build lo
 It is also important to note these changes are for several repos. As this repository is primarily used for the core segement of the project. Other projects are merged in at build time to create the complete project. 
 
 # Versions
-## 1.9.10
+## 0.7.1
 ### Runtime Changes
+Updated to lasted VoltzEngine version
 
 ### Develoment Changes
-
+Added: Throw power to throwable weapons
+Added: Creative tab selection to data entries (guns, ammo, etc)
 
 ### Before last
 Change log is a work in progress, not everything will be logged due to time.

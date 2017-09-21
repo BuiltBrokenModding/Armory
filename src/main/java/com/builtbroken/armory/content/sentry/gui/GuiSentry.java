@@ -19,6 +19,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
+
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/9/2017.
@@ -408,16 +410,22 @@ public class GuiSentry extends GuiContainerBase
         else if (id == 2)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.permissions"), 7, 4);
+
+            drawString("Not currently Implemented", 7, 20, Color.RED.getRGB());
         }
         //Upgrades GUI
         else if (id == 3)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.upgrades"), 7, 4);
+
+            drawString(LanguageUtility.getLocal("Not currently Implemented"), 7, 20, Color.RED.getRGB());
         }
         //Settings GUI
         else if (id == 4)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.settings"), 7, 4);
+
+            drawString(LanguageUtility.getLocal("Not currently Implemented"), 7, 20, Color.RED.getRGB());
         }
     }
 }

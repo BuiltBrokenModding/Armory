@@ -6,6 +6,15 @@ If this is a problem, use exact build numbers to track changes. As each build lo
 It is also important to note these changes are for several repos. As this repository is primarily used for the core segement of the project. Other projects are merged in at build time to create the complete project. 
 
 # Versions
+## 0.7.2
+### Runtime Changes
+Added: "Not currently Implemented" warnings to unfinished GUI sections
+Fixed: tooltips on sentry's target settings GUI
+
+
+### Develoment Changes
+
+
 ## 0.7.1
 ### Runtime Changes
 Updated to lasted VoltzEngine version

@@ -33,3 +33,10 @@ sentry.gui.tooltip.tab.permissions=Permission Settings
 sentry.gui.tooltip.tab.upgrades=Upgrades
 sentry.gui.tooltip.tab.settings=Settings
 sentry.gui.tooltip.save=Save
+
+sentry.gui.tooltip.target.all=Target All
+sentry.gui.tooltip.target.friendly=Target Friendly
+sentry.gui.tooltip.target.friendly.non=Target Non-Friendly
+sentry.gui.tooltip.target.hostile=Target Hostile
+sentry.gui.tooltip.target.neutral=Target Neutral
+sentry.gui.tooltip.target.none=Target None

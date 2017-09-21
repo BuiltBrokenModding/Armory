@@ -100,11 +100,11 @@ public class GuiSentry extends GuiContainerBase
                     targetListButtons[i][3] = addButton(new GuiButtonCheck(50 + i, x + 9 * 3, y + yOffset, 1, false));
                     targetListButtons[i][4] = addButton(new GuiButtonCheck(60 + i, x + 9 * 4, y + yOffset, 1, false));
 
-                    tooltips.put(new Rectangle(tx, ty + yOffset, tx + 9, ty + yOffset + 9), "Target All");
-                    tooltips.put(new Rectangle(tx + 9, ty + yOffset, tx + 9 * 2, ty + yOffset + 9), "Target Non-Friendly");
-                    tooltips.put(new Rectangle(tx + 9 * 2, ty + yOffset, tx + 9 * 3, ty + yOffset + 9), "Target Hostile");
-                    tooltips.put(new Rectangle(tx + 9 * 3, ty + yOffset, tx + 9 * 4, ty + yOffset + 9), "Target Neutral");
-                    tooltips.put(new Rectangle(tx + 9 * 4, ty + yOffset, tx + 9 * 5, ty + yOffset + 9), "Target None");
+                    addToolTip(new Rectangle(tx, ty + yOffset, tx + 9, ty + yOffset + 9), "sentry.gui.tooltip.target.all", true);
+                    addToolTip(new Rectangle(tx + 9, ty + yOffset, tx + 9 * 2, ty + yOffset + 9), "sentry.gui.tooltip.target.friendly.non", true);
+                    addToolTip(new Rectangle(tx + 9 * 2, ty + yOffset, tx + 9 * 3, ty + yOffset + 9), "sentry.gui.tooltip.target.hostile", true);
+                    addToolTip(new Rectangle(tx + 9 * 3, ty + yOffset, tx + 9 * 4, ty + yOffset + 9), "sentry.gui.tooltip.target.neutral", true);
+                    addToolTip(new Rectangle(tx + 9 * 4, ty + yOffset, tx + 9 * 5, ty + yOffset + 9), "sentry.gui.tooltip.target.none", true);
                 }
 
                 //Add scroll bar buttons
@@ -138,7 +138,7 @@ public class GuiSentry extends GuiContainerBase
     {
         super.updateScreen();
 
-        if(tile != null && tile.getSentry() != null)
+        if (tile != null && tile.getSentry() != null)
         {
             //Update power state
             if (tile.getSentry().turnedOn)

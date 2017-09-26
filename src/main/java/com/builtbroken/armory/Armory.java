@@ -2,16 +2,15 @@ package com.builtbroken.armory;
 
 import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
-import com.builtbroken.armory.content.items.ItemAmmo;
-import com.builtbroken.armory.content.items.ItemClip;
-import com.builtbroken.armory.content.items.ItemGun;
-import com.builtbroken.armory.content.items.ItemThrownWeapon;
+import com.builtbroken.armory.content.items.*;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.tile.ItemSentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.clip.ClipData;
+import com.builtbroken.armory.data.meele.MeleeToolData;
+import com.builtbroken.armory.data.meele.MeleeWeaponData;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.ThrowableData;
 import com.builtbroken.armory.data.sentry.SentryData;
@@ -72,6 +71,8 @@ public final class Armory extends AbstractMod
     public static ItemMetaArmoryEntry<AmmoData> itemAmmo;
     public static ItemMetaArmoryEntry<SentryData> itemSentry;
     public static ItemMetaArmoryEntry<ThrowableData> itemThrownWeapon;
+    public static ItemMetaArmoryEntry<MeleeToolData> itemMeleeTool;
+    public static ItemMetaArmoryEntry<MeleeWeaponData> itemMeleeWeapon;
 
     //Configs
     /** Overrides the delay between attacks on entities */
@@ -94,6 +95,8 @@ public final class Armory extends AbstractMod
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.CLIP_ID));
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.SENTRY_ID));
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.THROWABLE_WEAPON_ID));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.MELEE_WEAPON_ID));
+        ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.MELEE_TOOL_ID));
 
         JsonContentLoader.INSTANCE.add(new AmmoTypeJsonProcessor());
         JsonContentLoader.INSTANCE.add(new AmmoJsonProcessor());
@@ -126,6 +129,8 @@ public final class Armory extends AbstractMod
         itemAmmo = manager.newItem("armoryAmmo", new ItemAmmo());
         itemSentry = manager.newItem("armorySentry", new ItemSentry());
         itemThrownWeapon = manager.newItem("armoryThrownWeapon", new ItemThrownWeapon());
+        itemMeleeTool = manager.newItem("armoryMeleeTool", new ItemTool());
+        itemMeleeWeapon = manager.newItem("armoryMeleeWeapon", new ItemMeleeWeapon());
 
         //TODO fire registry event for mods to add content before initializing data
 
@@ -134,6 +139,8 @@ public final class Armory extends AbstractMod
         ArmoryDataHandler.INSTANCE.get(itemAmmo.typeName).init(itemAmmo);
         ArmoryDataHandler.INSTANCE.get(itemSentry.typeName).init(itemSentry);
         ArmoryDataHandler.INSTANCE.get(itemThrownWeapon.typeName).init(itemThrownWeapon);
+        ArmoryDataHandler.INSTANCE.get(itemMeleeTool.typeName).init(itemMeleeTool);
+        ArmoryDataHandler.INSTANCE.get(itemMeleeWeapon.typeName).init(itemMeleeWeapon);
     }
 
     @Mod.EventHandler

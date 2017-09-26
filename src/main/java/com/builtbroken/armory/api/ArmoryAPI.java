@@ -11,6 +11,8 @@ public class ArmoryAPI
     public static final String AMMO_ID = "ammo";
     public static final String AMMO_TYPE_ID = "ammoType";
     public static final String CLIP_ID = "clip";
+    public static final String MELEE_WEAPON_ID = "meleeWeapon";
+    public static final String MELEE_TOOL_ID = "meleeTool";
     public static final String SENTRY_ID = "sentry";
     public static final String THROWABLE_WEAPON_ID = "throwable";
 }

@@ -1,0 +1,16 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "meleeWeapon": {
+    "name": "sword",
+    "ID": "armory:sword",
+    "attack": 5,
+    "blocksToBreak": [
+      {
+        "block": "",
+        "speed": 15
+      }
+    ]
+  }
+}

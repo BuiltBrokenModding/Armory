@@ -108,6 +108,12 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
         return false; //disable vanilla damage handling
     }
 
+    @Override
+    public boolean isRepairable()
+    {
+        return false; //Can't repair via vanilla methods
+    }
+
     /**
      * Called to damage the item
      *
@@ -255,7 +261,7 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
     @Override
     public boolean func_150897_b(Block block)
     {
-        return false;
+        return false; //no tool to check against, so default to false
     }
 
     @Override

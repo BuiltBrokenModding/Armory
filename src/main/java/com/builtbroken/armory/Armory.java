@@ -104,6 +104,8 @@ public final class Armory extends AbstractMod
         JsonContentLoader.INSTANCE.add(new GunJsonProcessor());
         JsonContentLoader.INSTANCE.add(new SentryJsonProcessor());
         JsonContentLoader.INSTANCE.add(new ThrownJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new MeleeToolJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new MeleeWeaponJsonProcessor());
     }
 
     @Mod.EventHandler

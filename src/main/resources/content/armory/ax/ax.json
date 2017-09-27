@@ -1,0 +1,9 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "meleeTool": {
+    "name": "ax",
+    "ID": "armory:ax"
+  }
+}

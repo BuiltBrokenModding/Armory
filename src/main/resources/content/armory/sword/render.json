@@ -1,0 +1,20 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "render": {
+    "contentID": "armory:sword",
+    "type": "item",
+    "states": [
+      {
+        "id": "item.inventory",
+        "renderType": "item",
+        "texture":
+        {
+          "domain": "armory",
+          "name": "sword.test"
+        }
+      }
+    ]
+  }
+}

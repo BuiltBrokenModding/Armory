@@ -2,7 +2,9 @@ package com.builtbroken.armory.data.meele;
 
 import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.data.WeaponData;
+import com.builtbroken.mc.framework.json.data.JsonBlockEntry;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
+import com.builtbroken.mc.framework.json.imp.JsonLoadPhase;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -21,7 +23,12 @@ public class MeleeToolData extends WeaponData
     protected int useDuration = Item.ToolMaterial.IRON.getMaxUses();
     protected int blockBreakDamage = 1;
 
+    /** Cache of block references to be triggered after blocks are loaded */
+    protected HashMap<JsonBlockEntry, Float> _blockToBreakSpeed = new HashMap();
+
+    /** Breakable blocks to speed */
     protected HashMap<Block, Float> blockToBreakSpeed = new HashMap();
+    /** Breakable materials to speed */
     protected HashMap<Material, Float> materialToBreakSpeed = new HashMap();
 
     public MeleeToolData(IJsonProcessor processor, String id, String name)
@@ -76,15 +83,15 @@ public class MeleeToolData extends WeaponData
         return 0;
     }
 
-    @JsonProcessorData(value = "blocksToBreak", type = "HashMap", args = {"block", "string", "speed", "float"})
+    @JsonProcessorData(value = "blocksToBreak", type = "HashMap", args = {"block", "block", "speed", "float"})
     public void loadBlockBreakData(HashMap map)
     {
         map.entrySet().forEach(e ->
-                setBreakSpeed((Block) ((Map.Entry) e).getKey(), (float) ((Map.Entry) e).getValue())
+                setBreakSpeed((JsonBlockEntry) ((Map.Entry) e).getKey(), (float) ((Map.Entry) e).getValue())
         );
     }
 
-    @JsonProcessorData(value = "materialsToBreak", type = "HashMap", args = {"material", "string", "speed", "float"})
+    @JsonProcessorData(value = "materialsToBreak", type = "HashMap", args = {"material", "material", "speed", "float"})
     public void loadMaterialsBreakData(HashMap map)
     {
         map.entrySet().forEach(e ->
@@ -92,14 +99,44 @@ public class MeleeToolData extends WeaponData
         );
     }
 
+    public void setBreakSpeed(JsonBlockEntry block, float speed)
+    {
+        this._blockToBreakSpeed.put(block, speed);
+    }
+
     public void setBreakSpeed(Block block, float speed)
     {
-        this.blockToBreakSpeed.put(block, speed);
+        if (block != null)
+        {
+            this.blockToBreakSpeed.put(block, speed);
+        }
     }
 
     public void setBreakSpeed(Material material, float speed)
     {
-        this.materialToBreakSpeed.put(material, speed);
+        if (material != null)
+        {
+            this.materialToBreakSpeed.put(material, speed);
+        }
+    }
+
+    @Override
+    public void onPhase(JsonLoadPhase phase)
+    {
+        if (phase == JsonLoadPhase.COMPLETED)
+        {
+            for (Map.Entry<JsonBlockEntry, Float> entry : _blockToBreakSpeed.entrySet())
+            {
+                if (entry.getKey() != null)
+                {
+                    Block block = entry.getKey().getBlock();
+                    if (block != null)
+                    {
+                        setBreakSpeed(block, entry.getValue());
+                    }
+                }
+            }
+        }
     }
 
     /**

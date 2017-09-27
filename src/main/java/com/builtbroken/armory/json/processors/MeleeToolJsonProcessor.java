@@ -19,7 +19,7 @@ public class MeleeToolJsonProcessor extends ArmoryEntryJsonProcessor<MeleeToolDa
 {
     public MeleeToolJsonProcessor()
     {
-        super(ArmoryAPI.AMMO_ID);
+        super(ArmoryAPI.MELEE_TOOL_ID);
         keyHandler = new JsonProcessorInjectionMap(MeleeToolData.class);
         debugPrinter = JsonContentLoader.INSTANCE != null ? JsonContentLoader.INSTANCE.debug : new DebugPrinter(LogManager.getLogger());
     }
@@ -27,7 +27,7 @@ public class MeleeToolJsonProcessor extends ArmoryEntryJsonProcessor<MeleeToolDa
     @Override
     public String getLoadOrder()
     {
-        return "after:" + ArmoryAPI.AMMO_TYPE_ID;
+        return null;
     }
 
     @Override

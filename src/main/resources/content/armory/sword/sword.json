@@ -4,12 +4,35 @@
   },
   "meleeWeapon": {
     "name": "sword",
-    "ID": "armory:sword",
+    "id": "armory:sword",
     "attack": 5,
     "blocksToBreak": [
       {
-        "block": "",
+        "block": "minecraft:web",
         "speed": 15
+      }
+    ],
+    "materialsToBreak":
+    [
+      {
+        "material": "plants",
+        "speed": 1.5
+      },
+      {
+        "material": "vine",
+        "speed": 1.5
+      },
+      {
+        "material": "coral",
+        "speed": 1.5
+      },
+      {
+        "material": "leaves",
+        "speed": 1.5
+      },
+      {
+        "material": "gourd",
+        "speed": 1.5
       }
     ]
   }

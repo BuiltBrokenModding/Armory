@@ -1,6 +1,8 @@
 package com.builtbroken.armory.data.damage;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.jlib.data.Colors;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import com.builtbroken.mc.lib.debug.DebugHelper;
@@ -56,13 +58,23 @@ public class DamagePotion extends DamageData
         return true;
     }
 
+    @Override
+    public String getDisplayString()
+    {
+        if(getPotion() == null)
+        {
+            return Engine.runningAsDev ? Colors.RED.code + "Error: potion " + potionName : null;
+        }
+        return getPotion().getName() + " x" + amplifier + " for " + duration; //TODO converter amplifier to romain numerals, change duration to seconds
+    }
+
     public Potion getPotion()
     {
         if (potion == null)
         {
             for (Potion potion : Potion.potionTypes)
             {
-                if (potion.getName() != null)
+                if (potion != null && potion.getName() != null)
                 {
                     String name = potion.getName().toLowerCase().trim();
                     if (name.equalsIgnoreCase(potionName) || name.replace("potion.", "").equalsIgnoreCase(potionName))

@@ -163,6 +163,12 @@ public class DamageSimple extends DamageData
     }
 
     @Override
+    public String getDisplayString()
+    {
+        return damageName + " for " + damageName + "hp";
+    }
+
+    @Override
     public String toString()
     {
         return "DamageSimple[" + damageName + " " + damage + "hp]@" + hashCode();

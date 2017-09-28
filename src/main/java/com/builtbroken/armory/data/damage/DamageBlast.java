@@ -1,13 +1,15 @@
 package com.builtbroken.armory.data.damage;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.jlib.data.Colors;
 import com.builtbroken.mc.api.edit.IWorldChangeAction;
 import com.builtbroken.mc.api.event.TriggerCause;
 import com.builtbroken.mc.api.explosive.IExplosiveHandler;
-import com.builtbroken.mc.lib.debug.DebugHelper;
-import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
-import com.builtbroken.mc.lib.world.edit.WorldChangeHelper;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.explosive.ExplosiveRegistry;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
+import com.builtbroken.mc.lib.debug.DebugHelper;
+import com.builtbroken.mc.lib.world.edit.WorldChangeHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -51,6 +53,16 @@ public class DamageBlast extends DamageData
             doAOE(attacker, world, hitX, hitY, hitZ, velocity, scale);
         }
         return true;
+    }
+
+    @Override
+    public String getDisplayString()
+    {
+        if(getExplosiveHandler() == null)
+        {
+            return Engine.runningAsDev ? Colors.RED.code + "Error: blast " + blastName : null;
+        }
+        return "Blast x" + size + " of " + blastName;
     }
 
     @Override

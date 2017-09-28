@@ -62,6 +62,8 @@ public abstract class DamageData extends JsonGenData
         return 0;
     }
 
+    public abstract String getDisplayString();
+
     @Override
     public String getContentID()
     {

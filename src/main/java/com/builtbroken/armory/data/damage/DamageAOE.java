@@ -1,6 +1,8 @@
 package com.builtbroken.armory.data.damage;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.jlib.data.Colors;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
@@ -38,6 +40,16 @@ public class DamageAOE extends DamageData
             doAOE(attacker, world, hitX, hitY, hitZ, velocity, scale);
         }
         return true;
+    }
+
+    @Override
+    public String getDisplayString()
+    {
+        if (damageToApply == null || range < 0)
+        {
+            return Engine.runningAsDev ? Colors.RED.code + "Error: no damage for AOE" : null;
+        }
+        return "AOE " + range + "m of " + damageToApply.getDisplayString();
     }
 
     @Override

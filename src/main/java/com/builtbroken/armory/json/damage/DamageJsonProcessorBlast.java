@@ -1,7 +1,6 @@
 package com.builtbroken.armory.json.damage;
 
 import com.builtbroken.armory.data.damage.DamageBlast;
-import com.builtbroken.armory.data.damage.DamageData;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -9,10 +8,10 @@ import com.google.gson.JsonObject;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/30/2017.
  */
-public class DamageJsonProcessorBlast extends DamageJsonProcessor
+public class DamageJsonProcessorBlast extends DamageJsonProcessor<DamageBlast>
 {
     @Override
-    public DamageData process(JsonElement element)
+    public DamageBlast process(JsonElement element)
     {
         JsonObject damageObject = element.getAsJsonObject();
         ensureValuesExist(damageObject, "blast");

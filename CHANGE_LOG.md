@@ -6,6 +6,22 @@ If this is a problem, use exact build numbers to track changes. As each build lo
 It is also important to note these changes are for several repos. As this repository is primarily used for the core segement of the project. Other projects are merged in at build time to create the complete project. 
 
 # Versions
+## 0.7.3
+### Runtime Changes
+Added: test tools & weapons for new melee system
+
+
+### Develoment Changes
+Added: Melee tools
+        can configure blocks & materials to break
+        can configure speed to break blocks
+        can configure enchant power
+        can configure durability
+        can configure durability loss on hitting entities
+Added: Melee weapons (extends tools)
+        can configure damage when attacking entities
+        
+# Versions
 ## 0.7.2
 ### Runtime Changes
 Added: "Not currently Implemented" warnings to unfinished GUI sections

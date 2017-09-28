@@ -10,7 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.world.World;
 
 /**
  * Damage type that applied a potion effect to the entity
@@ -41,18 +40,18 @@ public class DamagePotion extends DamageData
     }
 
     @Override
-    public boolean onImpact(Entity attacker, World world, int x, int y, int z, double hitX, double hitY, double hitZ, float velocity, float scale)
+    public boolean onImpact(Entity attacker, Entity entity, double hitX, double hitY, double hitZ, float velocity, float scale)
     {
-        if (!world.isRemote && attacker instanceof EntityLivingBase)
+        if (!attacker.worldObj.isRemote && entity instanceof EntityLivingBase)
         {
             Potion potion = getPotion();
             if (potion != null)
             {
-                ((EntityLivingBase) attacker).addPotionEffect(new PotionEffect(potion.id, duration, amplifier));
+                ((EntityLivingBase) entity).addPotionEffect(new PotionEffect(potion.id, duration, amplifier));
             }
             else
             {
-                DebugHelper.outputMethodDebug(Armory.INSTANCE.logger(), "doImpact", "\nnull potion for id '" + potionName + "'", attacker, world, x, y, z, velocity, scale);
+                DebugHelper.outputMethodDebug(Armory.INSTANCE.logger(), "doImpact", "\nnull potion for id '" + potionName + "'", attacker, hitX, hitY, hitZ, velocity, scale);
             }
         }
         return true;
@@ -86,12 +85,6 @@ public class DamagePotion extends DamageData
             }
         }
         return potion;
-    }
-
-    @Override
-    public boolean onImpact(Entity attacker, Entity entity, double hitX, double hitY, double hitZ, float velocity, float scale)
-    {
-        return true;
     }
 
     @Override

@@ -56,7 +56,7 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
         MeleeToolData data = getData(tool);
         if (data != null)
         {
-            takeDamage = data.doesWeaponTakeDamage();
+            takeDamage = data.doesToolTakeDamage();
         }
 
         //Only damage if allowed
@@ -97,7 +97,7 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
         MeleeToolData data = getData(tool);
         if (data != null)
         {
-            return data.doesWeaponTakeDamage();
+            return data.doesToolTakeDamage();
         }
         return false;
     }
@@ -234,13 +234,13 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
     public int getMaxItemUseDuration(ItemStack stack)
     {
         //Collect duration from super (listeners)
-        int duration = getMaxItemUseDuration(stack);
+        int duration = super.getMaxItemUseDuration(stack);
 
         //Check if tool duration is higher, is yes user it instead
         MeleeToolData data = getData(stack);
-        if (data != null && data.getToolDamageLimit() > duration)
+        if (data != null && data.getUseDuration() > duration)
         {
-            return data.getToolDamageLimit();
+            return data.getUseDuration();
         }
         return duration;
     }

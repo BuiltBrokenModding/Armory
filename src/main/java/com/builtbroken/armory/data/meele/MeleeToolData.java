@@ -8,7 +8,6 @@ import com.builtbroken.mc.framework.json.imp.JsonLoadPhase;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,8 +19,11 @@ import java.util.Map;
 public class MeleeToolData extends WeaponData
 {
     protected int enchantability = 0;
-    protected int useDuration = Item.ToolMaterial.IRON.getMaxUses();
+    protected int durability = 250;
     protected int blockBreakDamage = 1;
+    protected int useDuration = 0;
+
+    protected boolean doesToolTakeDamage = true;
 
     /** Cache of block references to be triggered after blocks are loaded */
     protected HashMap<JsonBlockEntry, Float> _blockToBreakSpeed = new HashMap();
@@ -41,25 +43,51 @@ public class MeleeToolData extends WeaponData
         super(processor, id, type, name);
     }
 
-    @JsonProcessorData(value = "enchantability", type = "int")
-    public void setEnchantability(int value)
-    {
-        this.enchantability = value;
-    }
 
     public int getEnchantability()
     {
         return enchantability;
     }
 
-    public boolean doesWeaponTakeDamage()
+    @JsonProcessorData(value = "enchantability", type = "int")
+    public void setEnchantability(int value)
     {
-        return true; //TODO implement
+        this.enchantability = value;
+    }
+
+
+    public boolean doesToolTakeDamage()
+    {
+        return doesToolTakeDamage;
+    }
+
+    @JsonProcessorData("takesDamage")
+    public void setDoesToolTakeDamage(boolean b)
+    {
+        this.doesToolTakeDamage = b;
     }
 
     public int getToolDamageLimit()
     {
+        return durability;
+    }
+
+    @JsonProcessorData(value = "durability", type = "int")
+    public void setToolDamageLimit(int durability)
+    {
+        this.durability = durability;
+    }
+
+
+    public int getUseDuration()
+    {
         return useDuration;
+    }
+
+    @JsonProcessorData(value = "useDuration", type = "int")
+    public void setUseDuration(int useDuration)
+    {
+        this.useDuration = useDuration;
     }
 
     public float getBreakSpeed(Block block)
@@ -148,4 +176,5 @@ public class MeleeToolData extends WeaponData
     {
         return blockBreakDamage;
     }
+
 }

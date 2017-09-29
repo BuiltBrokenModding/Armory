@@ -1,0 +1,21 @@
+{
+  "author": {
+    "name": "armory"
+  },
+  "meleeWeapon": {
+    "name": "sword",
+    "id": "armory:sword.instant",
+    "attack": 0,
+    "damageEffects": [
+      {
+        "type": "delay",
+        "ticks": 100,
+        "damage": {
+          "type": "potion",
+          "amplifier": 15,
+          "potion": "potion.harm"
+        }
+      }
+    ]
+  }
+}

@@ -33,6 +33,7 @@ public class DamageDelayed extends DamageData
         if (damageToApply != null)
         {
             new DelayedActionDamage(attacker.worldObj, ticks, false)
+                    .setDamage(damageToApply)
                     .setAttacker(attacker)
                     .setTarget(entity)
                     .setHit(hitX, hitY, hitZ)
@@ -50,6 +51,7 @@ public class DamageDelayed extends DamageData
         if (damageToApply != null)
         {
             new DelayedActionDamage(world, ticks, false)
+                    .setDamage(damageToApply)
                     .setAttacker(attacker)
                     .setTarget(x, y, z)
                     .setHit(hitX, hitY, hitZ)

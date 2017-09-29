@@ -82,19 +82,22 @@ public class DelayedActionDamage extends DelayedAction
     @Override
     public boolean trigger()
     {
-        if (blockImpact)
+        if(damage != null)
         {
-            damage.onImpact(attacker, world, x, y, z, hitX, hitY, hitZ, velocity, scale);
-        }
-        else
-        {
-            if(moveWithTarget)
+            if (blockImpact)
             {
-                hitX += entity.posX;
-                hitY += entity.posY;
-                hitZ += entity.posZ;
+                damage.onImpact(attacker, world, x, y, z, hitX, hitY, hitZ, velocity, scale);
             }
-            damage.onImpact(attacker, entity, hitX, hitY, hitZ, velocity, scale);
+            else
+            {
+                if (moveWithTarget)
+                {
+                    hitX += entity.posX;
+                    hitY += entity.posY;
+                    hitZ += entity.posZ;
+                }
+                damage.onImpact(attacker, entity, hitX, hitY, hitZ, velocity, scale);
+            }
         }
         return true;
     }

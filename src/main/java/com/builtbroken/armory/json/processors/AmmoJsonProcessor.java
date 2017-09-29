@@ -60,6 +60,11 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
         debugPrinter.log("ID: " + id);
         debugPrinter.log("Type: " + ammoType);
 
+        if (ammoType == null)
+        {
+            throw new RuntimeException("AmmoProcessor: Failed to load ammo type '" + ammoTypeString + "' for Ammo JSON");
+        }
+
         //Create object
         AmmoData ammoData = new AmmoData(this, id, name, ammoType);
 

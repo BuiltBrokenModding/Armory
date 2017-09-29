@@ -40,3 +40,7 @@ sentry.gui.tooltip.target.friendly.non=Target Non-Friendly
 sentry.gui.tooltip.target.hostile=Target Hostile
 sentry.gui.tooltip.target.neutral=Target Neutral
 sentry.gui.tooltip.target.none=Target None
+
+meleeWeapon.armory:sword.instant.name=Test Sword
+meleeWeapon.armory:sword.name=Test Sword
+meleeWeapon.armory:ax.name=Test Ax

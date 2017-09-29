@@ -36,7 +36,7 @@ public class DamageJsonProcessor<D extends DamageData> extends JsonProcessor<D>
         processor.processors.put("blast", new DamageJsonProcessorBlast());
         processor.processors.put("potion", new DamageJsonProcessorPotion());
         processor.processors.put("force", new DamageJsonProcessorForce());
-        processor.processors.put("delayed", new DamageJsonProcessorDelay());
+        processor.processors.put("delay", new DamageJsonProcessorDelay());
     }
 
     @Override

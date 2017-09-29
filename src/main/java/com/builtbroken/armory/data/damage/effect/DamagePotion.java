@@ -1,6 +1,7 @@
-package com.builtbroken.armory.data.damage;
+package com.builtbroken.armory.data.damage.effect;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.jlib.data.Colors;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;

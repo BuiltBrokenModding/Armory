@@ -1,7 +1,7 @@
 package com.builtbroken.armory.json.damage;
 
-import com.builtbroken.armory.data.damage.area.DamageAOE;
 import com.builtbroken.armory.data.damage.DamageData;
+import com.builtbroken.armory.data.damage.delayed.DamageDelayed;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -9,15 +9,17 @@ import com.google.gson.JsonObject;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/30/2017.
  */
-public class DamageJsonProcessorAOE extends DamageJsonProcessor<DamageAOE>
+public class DamageJsonProcessorDelay extends DamageJsonProcessor<DamageDelayed>
 {
     @Override
-    public DamageAOE process(JsonElement element)
+    public DamageDelayed process(JsonElement element)
     {
         JsonObject damageObject = element.getAsJsonObject();
-        ensureValuesExist(damageObject, "damage", "range");
+        ensureValuesExist(damageObject, "damage", "ticks");
+
         DamageData damageData = processor.process(damageObject.get("damage"));
-        float range = damageObject.get("range").getAsJsonPrimitive().getAsFloat();
-        return new DamageAOE(this, damageData, range);
+
+        int ticks = damageObject.get("ticks").getAsJsonPrimitive().getAsInt();
+        return new DamageDelayed(this, damageData, ticks);
     }
 }

@@ -1,5 +1,6 @@
-package com.builtbroken.armory.data.damage;
+package com.builtbroken.armory.data.damage.physics;
 
+import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import net.minecraft.entity.Entity;

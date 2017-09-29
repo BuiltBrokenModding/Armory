@@ -1,6 +1,6 @@
 package com.builtbroken.armory.json.damage;
 
-import com.builtbroken.armory.data.damage.DamageForce;
+import com.builtbroken.armory.data.damage.physics.DamageForce;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

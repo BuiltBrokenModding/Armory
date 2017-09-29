@@ -88,7 +88,7 @@ public class DelayedActionDamage extends DelayedAction
             {
                 damage.onImpact(attacker, world, x, y, z, hitX, hitY, hitZ, velocity, scale);
             }
-            else
+            else if(entity != null)
             {
                 if (moveWithTarget)
                 {

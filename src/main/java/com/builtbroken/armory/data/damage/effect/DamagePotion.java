@@ -48,7 +48,7 @@ public class DamagePotion extends DamageData
             Potion potion = getPotion();
             if (potion != null)
             {
-                ((EntityLivingBase) entity).addPotionEffect(new PotionEffect(potion.id, duration, amplifier));
+                ((EntityLivingBase) entity).addPotionEffect(new PotionEffect(potion.id, Math.max(1, duration), amplifier));
             }
             else
             {

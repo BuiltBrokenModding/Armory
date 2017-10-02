@@ -28,12 +28,12 @@ public class SentryEntityTargetSorter implements Comparator<Entity>
         if (distanceCompare == 0)
         {
             float hpA = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).getHealth() : 0;
-            float hpB = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity2).getHealth() : 0;
+            float hpB = entity2 instanceof EntityLivingBase ? ((EntityLivingBase) entity2).getHealth() : 0;
             int hpCompare = Float.compare(hpA, hpB);
             if (hpCompare == 0)
             {
                 int armorA = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).getTotalArmorValue() : 0;
-                int armorB = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity2).getTotalArmorValue() : 0;
+                int armorB = entity2 instanceof EntityLivingBase ? ((EntityLivingBase) entity2).getTotalArmorValue() : 0;
                 int armorCompare = Integer.compare(armorA, armorB);
                 //TODO prioritise entity types (creeper > zombie)
                 return armorCompare;

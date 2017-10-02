@@ -45,9 +45,9 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     }
 
     @Override
-    public void register()
+    public void onCreated()
     {
-        super.register();
+        super.onCreated();
         ammoType.addAmmoData(this);
     }
 

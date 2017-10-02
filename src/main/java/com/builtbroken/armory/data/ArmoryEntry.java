@@ -116,7 +116,7 @@ public abstract class ArmoryEntry extends JsonGenData implements IData
     }
 
     @Override
-    public void register()
+    public void onCreated()
     {
         ArmoryDataHandler.INSTANCE.get(type).add(this);
     }

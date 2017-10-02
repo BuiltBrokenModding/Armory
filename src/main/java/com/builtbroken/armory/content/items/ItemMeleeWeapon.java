@@ -3,6 +3,8 @@ package com.builtbroken.armory.content.items;
 import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.armory.data.meele.MeleeWeaponData;
+import com.builtbroken.jlib.data.Colors;
+import com.builtbroken.mc.core.Engine;
 import com.google.common.collect.Multimap;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -30,21 +32,32 @@ public class ItemMeleeWeapon extends ItemTool<MeleeWeaponData>
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack tool, EntityPlayer player, List list, boolean b)
     {
-        super.addInformation(tool, player, list, b);
-        MeleeWeaponData data = getData(tool);
-        if (data != null)
+        try
         {
-            //Apply extra damage
-            for (DamageData damageData : data.getExtraDamageToApply())
+            super.addInformation(tool, player, list, b);
+            MeleeWeaponData data = getData(tool);
+            if (data != null)
             {
-                if (damageData != null)
+                //Apply extra damage
+                for (DamageData damageData : data.getExtraDamageToApply())
                 {
-                    String string = damageData.getDisplayString(); //handles translations itself
-                    if(string != null && !string.isEmpty())
+                    if (damageData != null)
                     {
-                        list.add(string);
+                        String string = damageData.getDisplayString(); //handles translations itself
+                        if (string != null && !string.isEmpty())
+                        {
+                            list.add(string);
+                        }
                     }
                 }
+            }
+        }
+        catch (Exception e)
+        {
+            list.add(Colors.RED.code + "Error: " + e);
+            if (Engine.runningAsDev)
+            {
+                e.printStackTrace();
             }
         }
     }

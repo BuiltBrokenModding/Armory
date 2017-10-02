@@ -65,7 +65,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
         super.addInformation(stack, player, list, b);
         if (Engine.runningAsDev)
         {
-            list.add("Key: " + getData(stack) != null ? getData(stack).getUniqueID() : "null");
+            list.add("Key: " + (getData(stack) != null ? getData(stack).getUniqueID() : "null"));
         }
     }
 

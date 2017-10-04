@@ -174,6 +174,25 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
         return host != null ? host.getOwnerID() : null;
     }
 
+    @Override
+    public boolean isOwner(EntityPlayer player)
+    {
+        if (player != null)
+        {
+            if (getOwnerID() != null)
+            {
+                return getOwnerID().equals(player.getGameProfile().getId());
+            }
+            else if (getOwnerName() != null)
+            {
+                return player.getCommandSenderName().equalsIgnoreCase(getOwnerName());
+            }
+            //Fail state if no owner is set
+            return true;
+        }
+        return false;
+    }
+
     public void setSentry(Sentry sentry)
     {
         this.sentry = sentry;

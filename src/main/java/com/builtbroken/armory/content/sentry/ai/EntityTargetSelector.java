@@ -33,7 +33,7 @@ public class EntityTargetSelector implements IEntitySelector
         if (!entity.isDead && !entity.isEntityInvulnerable())
         {
             //DO NOT SHOOT OWNER
-            if (entity instanceof EntityPlayer && ((EntityPlayer) entity).getGameProfile() != null && sentry.host.getOwnerID() == ((EntityPlayer) entity).getGameProfile().getId())
+            if (entity instanceof EntityPlayer && sentry.host.isOwner((EntityPlayer) entity))
             {
                 return false;
             }

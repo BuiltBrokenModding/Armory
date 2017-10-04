@@ -2,6 +2,7 @@ package com.builtbroken.armory.content.sentry.imp;
 
 import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.mc.api.IWorldPosition;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.UUID;
 
@@ -18,4 +19,6 @@ public interface ISentryHost extends IWorldPosition
     String getOwnerName();
 
     UUID getOwnerID();
+
+    boolean isOwner(EntityPlayer player);
 }

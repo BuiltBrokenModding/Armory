@@ -21,6 +21,8 @@ public class DamageSimple extends DamageData
     public final float damage;
     public final String damageName;
 
+    public boolean doKnockBack = false;
+
 
     public DamageSimple(IJsonProcessor processor, String type, float damage)
     {
@@ -62,26 +64,51 @@ public class DamageSimple extends DamageData
 
             if (attacker != null)
             {
+                //Store velocity
+                double mx = entity.motionX;
+                double my = entity.motionY;
+                double mz = entity.motionZ;
+
+                //Store HP
                 float hp = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).getHealth() : -1;
-                if (entity.attackEntityFrom(new DamageSourceShooter(damageName, attacker, damageSource), this.damage * scale))
+
+                //Do attack
+                boolean attackedEntity = entity.attackEntityFrom(new DamageSourceShooter(damageName, attacker, damageSource), this.damage * scale);
+
+                //Debug
+                if (Engine.runningAsDev)
                 {
-                    if (Engine.runningAsDev)
+                    if (attackedEntity)
                     {
                         Armory.INSTANCE.logger().info("Damage(" + attacker + ", " + entity + ", .... ) applied damage");
                     }
-                }
-                else
-                {
-                    if (Engine.runningAsDev)
+                    else
                     {
                         Armory.INSTANCE.logger().info("Damage(" + attacker + ", " + entity + ", .... ) applied no damage");
                     }
                 }
+
+                //Get hp after attack
                 float hp2 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).getHealth() : -1;
+
+                //Get damage applied
                 float damage = hp - hp2;
+
+                //Debug
                 if (Engine.runningAsDev)
                 {
                     Armory.INSTANCE.logger().info("\tDamage = " + damage);
+                }
+
+                //Reset velocity
+                if (!doKnockBack)
+                {
+                    //TODO set knock back resistance high instead as a wall to fix
+                    /** {@link EntityLivingBase#knockBack(Entity, float, double, double)} */
+                    entity.motionX = mx;
+                    entity.motionY = my;
+                    entity.motionZ = mz;
+                    //TODO add way to control knock back amount and direction
                 }
             }
             else

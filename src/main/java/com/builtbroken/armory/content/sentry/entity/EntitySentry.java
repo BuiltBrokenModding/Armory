@@ -89,7 +89,7 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
         this.prevPosZ = this.posZ;
         this.prevRotationPitch = this.rotationPitch;
         this.prevRotationYaw = this.rotationYaw;
-        if (this.posY < -64.0D)
+        if (this.posY < -64.0D || host == null) //TODO add bypass for host being null
         {
             this.kill();
         }

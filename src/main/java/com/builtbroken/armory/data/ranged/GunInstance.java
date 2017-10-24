@@ -390,7 +390,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             playAudio("reload");
 
             //Init reload delay
-            reloadDelay = gunData.getReloadTime() * 20; //20 ticks a second, Reload time is in seconds, we update in ticks
+            reloadDelay = gunData.getReloadTime();
         }
         //Tick reload timer
         if (reloadDelay-- <= 0)

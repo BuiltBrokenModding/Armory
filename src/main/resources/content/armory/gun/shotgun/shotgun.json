@@ -11,7 +11,7 @@
     "clipSize": 10,
     "fallOff": "0.05D",
     "mass": 630,
-    "rateOfFire": 30,
-    "reloadTime": 40
+    "rateOfFire": 20,
+    "reloadTime": 15
   }
 }

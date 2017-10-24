@@ -38,6 +38,13 @@ public class DamageSimple extends DamageData
         //TODO knock back force to entity hit
         if (entity != null)
         {
+            //Special case for fire damage
+            if(damageName.equalsIgnoreCase("fire"))
+            {
+                entity.setFire((int)Math.floor(damage));
+                return true;
+            }
+
             DamageSource damageSource = DamageSource.generic;
             if (damageTypes.containsKey(damageName))
             {
@@ -115,8 +122,6 @@ public class DamageSimple extends DamageData
             {
                 entity.attackEntityFrom(damageSource, this.damage * scale);
             }
-
-
         }
 
         return true;

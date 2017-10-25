@@ -166,7 +166,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     public void doUpdateGuiUsers()
     {
         super.doUpdateGuiUsers();
-        if (ticks % 3 == 0)
+        if (ticks % 3 == 0 && getSentry() != null)
         {
             PacketTile packet = new PacketTile(this, 1);
             //Write target data

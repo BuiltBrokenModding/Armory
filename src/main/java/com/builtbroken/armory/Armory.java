@@ -9,6 +9,8 @@ import com.builtbroken.armory.content.sentry.tile.ItemSentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.clip.ClipData;
+import com.builtbroken.armory.data.damage.simple.DamageSimple;
+import com.builtbroken.armory.data.damage.type.DamageImpact;
 import com.builtbroken.armory.data.meele.MeleeToolData;
 import com.builtbroken.armory.data.meele.MeleeWeaponData;
 import com.builtbroken.armory.data.ranged.GunData;
@@ -156,6 +158,9 @@ public final class Armory extends AbstractMod
 
         //Hide turret block
         blockSentry.setCreativeTab(null);
+
+        //Load damage types
+        DamageSimple.damageTypes.put("impact", new DamageImpact.DamageTypeImpact());
 
         //Register entities
         EntityRegistry.registerModEntity(EntityAmmoProjectile.class, "ArmoryProjectile", 0, this, 500, 1, true);

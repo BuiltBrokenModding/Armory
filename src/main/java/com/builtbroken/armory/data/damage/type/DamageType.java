@@ -1,4 +1,4 @@
-package com.builtbroken.armory.data.damage.simple;
+package com.builtbroken.armory.data.damage.type;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;

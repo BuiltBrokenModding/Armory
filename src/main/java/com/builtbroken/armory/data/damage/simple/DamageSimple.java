@@ -2,11 +2,13 @@ package com.builtbroken.armory.data.damage.simple;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.damage.DamageData;
+import com.builtbroken.armory.data.damage.type.DamageType;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSource;
 
 import java.util.HashMap;
 
@@ -79,8 +81,12 @@ public class DamageSimple extends DamageData
                 //Store HP
                 float hp = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).getHealth() : -1;
 
+                if(!(damageSource instanceof EntityDamageSource))
+                {
+                    damageSource = new DamageSourceShooter(damageName, attacker, damageSource);
+                }
                 //Do attack
-                boolean attackedEntity = entity.attackEntityFrom(new DamageSourceShooter(damageName, attacker, damageSource), this.damage * scale);
+                boolean attackedEntity = entity.attackEntityFrom(damageSource, this.damage * scale);
 
                 //Debug
                 if (Engine.runningAsDev)

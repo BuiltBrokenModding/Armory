@@ -218,6 +218,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     public void setSentryStack(ItemStack stack)
     {
         sentryStack = stack;
+        sentryStack.stackSize = 1;
         if (stack != null)
         {
             SentryData data = Armory.itemSentry.getData(sentryStack);

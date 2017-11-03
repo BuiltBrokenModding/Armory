@@ -3,13 +3,29 @@ This log contains changes made to the project. Each entry contains changed made 
 
 If this is a problem, use exact build numbers to track changes. As each build logs the git-hash it was created from to better understand changes made.
 
-It is also important to note these changes are for several repos. As this repository is primarily used for the core segement of the project. Other projects are merged in at build time to create the complete project. 
-
 # Versions
+# 0.7.4
+### Runtime Changes
+Added: Impact damage type (used for bullets)
+Fixed: Owner check on sentries
+Fixed: Ghost entities hanging around
+Fixed: Reload time being in seconds instead of ticks
+Fixed: Ammo check searching all of player inventory
+Fixed: Crash issue while searching for ammo (odd mod compat issue)
+Fixed: Ammo clipping being inserted in head slot (odd mod compat issue)
+Fixed: Sentry droping with stack size greater than zero
+Fixed: All damage types bypassing armor
+Fixed: bullets sending target to the moon (aka removed knockback)
+Fixed: NPE crash when opening GUI on a sentry without data
+Fixed: Sentry not dropping with data (actual fix in Voltz Engine)
+
+
+### Develoment Changes
+Changed: Ammo search to only do main inventory
+        
 ## 0.7.3
 ### Runtime Changes
 Added: test tools & weapons for new melee system
-
 
 ### Develoment Changes
 Added: Melee tools

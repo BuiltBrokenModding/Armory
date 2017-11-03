@@ -253,7 +253,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                                     }
                                     else if (gun.reloadWeapon(((EntityPlayer) entity).inventory, false))
                                     {
-                                        ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Reloading weapon.... eta: " + gun.getGunData().getReloadTime() + "s")); //TODO translate
+                                        ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("Reloading weapon.... eta: " + (gun.getGunData().getReloadTime() / 20) + "s")); //TODO translate
                                     }
                                     else
                                     {
@@ -268,7 +268,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
                                     //Note reload time in chat, TODO move to GUI render
                                     if (gun.reloadDelay % 20 == 0)
                                     {
-                                        int time = gun.getGunData().getReloadTime() - (gun.reloadDelay / 20);
+                                        int time = (gun.getGunData().getReloadTime() - gun.reloadDelay) / 20; //TODO fix
                                         ((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("" + time));
                                     }
                                 }

@@ -25,7 +25,7 @@ import java.awt.*;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/9/2017.
  */
-public class GuiSentry extends GuiContainerBase
+public class GuiSentry extends GuiContainerBase<TileSentry>
 {
     public static final ResourceLocation GUI_BUTTONS = new ResourceLocation(Armory.DOMAIN, "textures/gui/gui.buttons.32pix.png");
     public static final int TARGET_LIST_SPACE_Y = 10;
@@ -43,15 +43,12 @@ public class GuiSentry extends GuiContainerBase
     private GuiButton2 scrollUpButton;
     private GuiButton2 scrollDownButton;
 
-    TileSentry tile;
-
     private int scrollTargetList = 0;
     private GuiButtonCheck[][] targetListButtons;
 
     public GuiSentry(EntityPlayer player, TileSentry sentry, int id)
     {
-        super(new ContainerSentry(player, sentry, id));
-        this.tile = sentry;
+        super(new ContainerSentry(player, sentry, id), sentry);
         this.id = id;
     }
 
@@ -70,8 +67,8 @@ public class GuiSentry extends GuiContainerBase
         settingsWindowButton = addButton(GuiImageButton.newButton18(4, x, y + 19 * 4, 5, 0).setTexture(GUI_BUTTONS));
 
         //Power buttons
-        onButton = (GuiButton2) add(GuiButton9px.newOnButton(10, x, y - 10).setEnabled(!tile.getSentry().turnedOn));
-        offButton = (GuiButton2) add(GuiButton9px.newOffButton(11, x + 9, y - 10).setEnabled(tile.getSentry().turnedOn));
+        onButton = (GuiButton2) add(GuiButton9px.newOnButton(10, x, y - 10).setEnabled(!host.getSentry().turnedOn));
+        offButton = (GuiButton2) add(GuiButton9px.newOffButton(11, x + 9, y - 10).setEnabled(host.getSentry().turnedOn));
 
 
         //Per tab components
@@ -89,7 +86,7 @@ public class GuiSentry extends GuiContainerBase
                 int ty = 17;
                 x = guiLeft + tx;
                 y = guiTop + ty;
-                int rows = Math.min(6, tile.getSentry().getSentryData().getAllowedTargetTypes().length);
+                int rows = Math.min(6, host.getSentry().getSentryData().getAllowedTargetTypes().length);
                 targetListButtons = new GuiButtonCheck[rows][TargetMode.values().length];
                 for (int i = 0; i < rows; i++)
                 {
@@ -113,7 +110,7 @@ public class GuiSentry extends GuiContainerBase
                 scrollUpButton = (GuiButton2) add(GuiButton9px.newUpButton(12, x, y).disable()); //Up is disabled by default
 
                 y = guiTop + 69;
-                scrollDownButton = (GuiButton2) add(GuiButton9px.newDownButton(13, x, y).setEnabled(tile.getSentry().getSentryData().getAllowedTargetTypes().length > 6)); //Down is disabled if not enough entries
+                scrollDownButton = (GuiButton2) add(GuiButton9px.newDownButton(13, x, y).setEnabled(host.getSentry().getSentryData().getAllowedTargetTypes().length > 6)); //Down is disabled if not enough entries
                 break;
             case 2:
                 x += 153;
@@ -138,10 +135,10 @@ public class GuiSentry extends GuiContainerBase
     {
         super.updateScreen();
 
-        if (tile != null && tile.getSentry() != null)
+        if (host != null && host.getSentry() != null)
         {
             //Update power state
-            if (tile.getSentry().turnedOn)
+            if (host.getSentry().turnedOn)
             {
                 onButton.disable();
                 offButton.enable();
@@ -161,10 +158,10 @@ public class GuiSentry extends GuiContainerBase
                     for (int i = 0; i < targetListButtons.length; i++)
                     {
                         int index = i + scrollTargetList;
-                        if (index < tile.getSentry().getSentryData().getAllowedTargetTypes().length)
+                        if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                         {
-                            String key = tile.getSentry().getSentryData().getAllowedTargetTypes()[index];
-                            TargetMode mode = tile.getSentry().targetModes.get(key);
+                            String key = host.getSentry().getSentryData().getAllowedTargetTypes()[index];
+                            TargetMode mode = host.getSentry().targetModes.get(key);
                             if (mode != null)
                             {
                                 //Enable all buttons
@@ -190,17 +187,17 @@ public class GuiSentry extends GuiContainerBase
         //Turn sentry on
         if (buttonId == 10)
         {
-            tile.sendPacketToServer(new PacketTile(tile, 3, true)); //TODO move to method in tile
+            host.sendPacketToServer(new PacketTile(host, 3, true)); //TODO move to method in host
         }
         //Turn sentry off
         else if (buttonId == 11)
         {
-            tile.sendPacketToServer(new PacketTile(tile, 3, false)); //TODO move to method in tile
+            host.sendPacketToServer(new PacketTile(host, 3, false)); //TODO move to method in host
         }
         //Tab switch buttons
         else if (buttonId >= 0 && buttonId < TileSentry.MAX_GUI_TABS && buttonId != id)
         {
-            tile.sendPacketToServer(new PacketOpenGUI(tile, buttonId));
+            host.sendPacketToServer(new PacketOpenGUI(host, buttonId));
         }
         //Main GUI
         else if (id == 0)
@@ -230,7 +227,7 @@ public class GuiSentry extends GuiContainerBase
             //Scroll down button
             else if (buttonId == 13)
             {
-                int maxScroll = tile.getSentry().getSentryData().getAllowedTargetTypes().length - 6;
+                int maxScroll = host.getSentry().getSentryData().getAllowedTargetTypes().length - 6;
                 if (scrollTargetList < maxScroll)
                 {
                     scrollTargetList++;
@@ -247,47 +244,47 @@ public class GuiSentry extends GuiContainerBase
             }
             else if (buttonId >= 60)
             {
-                int index = buttonId - 60 + scrollTargetList;  //TODO move to method in tile
-                if (index < tile.getSentry().getSentryData().getAllowedTargetTypes().length)
+                int index = buttonId - 60 + scrollTargetList;  //TODO move to method in host
+                if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(tile, 4, tile.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NONE.ordinal());
-                    tile.sendPacketToServer(packetTile);
+                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NONE.ordinal());
+                    host.sendPacketToServer(packetTile);
                 }
             }
             else if (buttonId >= 50)
             {
-                int index = buttonId - 50 + scrollTargetList;  //TODO move to method in tile
-                if (index < tile.getSentry().getSentryData().getAllowedTargetTypes().length)
+                int index = buttonId - 50 + scrollTargetList;  //TODO move to method in host
+                if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(tile, 4, tile.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NEUTRAL.ordinal());
-                    tile.sendPacketToServer(packetTile);
+                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NEUTRAL.ordinal());
+                    host.sendPacketToServer(packetTile);
                 }
             }
             else if (buttonId >= 40)
             {
-                int index = buttonId - 40 + scrollTargetList;  //TODO move to method in tile
-                if (index < tile.getSentry().getSentryData().getAllowedTargetTypes().length)
+                int index = buttonId - 40 + scrollTargetList;  //TODO move to method in host
+                if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(tile, 4, tile.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.HOSTILE.ordinal());
-                    tile.sendPacketToServer(packetTile);
+                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.HOSTILE.ordinal());
+                    host.sendPacketToServer(packetTile);
                 }
             }
             else if (buttonId >= 30)
             {
-                int index = buttonId - 30 + scrollTargetList;  //TODO move to method in tile
-                if (index < tile.getSentry().getSentryData().getAllowedTargetTypes().length)
+                int index = buttonId - 30 + scrollTargetList;  //TODO move to method in host
+                if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(tile, 4, tile.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NOT_FRIEND.ordinal());
-                    tile.sendPacketToServer(packetTile);
+                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NOT_FRIEND.ordinal());
+                    host.sendPacketToServer(packetTile);
                 }
             }
             else if (buttonId >= 20)
             {
-                int index = buttonId - 20 + scrollTargetList;  //TODO move to method in tile
-                if (index < tile.getSentry().getSentryData().getAllowedTargetTypes().length)
+                int index = buttonId - 20 + scrollTargetList;  //TODO move to method in host
+                if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(tile, 4, tile.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.ALL.ordinal());
-                    tile.sendPacketToServer(packetTile);
+                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.ALL.ordinal());
+                    host.sendPacketToServer(packetTile);
                 }
             }
         }
@@ -356,9 +353,9 @@ public class GuiSentry extends GuiContainerBase
             drawTexturedModalRect(guiLeft + xStart, guiTop + yStart + topHeight, 16, 139 - bottomHeight, 9, bottomHeight);
 
             //Render scroll bar
-            int maxScroll = tile.getSentry().getSentryData().getAllowedTargetTypes().length - 6;
+            int maxScroll = host.getSentry().getSentryData().getAllowedTargetTypes().length - 6;
             float scrollBar = (float) scrollTargetList / (float) maxScroll;
-            float heightP = Math.min(1f, 6f / (float) tile.getSentry().getSentryData().getAllowedTargetTypes().length);
+            float heightP = Math.min(1f, 6f / (float) host.getSentry().getSentryData().getAllowedTargetTypes().length);
             int height = (int) (heightP * totalSize);
             int yPos = Math.max((int) (scrollBar * totalSize) - height + yStart, yStart);
 
@@ -377,13 +374,13 @@ public class GuiSentry extends GuiContainerBase
         if (id == 0)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.ammo.bay"), 7, 4);
-            if (tile.getEnergyBufferSize() > 0)
+            if (host.getEnergyBufferSize() > 0)
             {
                 drawString(LanguageUtility.getLocal("sentry.gui.battery.bay"), 110, 4);
             }
-            if (tile.getSentry().gunInstance._clip != null)
+            if (host.getSentry().gunInstance._clip != null)
             {
-                String translation = String.format(LanguageUtility.getLocal("sentry.gui.ammo"), tile.getSentry().gunInstance._clip.getAmmoCount(), tile.getSentry().gunInstance._clip.getMaxAmmo());
+                String translation = String.format(LanguageUtility.getLocal("sentry.gui.ammo"), host.getSentry().gunInstance._clip.getAmmoCount(), host.getSentry().gunInstance._clip.getMaxAmmo());
                 drawString(translation, 7, 52);
             }
             else
@@ -400,9 +397,9 @@ public class GuiSentry extends GuiContainerBase
             for (int i = 0; i < targetListButtons.length; i++)
             {
                 int index = i + scrollTargetList;
-                if (index < tile.getSentry().getSentryData().getAllowedTargetTypes().length)
+                if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    drawString(LanguageUtility.getLocal("entry.type." + tile.getSentry().getSentryData().getAllowedTargetTypes()[index]), 8, 17 + (i * TARGET_LIST_SPACE_Y));
+                    drawString(LanguageUtility.getLocal("entry.type." + host.getSentry().getSentryData().getAllowedTargetTypes()[index]), 8, 17 + (i * TARGET_LIST_SPACE_Y));
                 }
             }
         }

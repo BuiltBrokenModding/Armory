@@ -4,7 +4,14 @@ This log contains changes made to the project. Each entry contains changed made 
 If this is a problem, use exact build numbers to track changes. As each build logs the git-hash it was created from to better understand changes made.
 
 # Versions
-# 0.7.4
+# 0.7.5 - 12/18/2017
+### Runtime Changes
+Fixed: reload notification displaying wrong time units
+Fixed: some armory items not showing in NEI
+Finished: JSON override support for sentries
+            Allows changing data about sentries via the config file using JSON data
+
+# 0.7.4 - 11/3/2017
 ### Runtime Changes
 Added: Impact damage type (used for bullets)
 Fixed: Owner check on sentries
@@ -18,7 +25,6 @@ Fixed: All damage types bypassing armor
 Fixed: bullets sending target to the moon (aka removed knockback)
 Fixed: NPE crash when opening GUI on a sentry without data
 Fixed: Sentry not dropping with data (actual fix in Voltz Engine)
-
 
 ### Develoment Changes
 Changed: Ammo search to only do main inventory

@@ -93,37 +93,44 @@ public class SentryJsonProcessor extends ArmoryEntryJsonProcessor<SentryData> im
     }
 
     @Override
-    public void addData(String key, JsonElement data, SentryData generatedObject)
+    public boolean addData(String key, JsonElement data, SentryData generatedObject)
     {
         if (keyHandler.handle(generatedObject, key, data, true, "add"))
         {
             debugPrinter.log("Injected Add Override >> Key: " + key + " Data: " + data);
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void removeData(String key, SentryData generatedObject)
+    public boolean removeData(String key, SentryData generatedObject)
     {
         if (keyHandler.handle(generatedObject, key, null, true, "remove"))
         {
             debugPrinter.log("Injected Remove Override >> Key: " + key);
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void replaceData(String key, JsonElement data, SentryData generatedObject)
+    public boolean replaceData(String key, JsonElement data, SentryData generatedObject)
     {
         if (keyHandler.handle(generatedObject, key, data, true, "replace"))
         {
             debugPrinter.log("Injected Replacement Override >> Key: " + key + " Data: " + data);
+            return true;
         }
+        return false;
     }
 
     @Override
-    public Object getData(String key, SentryData object)
+    public Object getData(String _key, SentryData object)
     {
+        final String key = _key.toLowerCase();
         JsonProcessorData anno = keyHandler.jsonDataAnnotation.get(key);
-        if (anno.allowRuntimeChanges())
+        if (anno != null && anno.allowRuntimeChanges())
         {
             //Try getter map first
             if (keyHandler.jsonDataGetters.containsKey(key))

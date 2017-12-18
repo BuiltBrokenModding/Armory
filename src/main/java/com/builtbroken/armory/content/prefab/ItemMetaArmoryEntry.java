@@ -151,7 +151,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
             for (Map.Entry<Integer, E> entry : map.entrySet())
             {
                 E value = entry.getValue();
-                if (value != null && value.showInCreativeTab && (tab == getCreativeTab() && value.creativeTabToUse == null || tabName.equalsIgnoreCase(value.creativeTabToUse)))
+                if (value != null && value.showInCreativeTab && (tab == null || tab == getCreativeTab() && value.creativeTabToUse == null || tabName.equalsIgnoreCase(value.creativeTabToUse)))
                 {
                     getSubItems(item, entry.getKey(), entry.getValue(), tab, items);
                 }

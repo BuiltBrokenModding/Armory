@@ -2,10 +2,10 @@ package com.builtbroken.armory.data.sentry;
 
 import com.builtbroken.armory.data.ArmoryEntry;
 import com.builtbroken.armory.data.ranged.GunData;
-import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
-import com.builtbroken.mc.framework.json.override.JsonOverride;
+import com.builtbroken.mc.framework.json.loading.JsonProcessorDataGetter;
+import com.builtbroken.mc.imp.transform.vector.Pos;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -13,6 +13,7 @@ import com.builtbroken.mc.framework.json.override.JsonOverride;
  */
 public class SentryData extends ArmoryEntry
 {
+    //TODO consider lombok support to cut down on getters and setters needed
     //Gun to use
     private GunData gunData;
 
@@ -108,37 +109,37 @@ public class SentryData extends ArmoryEntry
         this.gunData = gunData;
     }
 
+    @JsonProcessorDataGetter(value = "inventorySize", type = "int")
     public int getInventorySize()
     {
         return inventorySize;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "inventorySize", type = "int")
+    @JsonProcessorData(value = "inventorySize", type = "int", allowRuntimeChanges = true)
     public void setInventorySize(int inventorySize)
     {
         this.inventorySize = inventorySize;
     }
 
+    @JsonProcessorDataGetter(value = "inventoryAmmoStart", type = "int")
     public int getInventoryAmmoStart()
     {
         return inventoryAmmoStart;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "inventoryAmmoStart", type = "int")
+    @JsonProcessorData(value = "inventoryAmmoStart", type = "int", allowRuntimeChanges = true)
     public void setInventoryAmmoStart(int inventoryAmmoStart)
     {
         this.inventoryAmmoStart = inventoryAmmoStart;
     }
 
+    @JsonProcessorDataGetter(value = "inventoryAmmoEnd", type = "int")
     public int getInventoryAmmoEnd()
     {
         return inventoryAmmoEnd;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "inventoryAmmoEnd", type = "int")
+    @JsonProcessorData(value = "inventoryAmmoEnd", type = "int", allowRuntimeChanges = true)
     public void setInventoryAmmoEnd(int inventoryAmmoEnd)
     {
         this.inventoryAmmoEnd = inventoryAmmoEnd;
@@ -169,180 +170,179 @@ public class SentryData extends ArmoryEntry
         return energyCost;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "energyCostTick", type = "int")
+    @JsonProcessorData(value = "energyCostTick", type = "int", allowRuntimeChanges = true)
     public void setEnergyCost(int energyCost)
     {
         this.energyCost = energyCost;
     }
 
+    @JsonProcessorDataGetter(value = "energyBufferSize", type = "int")
     public int getEnergyBuffer()
     {
         return energyBuffer;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "energyBufferSize", type = "int")
+    @JsonProcessorData(value = "energyBufferSize", type = "int", allowRuntimeChanges = true)
     public void setEnergyBuffer(int energyBuffer)
     {
         this.energyBuffer = energyBuffer;
     }
 
+    @JsonProcessorDataGetter(value = "armorValue", type = "int")
     public int getArmor()
     {
         return armor;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "armorValue", type = "int")
+    @JsonProcessorData(value = "armorValue", type = "int", allowRuntimeChanges = true)
     public void setArmor(int armor)
     {
         this.armor = armor;
     }
 
+    @JsonProcessorDataGetter(value = "healthMax", type = "int")
     public int getMaxHealth()
     {
         return maxHealth;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "healthMax", type = "int")
+    @JsonProcessorData(value = "healthMax", type = "int", allowRuntimeChanges = true)
     public void setMaxHealth(int hp)
     {
         this.maxHealth = hp;
     }
 
     /** Range to look for targets inside */
+    @JsonProcessorDataGetter(value = "targetRange", type = "int")
     public int getRange()
     {
         return range;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "targetRange", type = "int")
+    @JsonProcessorData(value = "targetRange", type = "int", allowRuntimeChanges = true)
     public void setRange(int range)
     {
         this.range = range;
     }
 
     /** How long to wait before searching for targets */
+    @JsonProcessorDataGetter(value = "targetSearchDelay", type = "int")
     public int getTargetSearchDelay()
     {
         return targetSearchDelay;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "targetSearchDelay", type = "int")
+    @JsonProcessorData(value = "targetSearchDelay", type = "int", allowRuntimeChanges = true)
     public void setTargetSearchDelay(int targetSearchDelay)
     {
         this.targetSearchDelay = targetSearchDelay;
     }
 
     /** How long to wait before attacking a target */
+    @JsonProcessorDataGetter(value = "targetAttackDelay", type = "int")
     public int getTargetAttackDelay()
     {
         return targetAttackDelay;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "targetAttackDelay", type = "int")
+    @JsonProcessorData(value = "targetAttackDelay", type = "int", allowRuntimeChanges = true)
     public void setTargetAttackDelay(int targetAttackDelay)
     {
         this.targetAttackDelay = targetAttackDelay;
     }
 
     /** How long to wait before switching targets */
+    @JsonProcessorDataGetter(value = "targetLossDelay", type = "int")
     public int getTargetLossTimer()
     {
         return targetLossTimer;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "targetLossDelay", type = "int")
+    @JsonProcessorData(value = "targetLossDelay", type = "int", allowRuntimeChanges = true)
     public void setTargetLossTimer(int targetLossTimer)
     {
         this.targetLossTimer = targetLossTimer;
     }
 
+    @JsonProcessorDataGetter(value = "barrelLength", type = "float")
     public float getBarrelLength()
     {
         return barrelLength;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "barrelLength", type = "float")
+    @JsonProcessorData(value = "barrelLength", type = "float", allowRuntimeChanges = true)
     public void setBarrelLength(float barrelLength)
     {
         this.barrelLength = barrelLength;
     }
 
+    @JsonProcessorDataGetter(value = "bodyWidth", type = "float")
     public float getBodyWidth()
     {
         return bodyWidth;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "bodyWidth", type = "float")
+    @JsonProcessorData(value = "bodyWidth", type = "float", allowRuntimeChanges = true)
     public void setBodyWidth(float bodyWidth)
     {
         this.bodyWidth = bodyWidth;
     }
 
+    @JsonProcessorDataGetter(value = "bodyHeight", type = "float")
     public float getBodyHeight()
     {
         return bodyHeight;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "bodyHeight", type = "float")
+    @JsonProcessorData(value = "bodyHeight", type = "float", allowRuntimeChanges = true)
     public void setBodyHeight(float bodyHeight)
     {
         this.bodyHeight = bodyHeight;
     }
 
+    @JsonProcessorDataGetter(value = "centerOffset", type = "pos")
     public Pos getCenterOffset()
     {
         return centerOffset;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "centerOffset", type = "pos")
+    @JsonProcessorData(value = "centerOffset", type = "pos", allowRuntimeChanges = true)
     public void setCenterOffset(Pos centerOffset)
     {
         this.centerOffset = centerOffset;
     }
 
+    @JsonProcessorDataGetter(value = "barrelOffset", type = "pos")
     public Pos getBarrelOffset()
     {
         return barrelOffset;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "barrelOffset", type = "pos")
+    @JsonProcessorData(value = "barrelOffset", type = "pos", allowRuntimeChanges = true)
     public void setBarrelOffset(Pos barrelOffset)
     {
         this.barrelOffset = barrelOffset;
     }
 
+    @JsonProcessorDataGetter(value = "rotationSpeed", type = "float")
     public float getRotationSpeed()
     {
         return rotationSpeed;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "rotationSpeed", type = "float")
+    @JsonProcessorData(value = "rotationSpeed", type = "float", allowRuntimeChanges = true)
     public void setRotationSpeed(float rotationSpeed)
     {
         this.rotationSpeed = rotationSpeed;
     }
 
+    @JsonProcessorDataGetter(value = "defaultTargetTypes", type = "array.string")
     public String[] getDefaultTargetTypes()
     {
         return defaultTargetTypes;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "defaultTargetTypes", type = "array.string")
+    @JsonProcessorData(value = "defaultTargetTypes", type = "array.string", allowRuntimeChanges = true)
     public void setDefaultTargetTypes(String[] types)
     {
         this.defaultTargetTypes = types;
@@ -355,13 +355,13 @@ public class SentryData extends ArmoryEntry
         }
     }
 
+    @JsonProcessorDataGetter(value = "allowedTargetTypes", type = "array.string")
     public String[] getAllowedTargetTypes()
     {
         return allowedTargetTypes;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "allowedTargetTypes", type = "array.string")
+    @JsonProcessorData(value = "allowedTargetTypes", type = "array.string", allowRuntimeChanges = true)
     public void setAllowedTargetTypes(String[] types)
     {
         this.allowedTargetTypes = types;
@@ -374,37 +374,37 @@ public class SentryData extends ArmoryEntry
         }
     }
 
+    @JsonProcessorDataGetter(value = "empStunTimer", type = "int")
     public int getEmpStunTimerPerEnergyUnit()
     {
         return empStunTimerPerEnergyUnit;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "empStunTimer", type = "int")
+    @JsonProcessorData(value = "empStunTimer", type = "int", allowRuntimeChanges = true)
     public void setEmpStunTimerPerEnergyUnit(int empStunTimerPerEnergyUnit)
     {
         this.empStunTimerPerEnergyUnit = empStunTimerPerEnergyUnit;
     }
 
+    @JsonProcessorDataGetter(value = "empStunEnergyCost", type = "int")
     public int getEmpStunEnergyUnit()
     {
         return empStunEnergyUnit;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "empStunEnergyCost", type = "int")
+    @JsonProcessorData(value = "empStunEnergyCost", type = "int", allowRuntimeChanges = true)
     public void setEmpStunEnergyUnit(int empStunEnergyUnit)
     {
         this.empStunEnergyUnit = empStunEnergyUnit;
     }
 
+    @JsonProcessorDataGetter(value = "empAbsorptionLimit", type = "int")
     public int getEmpAbsorptionLimit()
     {
         return empAbsorptionLimit;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "empAbsorptionLimit", type = "int")
+    @JsonProcessorData(value = "empAbsorptionLimit", type = "int", allowRuntimeChanges = true)
     public void setEmpAbsorptionLimit(int empAbsorptionLimit)
     {
         this.empAbsorptionLimit = empAbsorptionLimit;

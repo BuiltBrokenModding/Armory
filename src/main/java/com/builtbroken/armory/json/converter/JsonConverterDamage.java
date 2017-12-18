@@ -21,4 +21,10 @@ public class JsonConverterDamage extends JsonConverter<DamageData>
     {
         return DamageJsonProcessor.processor.process(element);
     }
+
+    @Override
+    public JsonElement build(String type, Object data, String... args)
+    {
+        return null;
+    }
 }

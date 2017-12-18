@@ -251,6 +251,7 @@ public class ItemClip extends ItemMetaArmoryEntry<ClipData> implements IItemClip
     {
         final ItemStack emptyClipStack = new ItemStack(item, 1, meta);
         items.add(emptyClipStack);
+
         for (IAmmoData data : clip.ammoType.getAmmoData())
         {
             ItemStack stack = new ItemStack(item, 1, meta);

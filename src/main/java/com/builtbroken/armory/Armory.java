@@ -16,13 +16,12 @@ import com.builtbroken.armory.data.meele.MeleeWeaponData;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.ranged.ThrowableData;
 import com.builtbroken.armory.data.sentry.SentryData;
-import com.builtbroken.armory.json.converter.JsonConverterDamage;
+import com.builtbroken.armory.json.damage.DamageJsonProcessor;
 import com.builtbroken.armory.json.processors.*;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
-import com.builtbroken.mc.framework.json.loading.JsonLoader;
 import com.builtbroken.mc.framework.mod.AbstractMod;
 import com.builtbroken.mc.framework.mod.ModCreativeTab;
 import cpw.mods.fml.common.Mod;
@@ -111,7 +110,7 @@ public final class Armory extends AbstractMod
         JsonContentLoader.INSTANCE.add(new MeleeToolJsonProcessor());
         JsonContentLoader.INSTANCE.add(new MeleeWeaponJsonProcessor());
 
-        JsonLoader.addConverter(new JsonConverterDamage());
+        JsonContentLoader.INSTANCE.add(DamageJsonProcessor.INSTANCE);
     }
 
     @Mod.EventHandler

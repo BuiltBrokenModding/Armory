@@ -4,6 +4,7 @@ import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
+import com.builtbroken.mc.framework.json.loading.JsonProcessorDataGetter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,8 @@ public class MeleeWeaponData extends MeleeToolData
         blockBreakDamage = 2;
     }
 
-    @JsonProcessorData(value = "attack", type = "float")
+
+    @JsonProcessorData(value = "attack", type = "float", allowRuntimeChanges = true)
     public void setDamageVsEntity(float damageVsEntity)
     {
         this.damageVsEntity = damageVsEntity;
@@ -36,12 +38,13 @@ public class MeleeWeaponData extends MeleeToolData
      *
      * @return damage greater than zero
      */
+    @JsonProcessorDataGetter(value = "attack", type = "float")
     public float getDamageVsEntity()
     {
         return damageVsEntity;
     }
 
-    @JsonProcessorData(value = "damageEffects", type = "list.array", args = "DamageData")
+    @JsonProcessorData(value = "damageEffects", type = "list.array", args = "DamageData", allowRuntimeChanges = true)
     public void setExtraDamageToApply(List<DamageData> extraDamageToApply)
     {
         this.extraDamageToApply.addAll(extraDamageToApply);
@@ -52,6 +55,7 @@ public class MeleeWeaponData extends MeleeToolData
      *
      * @return list of effects to apply, in order
      */
+    @JsonProcessorDataGetter(value = "damageEffects", type = "list.array")
     public List<DamageData> getExtraDamageToApply()
     {
         return extraDamageToApply;

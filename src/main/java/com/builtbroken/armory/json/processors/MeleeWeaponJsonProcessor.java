@@ -55,4 +55,22 @@ public class MeleeWeaponJsonProcessor extends ArmoryEntryJsonProcessor<MeleeWeap
         debugPrinter.end("Done...");
         return weaponData;
     }
+
+    @Override
+    public boolean addData(String key, JsonElement data, MeleeWeaponData generatedObject)
+    {
+        return super.addData(key, data, generatedObject); //TODO consider special handling for damage types
+    }
+
+    @Override
+    public boolean removeData(String key, MeleeWeaponData generatedObject)
+    {
+        return super.removeData(key, generatedObject);
+    }
+
+    @Override
+    public boolean replaceData(String key, JsonElement data, MeleeWeaponData generatedObject)
+    {
+        return super.replaceData(key, data, generatedObject);
+    }
 }

@@ -26,9 +26,9 @@ import net.minecraft.world.World;
 public class DamageBlast extends DamageData
 {
     public final String blastName;
+    public final float size;
 
     private IExplosiveHandler handlerCache;
-    private float size;
 
     public DamageBlast(IJsonProcessor processor, String blastName, float size)
     {

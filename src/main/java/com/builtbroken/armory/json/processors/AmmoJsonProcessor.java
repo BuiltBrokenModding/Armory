@@ -79,7 +79,7 @@ public class AmmoJsonProcessor extends ArmoryEntryJsonProcessor<AmmoData>
             //Load damage data
             else if (entry.getKey().startsWith("damage"))
             {
-                DamageData damageData = DamageJsonProcessor.processor.process(entry.getValue());
+                DamageData damageData = DamageJsonProcessor.INSTANCE.process(entry.getValue());
                 debugPrinter.log("Damage: " + damageData);
                 if (damageData != null)
                 {

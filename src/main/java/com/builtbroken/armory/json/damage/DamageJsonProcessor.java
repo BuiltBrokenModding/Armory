@@ -3,41 +3,45 @@ package com.builtbroken.armory.json.damage;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.data.damage.DamageData;
 import com.builtbroken.armory.data.damage.simple.DamageSimple;
+import com.builtbroken.armory.json.damage.type.*;
+import com.builtbroken.mc.framework.json.conversion.IJsonConverter;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.processors.JsonProcessor;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/30/2017.
  */
-@Deprecated //Will be switched over to either a new setup or a JSON converter instead
-public class DamageJsonProcessor<D extends DamageData> extends JsonProcessor<D>
+public final class DamageJsonProcessor extends JsonProcessor<DamageData> implements IJsonConverter<DamageData>
 {
-    public HashMap<String, DamageJsonProcessor> processors = new HashMap();
+    public HashMap<String, DamageTypeJsonProcessor> processors = new HashMap();
 
-    public static DamageJsonProcessor processor = new DamageJsonProcessor();
+    public static DamageJsonProcessor INSTANCE = new DamageJsonProcessor();
 
-    public DamageJsonProcessor()
+    private ArrayList<String> keys = new ArrayList();
+
+    private DamageJsonProcessor()
     {
         super();
-    }
-
-    public DamageJsonProcessor(Class<D> clazz)
-    {
-        super(clazz);
+        keys.add("damage");
+        keys.add("damagedata");
     }
 
     static
     {
-        processor.processors.put("aoe", new DamageJsonProcessorAOE());
-        processor.processors.put("blast", new DamageJsonProcessorBlast());
-        processor.processors.put("potion", new DamageJsonProcessorPotion());
-        processor.processors.put("force", new DamageJsonProcessorForce());
-        processor.processors.put("delay", new DamageJsonProcessorDelay());
-        processor.processors.put("effect", new DamageJsonProcessorEntityEffect());
+        INSTANCE.processors.put("aoe", new DamageJsonProcessorAOE());
+        INSTANCE.processors.put("blast", new DamageJsonProcessorBlast());
+        INSTANCE.processors.put("potion", new DamageJsonProcessorPotion());
+        INSTANCE.processors.put("force", new DamageJsonProcessorForce());
+        INSTANCE.processors.put("delay", new DamageJsonProcessorDelay());
+        INSTANCE.processors.put("effect", new DamageJsonProcessorEntityEffect());
     }
 
     @Override
@@ -49,7 +53,7 @@ public class DamageJsonProcessor<D extends DamageData> extends JsonProcessor<D>
     @Override
     public String getJsonKey()
     {
-        return "damageData";
+        return "damage";
     }
 
     @Override
@@ -59,7 +63,7 @@ public class DamageJsonProcessor<D extends DamageData> extends JsonProcessor<D>
     }
 
     @Override
-    public D process(JsonElement element)
+    public DamageData process(JsonElement element)
     {
         JsonObject damageObject = element.getAsJsonObject();
         ensureValuesExist(damageObject, "type");
@@ -67,13 +71,46 @@ public class DamageJsonProcessor<D extends DamageData> extends JsonProcessor<D>
         final String source = damageObject.get("type").getAsString().toLowerCase();
         if (processors.containsKey(source))
         {
-            return (D) processors.get(source).process(element);
+            return processors.get(source).convert(element);
         }
         else
         {
             ensureValuesExist(damageObject, "value");
             float damage = damageObject.getAsJsonPrimitive("value").getAsFloat();
-            return (D) new DamageSimple(this, source, damage);
+            return new DamageSimple(this, source, damage);
         }
+    }
+
+    @Override
+    public DamageData convert(JsonElement element, String... args)
+    {
+        return process(element);
+    }
+
+    @Override
+    public JsonElement build(String type, Object data, String... args)
+    {
+        if (data instanceof DamageSimple)
+        {
+            JsonObject object = new JsonObject();
+            object.add("type", new JsonPrimitive(((DamageSimple) data).damageName));
+            object.add("value", new JsonPrimitive(((DamageSimple) data).damage));
+            return object;
+        }
+        else if (data instanceof DamageData)
+        {
+            IJsonProcessor processor = ((DamageData) data).processor;
+            if (processor instanceof IJsonConverter)
+            {
+                return ((IJsonConverter) processor).build(type, data, args);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<String> getKeys()
+    {
+        return keys;
     }
 }

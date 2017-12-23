@@ -6,6 +6,7 @@ import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
+import com.builtbroken.mc.framework.json.loading.JsonProcessorDataGetter;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -25,10 +26,10 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     public final AmmoType ammoType;
 
     /** Damage applied to entity when projectile hits */
-    public final List<DamageData> damageData = new ArrayList();
+    public final List<DamageData> damageData = new ArrayList();  //TODO setup with annotations
 
     /** Item data used to build drop list */
-    public final List<String> droppedItemData = new ArrayList();
+    public final List<String> droppedItemData = new ArrayList(); //TODO setup with annotations
 
     /** Item dropped after the ammo has been fired */
     public final List<ItemStack> droppedItems = new ArrayList();
@@ -125,24 +126,26 @@ public class AmmoData extends ArmoryEntry implements IAmmoData
     }
 
     @Override
+    @JsonProcessorDataGetter(value = "energyCost", type = "int")
     public int getEnergyCost()
     {
         return energyCost;
     }
 
-    @JsonProcessorData(value = "energyCost", type = "int")
+    @JsonProcessorData(value = "energyCost", type = "int", allowRuntimeChanges = true)
     public void setEnergyCost(int energyCost)
     {
         this.energyCost = energyCost;
     }
 
     @Override
+    @JsonProcessorDataGetter(value = "velocity", type = "float")
     public float getProjectileVelocity()
     {
         return velocity;
     }
 
-    @JsonProcessorData(value = "velocity", type = "float")
+    @JsonProcessorData(value = "velocity", type = "float", allowRuntimeChanges = true)
     public void setProjectileVelocity(float velocity)
     {
         this.velocity = velocity;

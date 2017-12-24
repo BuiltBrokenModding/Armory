@@ -4,6 +4,14 @@ This log contains changes made to the project. Each entry contains changed made 
 If this is a problem, use exact build numbers to track changes. As each build logs the git-hash it was created from to better understand changes made.
 
 # Versions
+# 0.7.6 - 12/24/2017
+### Runtime Changes
+Added: chat command to give filled ammo clips
+Implemented: json override support for most of the armory content (still needs more work)
+
+### Develoment Changes
+Reworked: damage handling to function as a Json Converter and processor
+
 # 0.7.5 - 12/18/2017
 ### Runtime Changes
 Fixed: reload notification displaying wrong time units

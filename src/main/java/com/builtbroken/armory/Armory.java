@@ -8,7 +8,6 @@ import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.tile.ItemSentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
-import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.armory.data.damage.simple.DamageSimple;
 import com.builtbroken.armory.data.damage.type.DamageImpact;
 import com.builtbroken.armory.data.meele.MeleeToolData;
@@ -18,19 +17,25 @@ import com.builtbroken.armory.data.ranged.ThrowableData;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.armory.json.damage.DamageJsonProcessor;
 import com.builtbroken.armory.json.processors.*;
+import com.builtbroken.armory.server.commands.CommandClip;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
+import com.builtbroken.mc.core.commands.prefab.ModularCommand;
 import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
 import com.builtbroken.mc.framework.mod.AbstractMod;
 import com.builtbroken.mc.framework.mod.ModCreativeTab;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.command.ICommandManager;
+import net.minecraft.command.ServerCommandManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -70,16 +75,20 @@ public final class Armory extends AbstractMod
     public static final String SENTRY_BLOCK_REG = PREFIX + "sentryTile";
 
     public static ItemMetaArmoryEntry<GunData> itemGun;
-    public static ItemMetaArmoryEntry<ClipData> itemClip;
+    public static ItemClip itemClip;
     public static ItemMetaArmoryEntry<AmmoData> itemAmmo;
     public static ItemMetaArmoryEntry<SentryData> itemSentry;
     public static ItemMetaArmoryEntry<ThrowableData> itemThrownWeapon;
     public static ItemMetaArmoryEntry<MeleeToolData> itemMeleeTool;
     public static ItemMetaArmoryEntry<MeleeWeaponData> itemMeleeWeapon;
 
+
+    public static boolean enableCommands = true;
+
     //Configs
     /** Overrides the delay between attacks on entities */
     public static boolean overrideDamageDelay = true;
+    public static final ModularCommand ARMORY_COMMAND = new ModularCommand("armory");
 
     public Armory()
     {
@@ -221,6 +230,21 @@ public final class Armory extends AbstractMod
                     throw new RuntimeException("Failed to move files, see log for details and manually move files to correct for the issues.\n" + oldConfigFolder + " needs to be moved to " + configFolder);
                 }
             }
+        }
+    }
+
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event)
+    {
+        if (enableCommands)
+        {
+            // Setup command
+            ICommandManager commandManager = FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager();
+            ServerCommandManager serverCommandManager = ((ServerCommandManager) commandManager);
+
+            //Register commands
+            serverCommandManager.registerCommand(ARMORY_COMMAND);
+            ARMORY_COMMAND.addCommand(new CommandClip());
         }
     }
 

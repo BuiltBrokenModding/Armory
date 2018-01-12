@@ -14,6 +14,7 @@ import com.builtbroken.mc.prefab.gui.buttons.GuiButton9px;
 import com.builtbroken.mc.prefab.gui.buttons.GuiButtonCheck;
 import com.builtbroken.mc.prefab.gui.buttons.GuiImageButton;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
@@ -29,6 +30,16 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
 {
     public static final ResourceLocation GUI_BUTTONS = new ResourceLocation(Armory.DOMAIN, "textures/gui/gui.buttons.32pix.png");
     public static final int TARGET_LIST_SPACE_Y = 10;
+
+    public static final int GUI_MAIN = 0;
+    public static final int GUI_TARGET = 1;
+    public static final int GUI_PERMISSION = 2;
+    public static final int GUI_UPGRADE = 3;
+    public static final int GUI_SETTINGS = 4;
+
+    public static final int BUTTON_ON = 10;
+    public static final int BUTTON_OFF = 11;
+    public static final int BUTTON_SAVE = 12;
 
     private final int id;
     private GuiImageButton mainWindowButton;
@@ -46,6 +57,8 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     private int scrollTargetList = 0;
     private GuiButtonCheck[][] targetListButtons;
 
+    private GuiTextField accessProfileField;
+
     public GuiSentry(EntityPlayer player, TileSentry sentry, int id)
     {
         super(new ContainerSentry(player, sentry, id), sentry);
@@ -60,15 +73,15 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         int y = guiTop + 10;
 
         //Menu Tabs
-        mainWindowButton = addButton(GuiImageButton.newButton18(0, x, y, 0, 0).setTexture(GUI_BUTTONS));
-        targetWindowButton = addButton(GuiImageButton.newButton18(1, x, y + 19, 1, 0).setTexture(GUI_BUTTONS));
-        permissionWindowButton = addButton(GuiImageButton.newButton18(2, x, y + 19 * 2, 2, 0).setTexture(GUI_BUTTONS));
-        upgradeWindowButton = addButton(GuiImageButton.newButton18(3, x, y + 19 * 3, 7, 0).setTexture(GUI_BUTTONS));
-        settingsWindowButton = addButton(GuiImageButton.newButton18(4, x, y + 19 * 4, 5, 0).setTexture(GUI_BUTTONS));
+        mainWindowButton = addButton(GuiImageButton.newButton18(GUI_MAIN, x, y, 0, 0).setTexture(GUI_BUTTONS));
+        targetWindowButton = addButton(GuiImageButton.newButton18(GUI_TARGET, x, y + 19, 1, 0).setTexture(GUI_BUTTONS));
+        permissionWindowButton = addButton(GuiImageButton.newButton18(GUI_PERMISSION, x, y + 19 * 2, 2, 0).setTexture(GUI_BUTTONS));
+        upgradeWindowButton = addButton(GuiImageButton.newButton18(GUI_UPGRADE, x, y + 19 * 3, 7, 0).setTexture(GUI_BUTTONS));
+        settingsWindowButton = addButton(GuiImageButton.newButton18(GUI_SETTINGS, x, y + 19 * 4, 5, 0).setTexture(GUI_BUTTONS));
 
         //Power buttons
-        onButton = (GuiButton2) add(GuiButton9px.newOnButton(10, x, y - 10).setEnabled(!host.getSentry().turnedOn));
-        offButton = (GuiButton2) add(GuiButton9px.newOffButton(11, x + 9, y - 10).setEnabled(host.getSentry().turnedOn));
+        onButton = (GuiButton2) add(GuiButton9px.newOnButton(BUTTON_ON, x, y - 10).setEnabled(!host.getSentry().turnedOn));
+        offButton = (GuiButton2) add(GuiButton9px.newOffButton(BUTTON_OFF, x + 9, y - 10).setEnabled(host.getSentry().turnedOn));
 
 
         //Per tab components
@@ -76,10 +89,10 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         y = guiTop;
         switch (id)
         {
-            case 0:
+            case GUI_MAIN:
                 mainWindowButton.disable();
                 break;
-            case 1:
+            case GUI_TARGET:
                 targetWindowButton.disable();
                 //Target list
                 int tx = 114;
@@ -112,20 +125,19 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 y = guiTop + 69;
                 scrollDownButton = (GuiButton2) add(GuiButton9px.newDownButton(13, x, y).setEnabled(host.getSentry().getSentryData().getAllowedTargetTypes().length > 6)); //Down is disabled if not enough entries
                 break;
-            case 2:
-                x += 153;
-                y += 5;
+            case GUI_PERMISSION:
                 permissionWindowButton.disable();
-                addButton(GuiImageButton.newSaveButton(10, x, y));
+                accessProfileField = newField(x + 10, y + 20, 100, host.getSentry().profileID);
+                addButton(GuiImageButton.newSaveButton(BUTTON_SAVE,x + 115, y + 21));
                 break;
-            case 3:
+            case GUI_UPGRADE:
                 upgradeWindowButton.disable();
                 break;
-            case 4:
+            case GUI_SETTINGS:
                 x += 153;
                 y += 5;
                 settingsWindowButton.disable();
-                addButton(GuiImageButton.newSaveButton(10, x, y));
+                addButton(GuiImageButton.newSaveButton(BUTTON_SAVE, x, y));
                 break;
         }
     }
@@ -185,27 +197,33 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     {
         final int buttonId = button.id;
         //Turn sentry on
-        if (buttonId == 10)
+        if (buttonId == BUTTON_ON)
         {
-            host.sendPacketToServer(new PacketTile(host, 3, true)); //TODO move to method in host
+            host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_POWER, true)); //TODO move to method in host
         }
         //Turn sentry off
-        else if (buttonId == 11)
+        else if (buttonId == BUTTON_OFF)
         {
-            host.sendPacketToServer(new PacketTile(host, 3, false)); //TODO move to method in host
+            host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_POWER, false)); //TODO move to method in host
         }
         //Tab switch buttons
         else if (buttonId >= 0 && buttonId < TileSentry.MAX_GUI_TABS && buttonId != id)
         {
             host.sendPacketToServer(new PacketOpenGUI(host, buttonId));
         }
-        //Main GUI
-        else if (id == 0)
+        else if (id == GUI_PERMISSION)
+        {
+            if (buttonId == BUTTON_SAVE)
+            {
+                String value = accessProfileField.getText();
+                host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_SET_PROFILE_ID, value != null ? value : ""));
+            }
+        }
+        else if (id == GUI_MAIN)
         {
 
         }
-        //Target setting GUI
-        else if (id == 1)
+        else if (id == GUI_TARGET)
         {
             //Scroll up button
             if (buttonId == 12)
@@ -247,7 +265,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 60 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NONE.ordinal());
+                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NONE.ordinal());
                     host.sendPacketToServer(packetTile);
                 }
             }
@@ -256,7 +274,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 50 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NEUTRAL.ordinal());
+                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NEUTRAL.ordinal());
                     host.sendPacketToServer(packetTile);
                 }
             }
@@ -265,7 +283,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 40 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.HOSTILE.ordinal());
+                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.HOSTILE.ordinal());
                     host.sendPacketToServer(packetTile);
                 }
             }
@@ -274,7 +292,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 30 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NOT_FRIEND.ordinal());
+                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NOT_FRIEND.ordinal());
                     host.sendPacketToServer(packetTile);
                 }
             }
@@ -283,7 +301,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 20 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, 4, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.ALL.ordinal());
+                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.ALL.ordinal());
                     host.sendPacketToServer(packetTile);
                 }
             }
@@ -303,7 +321,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         }
 
         //Target setting GUI
-        if (id == 1)
+        if (id == GUI_TARGET)
         {
             //TODO add background behind scroll area
             //TODO add scroll bar
@@ -371,7 +389,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
         //Main GUI
-        if (id == 0)
+        if (id == GUI_MAIN)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.ammo.bay"), 7, 4);
             if (host.getEnergyBufferSize() > 0)
@@ -390,7 +408,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             drawString(LanguageUtility.getLocal("sentry.gui.inventory"), 7, 74);
         }
         //Target Settings GUI
-        else if (id == 1)
+        else if (id == GUI_TARGET)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.targeting"), 7, 4);
 
@@ -404,21 +422,19 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             }
         }
         //Permission GUI
-        else if (id == 2)
+        else if (id == GUI_PERMISSION)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.permissions"), 7, 4);
-
-            drawString("Not currently Implemented", 7, 20, Color.RED.getRGB());
         }
         //Upgrades GUI
-        else if (id == 3)
+        else if (id == GUI_UPGRADE)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.upgrades"), 7, 4);
 
             drawString(LanguageUtility.getLocal("Not currently Implemented"), 7, 20, Color.RED.getRGB());
         }
         //Settings GUI
-        else if (id == 4)
+        else if (id == GUI_SETTINGS)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.settings"), 7, 4);
 

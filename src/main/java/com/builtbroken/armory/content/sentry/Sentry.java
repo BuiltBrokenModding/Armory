@@ -115,7 +115,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     /** Cached fof station tile */
     public IFoFProvider fofStation;
 
-    public String profileID = null;
+    public String profileID = "";
 
     public EntityTargetSelector targetSelector;
 
@@ -561,6 +561,10 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                 }
             }
         }
+        if(nbt.hasKey("profileID"))
+        {
+            profileID = nbt.getString("profileID");
+        }
     }
 
     @Override
@@ -586,6 +590,10 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
             }
             nbt.setTag("targetModes", list);
         }
+        if(profileID != null && !profileID.isEmpty())
+        {
+            nbt.setString("profileID", profileID);
+        }
         return nbt;
     }
 
@@ -599,6 +607,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         currentAim.readBytes(buf);
         aim.readBytes(buf);
         status = ByteBufUtils.readUTF8String(buf);
+        profileID = ByteBufUtils.readUTF8String(buf);
 
         //Load gun data
         NBTTagCompound gunTag = ByteBufUtils.readTag(buf);
@@ -615,7 +624,8 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         buf.writeFloat(health);
         currentAim.writeBytes(buf);
         aim.writeBytes(buf);
-        ByteBufUtils.writeUTF8String(buf, status);
+        ByteBufUtils.writeUTF8String(buf, status != null ? status : "");
+        ByteBufUtils.writeUTF8String(buf, profileID != null ? profileID : "");
 
         //Save gun data
         NBTTagCompound gunTag = new NBTTagCompound();

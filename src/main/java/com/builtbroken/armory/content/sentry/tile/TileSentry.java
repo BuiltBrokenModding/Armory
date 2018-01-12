@@ -49,6 +49,12 @@ import java.util.Map;
 public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler, IEMReceptiveDevice, ILinkFeedback, ILinkable, IPassCode
 {
     public static final int MAX_GUI_TABS = 5;
+    public static final int PACKET_GUI_DATA = 1;
+    public static final int PACKET_SENTRY = 2;
+    public static final int PACKET_POWER = 3;
+    public static final int PACKET_SET_TARGET_MODE = 4;
+    public static final int PACKET_SET_PROFILE_ID = 5;
+
     protected Sentry sentry;
     private ItemStack sentryStack;
     private EntitySentry sentryEntity;
@@ -168,7 +174,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         super.doUpdateGuiUsers();
         if (ticks % 3 == 0 && getSentry() != null)
         {
-            PacketTile packet = new PacketTile(this, 1);
+            PacketTile packet = new PacketTile(this, PACKET_GUI_DATA);
             //Write target data
             packet.data().writeInt(getSentry().targetModes.size());
             for (Map.Entry<String, TargetMode> entry : getSentry().targetModes.entrySet())
@@ -274,12 +280,12 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         {
             if (isServer())
             {
-                if (id == 3)
+                if (id == PACKET_POWER)
                 {
                     getSentry().turnedOn = buf.readBoolean();
                     return true;
                 }
-                else if (id == 4)
+                else if (id == PACKET_SET_TARGET_MODE)
                 {
                     String key = ByteBufUtils.readUTF8String(buf);
                     byte value = buf.readByte();
@@ -289,10 +295,15 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
                     }
                     return true;
                 }
+                else if (id == PACKET_SET_PROFILE_ID)
+                {
+                    getSentry().profileID = ByteBufUtils.readUTF8String(buf).trim();
+                    return true;
+                }
             }
             else
             {
-                if (id == 1)
+                if (id == PACKET_GUI_DATA)
                 {
                     getSentry().targetModes.clear();
                     final int l = buf.readInt();
@@ -369,14 +380,14 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     @Override
     public short getCode()
     {
-       return getSentry().getCode();
+        return getSentry().getCode();
     }
 
     public void sendSentryIDToClient()
     {
         if (oldWorld() != null && isServer())
         {
-            PacketTile packetTile = new PacketTile(this, 2, getSentry() == null ? -1 : getSentryEntity().getEntityId());
+            PacketTile packetTile = new PacketTile(this, PACKET_SENTRY, getSentry() == null ? -1 : getSentryEntity().getEntityId());
             Engine.packetHandler.sendToAllAround(packetTile, this);
         }
     }

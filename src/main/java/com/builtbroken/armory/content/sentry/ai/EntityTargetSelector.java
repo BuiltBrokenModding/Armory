@@ -3,6 +3,7 @@ package com.builtbroken.armory.content.sentry.ai;
 import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.armory.content.sentry.TargetMode;
 import com.builtbroken.mc.api.entity.IFoF;
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.access.AccessProfile;
 import com.builtbroken.mc.framework.access.perm.Permissions;
 import com.builtbroken.mc.prefab.entity.type.EntityTypeCheck;
@@ -64,16 +65,28 @@ public class EntityTargetSelector implements IEntitySelector
                 {
                     boolean hostile = profile.hasNode(player, Permissions.targetHostile.toString());
                     boolean containsUser = !profile.containsUser(player);
-                    if (mode == TargetMode.NOT_FRIEND && hostile)
+                    if (mode == TargetMode.HOSTILE && hostile)
                     {
+                        if(Engine.runningAsDev)
+                        {
+                            Engine.logger().info("EntityTargetSelector#isEntityApplicable(" + player.getCommandSenderName() + ") - targeting hostile player");
+                        }
                         return true;
                     }
                     else if (mode == TargetMode.NOT_FRIEND && (!containsUser || hostile))
                     {
+                        if(Engine.runningAsDev)
+                        {
+                            Engine.logger().info("EntityTargetSelector#isEntityApplicable(" + player.getCommandSenderName() + ") - targeting not friend");
+                        }
                         return true;
                     }
                     else if (mode == TargetMode.NEUTRAL && !containsUser)
                     {
+                        if(Engine.runningAsDev)
+                        {
+                            Engine.logger().info("EntityTargetSelector#isEntityApplicable(" + player.getCommandSenderName() + ") - targeting neutral");
+                        }
                         return true;
                     }
                     else

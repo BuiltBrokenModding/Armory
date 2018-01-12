@@ -129,6 +129,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             case GUI_PERMISSION:
                 permissionWindowButton.disable();
                 accessProfileField = newField(x + 10, y + 20, 100, host.getSentry().profileID);
+                accessProfileField.setMaxStringLength(200);
                 addButton(GuiImageButton.newSaveButton(BUTTON_SAVE, x + 115, y + 21));
                 break;
             case GUI_UPGRADE:
@@ -426,6 +427,8 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         else if (gui_id == GUI_PERMISSION)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.permissions"), 7, 4);
+
+            drawStringCentered((host.getSentry().profileGood ? "<->" : "<>"), 150, 25);
 
             String string = LanguageUtility.getLocal("sentry.gui.permissions.tip");
             String[] split = string.split(";");

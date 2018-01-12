@@ -9,10 +9,10 @@ import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.armory.data.user.IWeaponUser;
 import com.builtbroken.jlib.data.network.IByteBufReader;
 import com.builtbroken.jlib.data.network.IByteBufWriter;
-import com.builtbroken.mc.api.abstraction.EffectInstance;
-import com.builtbroken.mc.api.abstraction.world.IWorld;
 import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.IWorldPosition;
+import com.builtbroken.mc.api.abstraction.EffectInstance;
+import com.builtbroken.mc.api.abstraction.world.IWorld;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
 import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
 import com.builtbroken.mc.api.tile.IFoFProvider;
@@ -116,6 +116,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     public IFoFProvider fofStation;
 
     public String profileID = "";
+    public boolean profileGood = false;
 
     public EntityTargetSelector targetSelector;
 
@@ -133,6 +134,8 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     {
         if (!oldWorld().isRemote)
         {
+            profileGood  = getAccessProfile() != null;
+
             if (ticks == 1)
             {
                 for (String key : sentryData.getAllowedTargetTypes())
@@ -561,7 +564,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
                 }
             }
         }
-        if(nbt.hasKey("profileID"))
+        if (nbt.hasKey("profileID"))
         {
             profileID = nbt.getString("profileID");
         }
@@ -590,7 +593,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
             }
             nbt.setTag("targetModes", list);
         }
-        if(profileID != null && !profileID.isEmpty())
+        if (profileID != null && !profileID.isEmpty())
         {
             nbt.setString("profileID", profileID);
         }
@@ -608,6 +611,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         aim.readBytes(buf);
         status = ByteBufUtils.readUTF8String(buf);
         profileID = ByteBufUtils.readUTF8String(buf);
+        profileGood = buf.readBoolean();
 
         //Load gun data
         NBTTagCompound gunTag = ByteBufUtils.readTag(buf);
@@ -626,6 +630,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         aim.writeBytes(buf);
         ByteBufUtils.writeUTF8String(buf, status != null ? status : "");
         ByteBufUtils.writeUTF8String(buf, profileID != null ? profileID : "");
+        buf.writeBoolean(profileGood);
 
         //Save gun data
         NBTTagCompound gunTag = new NBTTagCompound();

@@ -1,6 +1,7 @@
 package com.builtbroken.armory.content.sentry.tile;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.content.sentry.TargetMode;
 import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.gui.GuiSentry;
 import com.builtbroken.mc.client.SharedAssets;
@@ -59,10 +60,25 @@ public class TileSentryClient extends TileSentry
     {
         if (!super.read(buf, id, player, type))
         {
-            if (id == 2)
+            if (id == PACKET_SENTRY)
             {
                 int entityID = buf.readInt();
                 setEntity(entityID);
+                return true;
+            }
+            else if (id == PACKET_GUI_DATA)
+            {
+                getSentry().targetModes.clear();
+                final int l = buf.readInt();
+                for (int i = 0; i < l; i++)
+                {
+                    String key = ByteBufUtils.readUTF8String(buf);
+                    byte value = buf.readByte();
+                    if (value >= 0 && value < TargetMode.values().length)
+                    {
+                        getSentry().targetModes.put(key, TargetMode.values()[value]);
+                    }
+                }
                 return true;
             }
             return false;

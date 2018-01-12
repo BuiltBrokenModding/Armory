@@ -301,24 +301,6 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
                     return true;
                 }
             }
-            else
-            {
-                if (id == PACKET_GUI_DATA)
-                {
-                    getSentry().targetModes.clear();
-                    final int l = buf.readInt();
-                    for (int i = 0; i < l; i++)
-                    {
-                        String key = ByteBufUtils.readUTF8String(buf);
-                        byte value = buf.readByte();
-                        if (value >= 0 && value < TargetMode.values().length)
-                        {
-                            getSentry().targetModes.put(key, TargetMode.values()[value]);
-                        }
-                    }
-                    return true;
-                }
-            }
             return false;
         }
         return true;

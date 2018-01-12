@@ -3,6 +3,8 @@ package com.builtbroken.armory.content.sentry.ai;
 import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.armory.content.sentry.TargetMode;
 import com.builtbroken.mc.api.entity.IFoF;
+import com.builtbroken.mc.framework.access.AccessProfile;
+import com.builtbroken.mc.framework.access.perm.Permissions;
 import com.builtbroken.mc.prefab.entity.type.EntityTypeCheck;
 import com.builtbroken.mc.prefab.entity.type.EntityTypeCheckRegistry;
 import net.minecraft.command.IEntitySelector;
@@ -32,10 +34,49 @@ public class EntityTargetSelector implements IEntitySelector
     {
         if (!entity.isDead && !entity.isEntityInvulnerable())
         {
-            //DO NOT SHOOT OWNER
-            if (entity instanceof EntityPlayer && sentry.host.isOwner((EntityPlayer) entity))
+            final AccessProfile profile = sentry.getAccessProfile();
+
+            if (entity instanceof EntityPlayer)
             {
-                return false;
+                final EntityPlayer player = (EntityPlayer) entity;
+                final TargetMode mode = sentry.targetModes.get("players");
+
+                //Prevents mistakes :P
+                if(mode == TargetMode.NONE)
+                {
+                    return false;
+                }
+
+                //ignore owner to prevent user derps
+                if (sentry.host.isOwner(player))
+                {
+                    return false;
+                }
+
+                //kill all humans
+                if(mode == TargetMode.ALL)
+                {
+                    return true;
+                }
+
+                //Handling for access system, overrides all settings
+                if (profile != null)
+                {
+                    boolean hostile = profile.hasNode(player, Permissions.targetHostile.toString());
+                    boolean containsUser = !profile.containsUser(player);
+                    if (mode == TargetMode.NOT_FRIEND && hostile)
+                    {
+                        return true;
+                    }
+                    else if (mode == TargetMode.NOT_FRIEND && (!containsUser || hostile))
+                    {
+                        return true;
+                    }
+                    else if (mode == TargetMode.NEUTRAL && !containsUser)
+                    {
+                        return true;
+                    }
+                }
             }
 
             List<String> keys = new ArrayList();

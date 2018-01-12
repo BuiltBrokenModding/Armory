@@ -26,9 +26,6 @@ public class DamageJsonProcessorPotion extends DamageTypeJsonProcessor<DamagePot
         String id = damageObject.get("potion").getAsString();
         DamagePotion damagePotion = new DamagePotion(this, id);
 
-        //handle injection
-        processAdditionalKeys(damagePotion, damageObject);
-
         return damagePotion;
     }
 

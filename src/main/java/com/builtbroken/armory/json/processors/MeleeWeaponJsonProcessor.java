@@ -48,7 +48,6 @@ public class MeleeWeaponJsonProcessor extends ArmoryEntryJsonProcessor<MeleeWeap
         //Create object
         MeleeWeaponData weaponData = new MeleeWeaponData(this, id, name);
 
-        processAdditionalKeys(weaponData, weaponJSON);
         //Process shared data
         processExtraData(weaponJSON, weaponData);
 

@@ -25,12 +25,8 @@ public class DamageJsonProcessorEntityEffect extends DamageTypeJsonProcessor<Dam
         ensureValuesExist(damageObject, "effectID");
 
         String id = damageObject.get("effectID").getAsString();
-        DamageEntityEffect damagePotion = new DamageEntityEffect(this, id);
 
-        //handle injection
-        processAdditionalKeys(damagePotion, damageObject);
-
-        return damagePotion;
+        return new DamageEntityEffect(this, id);
     }
 
     @Override

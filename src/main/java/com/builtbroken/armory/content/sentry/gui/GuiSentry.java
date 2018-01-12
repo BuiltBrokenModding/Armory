@@ -41,7 +41,8 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     public static final int BUTTON_OFF = 11;
     public static final int BUTTON_SAVE = 12;
 
-    private final int id;
+    private final int gui_id;
+
     private GuiImageButton mainWindowButton;
     private GuiImageButton targetWindowButton;
     private GuiImageButton permissionWindowButton;
@@ -59,10 +60,10 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
 
     private GuiTextField accessProfileField;
 
-    public GuiSentry(EntityPlayer player, TileSentry sentry, int id)
+    public GuiSentry(EntityPlayer player, TileSentry sentry, int gui_id)
     {
-        super(new ContainerSentry(player, sentry, id), sentry);
-        this.id = id;
+        super(new ContainerSentry(player, sentry, gui_id), sentry);
+        this.gui_id = gui_id;
     }
 
     @Override
@@ -87,7 +88,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         //Per tab components
         x = guiLeft;
         y = guiTop;
-        switch (id)
+        switch (gui_id)
         {
             case GUI_MAIN:
                 mainWindowButton.disable();
@@ -128,7 +129,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             case GUI_PERMISSION:
                 permissionWindowButton.disable();
                 accessProfileField = newField(x + 10, y + 20, 100, host.getSentry().profileID);
-                addButton(GuiImageButton.newSaveButton(BUTTON_SAVE,x + 115, y + 21));
+                addButton(GuiImageButton.newSaveButton(BUTTON_SAVE, x + 115, y + 21));
                 break;
             case GUI_UPGRADE:
                 upgradeWindowButton.disable();
@@ -162,7 +163,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             }
 
             //Target settings GUI
-            if (id == 1)
+            if (gui_id == 1)
             {
                 //Update check state for target mode settings
                 if (targetListButtons != null)
@@ -207,11 +208,11 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_POWER, false)); //TODO move to method in host
         }
         //Tab switch buttons
-        else if (buttonId >= 0 && buttonId < TileSentry.MAX_GUI_TABS && buttonId != id)
+        else if (buttonId >= 0 && buttonId < TileSentry.MAX_GUI_TABS && buttonId != gui_id)
         {
             host.sendPacketToServer(new PacketOpenGUI(host, buttonId));
         }
-        else if (id == GUI_PERMISSION)
+        else if (gui_id == GUI_PERMISSION)
         {
             if (buttonId == BUTTON_SAVE)
             {
@@ -219,11 +220,11 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_SET_PROFILE_ID, value != null ? value : ""));
             }
         }
-        else if (id == GUI_MAIN)
+        else if (gui_id == GUI_MAIN)
         {
 
         }
-        else if (id == GUI_TARGET)
+        else if (gui_id == GUI_TARGET)
         {
             //Scroll up button
             if (buttonId == 12)
@@ -321,7 +322,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         }
 
         //Target setting GUI
-        if (id == GUI_TARGET)
+        if (gui_id == GUI_TARGET)
         {
             //TODO add background behind scroll area
             //TODO add scroll bar
@@ -389,7 +390,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
         //Main GUI
-        if (id == GUI_MAIN)
+        if (gui_id == GUI_MAIN)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.ammo.bay"), 7, 4);
             if (host.getEnergyBufferSize() > 0)
@@ -408,7 +409,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             drawString(LanguageUtility.getLocal("sentry.gui.inventory"), 7, 74);
         }
         //Target Settings GUI
-        else if (id == GUI_TARGET)
+        else if (gui_id == GUI_TARGET)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.targeting"), 7, 4);
 
@@ -422,19 +423,29 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             }
         }
         //Permission GUI
-        else if (id == GUI_PERMISSION)
+        else if (gui_id == GUI_PERMISSION)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.permissions"), 7, 4);
+
+            String string = LanguageUtility.getLocal("sentry.gui.permissions.tip");
+            String[] split = string.split(";");
+
+            int y = 42;
+            for (String s : split)
+            {
+                drawString(s, 9, y);
+                y += 10;
+            }
         }
         //Upgrades GUI
-        else if (id == GUI_UPGRADE)
+        else if (gui_id == GUI_UPGRADE)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.upgrades"), 7, 4);
 
             drawString(LanguageUtility.getLocal("Not currently Implemented"), 7, 20, Color.RED.getRGB());
         }
         //Settings GUI
-        else if (id == GUI_SETTINGS)
+        else if (gui_id == GUI_SETTINGS)
         {
             drawString(LanguageUtility.getLocal("sentry.gui.settings"), 7, 4);
 

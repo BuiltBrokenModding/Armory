@@ -41,6 +41,8 @@ sentry.gui.tooltip.target.hostile=Target Hostile
 sentry.gui.tooltip.target.neutral=Target Neutral
 sentry.gui.tooltip.target.none=Target None
 
+sentry.gui.permissions.tip=Insert profile ID into box;IDs are in Access GUI;esc then ctrl + ` to open GUI
+
 meleeWeapon.armory:sword.instant.name=Test Sword
 meleeWeapon.armory:sword.name=Test Sword
 meleeWeapon.armory:ax.name=Test Ax

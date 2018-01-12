@@ -76,6 +76,10 @@ public class EntityTargetSelector implements IEntitySelector
                     {
                         return true;
                     }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
 

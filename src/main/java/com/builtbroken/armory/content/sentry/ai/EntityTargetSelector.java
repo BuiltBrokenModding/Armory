@@ -89,11 +89,8 @@ public class EntityTargetSelector implements IEntitySelector
                         }
                         return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
                 }
+                return false;
             }
 
             List<String> keys = new ArrayList();

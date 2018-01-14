@@ -64,7 +64,7 @@ public class EntityTargetSelector implements IEntitySelector
                 if (profile != null)
                 {
                     boolean hostile = profile.hasNode(player, Permissions.targetHostile.toString());
-                    boolean containsUser = !profile.containsUser(player);
+                    boolean containsUser = profile.containsUser(player);
                     if (mode == TargetMode.HOSTILE && hostile)
                     {
                         if(Engine.runningAsDev)

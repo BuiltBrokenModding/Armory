@@ -128,8 +128,9 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 break;
             case GUI_PERMISSION:
                 permissionWindowButton.disable();
-                accessProfileField = newField(x + 10, y + 20, 100, host.getSentry().profileID);
+                accessProfileField = newField(x + 10, y + 20, 100, "");
                 accessProfileField.setMaxStringLength(200);
+                accessProfileField.setText(host.getSentry().profileID);
                 addButton(GuiImageButton.newSaveButton(BUTTON_SAVE, x + 115, y + 21));
                 break;
             case GUI_UPGRADE:

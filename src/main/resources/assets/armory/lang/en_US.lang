@@ -46,7 +46,7 @@ sentry.gui.tooltip.target.none=Target None
 sentry.gui.tooltip.button.save=Save
 sentry.gui.tooltip.button.help=Help
 sentry.gui.tooltip.button.profile=Profile Settings
-sentry.gui.tooltip.status.light=Profile Status,Green = Loaded,Red = Missing
+sentry.gui.tooltip.status.light=Profile Status;Green = Loaded;Red = Missing
 
 meleeWeapon.armory:sword.instant.name=Test Sword
 meleeWeapon.armory:sword.name=Test Sword

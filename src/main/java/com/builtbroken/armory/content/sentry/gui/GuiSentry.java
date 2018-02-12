@@ -13,6 +13,7 @@ import com.builtbroken.mc.prefab.gui.GuiContainerBase;
 import com.builtbroken.mc.prefab.gui.buttons.GuiButton9px;
 import com.builtbroken.mc.prefab.gui.buttons.GuiButtonCheck;
 import com.builtbroken.mc.prefab.gui.buttons.GuiImageButton;
+import com.builtbroken.mc.seven.ModLoader;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.entity.player.EntityPlayer;
@@ -258,6 +259,15 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             {
                 String value = accessProfileField.getText();
                 host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_SET_PROFILE_ID, value != null ? value : ""));
+            }
+            else if(buttonId == BUTTON_ACCESS_PROFILE_HELP)
+            {
+
+            }
+            else if(buttonId == BUTTON_ACCESS_PROFILE)
+            {
+                onGuiClosed();
+                ModLoader.proxy.openPermissionGUI(host.getSentry().profileID);
             }
         }
         else if (gui_id == GUI_MAIN)

@@ -58,8 +58,9 @@ public class ContainerSentry extends ContainerBase
                     }
                 }
             }
-            //Player inventory
-            addPlayerInventory(player);
         }
+
+        //Player inventory
+        addPlayerInventory(player);
     }
 }

@@ -41,24 +41,33 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     public static final int BUTTON_OFF = 11;
     public static final int BUTTON_SAVE = 12;
 
+    public static final int BUTTON_ACCESS_PROFILE_HELP = 13;
+    public static final int BUTTON_ACCESS_PROFILE= 14;
+
     private final int gui_id;
 
+    //Menu Tabs
     private GuiImageButton mainWindowButton;
     private GuiImageButton targetWindowButton;
     private GuiImageButton permissionWindowButton;
     private GuiImageButton upgradeWindowButton;
     private GuiImageButton settingsWindowButton;
 
+    //Power buttons
     private GuiButton2 onButton;
     private GuiButton2 offButton;
 
+    //scroll buttons for targeting tab
     private GuiButton2 scrollUpButton;
     private GuiButton2 scrollDownButton;
 
     private int scrollTargetList = 0;
     private GuiButtonCheck[][] targetListButtons;
 
+    //components for access tab
     private GuiTextField accessProfileField;
+    private GuiButton9px accessProfileHelpButton;
+    private GuiButton9px accessProfileButton;
 
     public GuiSentry(EntityPlayer player, TileSentry sentry, int gui_id)
     {
@@ -72,6 +81,8 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         super.initGui();
         int x = guiLeft - 18;
         int y = guiTop + 10;
+        int tx;
+        int ty;
 
         //Menu Tabs
         mainWindowButton = addButton(GuiImageButton.newButton18(GUI_MAIN, x, y, 0, 0).setTexture(GUI_BUTTONS));
@@ -96,8 +107,8 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             case GUI_TARGET:
                 targetWindowButton.disable();
                 //Target list
-                int tx = 114;
-                int ty = 17;
+                tx = 114;
+                ty = 17;
                 x = guiLeft + tx;
                 y = guiTop + ty;
                 int rows = Math.min(6, host.getSentry().getSentryData().getAllowedTargetTypes().length);
@@ -128,10 +139,37 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 break;
             case GUI_PERMISSION:
                 permissionWindowButton.disable();
-                accessProfileField = newField(x + 10, y + 20, 100, "");
+
+                //Profile id field
+                accessProfileField = newField(x + 10, y + 30, 140, "");
                 accessProfileField.setMaxStringLength(200);
                 accessProfileField.setText(host.getSentry().profileID);
-                addButton(GuiImageButton.newSaveButton(BUTTON_SAVE, x + 115, y + 21));
+
+                //Save button
+                x = guiLeft + xSize - 23;
+                y = guiTop + 31;
+                addButton(GuiImageButton.newSaveButton(BUTTON_SAVE, x, y));
+
+                tx = xSize - 23;
+                ty = 31;
+                addToolTip(new Rectangle(tx, ty, tx + 18, ty + 18), "sentry.gui.tooltip.button.save", true);
+
+                //Config and help buttons
+                x = guiLeft + xSize - 14;
+                y = guiTop + 5;
+                accessProfileButton = addButton(GuiButton9px.newGearButton(BUTTON_ACCESS_PROFILE, x - 10, y));
+                accessProfileHelpButton = addButton(GuiButton9px.newQuestionButton(BUTTON_ACCESS_PROFILE_HELP, x, y));
+
+                tx = xSize - 14;
+                ty = 5;
+                addToolTip(new Rectangle(tx, ty, tx + 9, ty + 9), "sentry.gui.tooltip.button.help", true);
+                tx -= 10;
+                addToolTip(new Rectangle(tx, ty, tx + 9, ty + 9), "sentry.gui.tooltip.button.profile", true);
+
+                tx = 4;
+                ty = 29;
+                addToolTip(new Rectangle(tx, ty, tx + 5, ty + 5), "sentry.gui.tooltip.status.light", true);
+
                 break;
             case GUI_UPGRADE:
                 upgradeWindowButton.disable();
@@ -427,19 +465,14 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         //Permission GUI
         else if (gui_id == GUI_PERMISSION)
         {
-            drawString(LanguageUtility.getLocal("sentry.gui.permissions"), 7, 4);
+            drawString(LanguageUtility.getLocal("sentry.gui.permissions"), 6, 4);
 
-            drawStringCentered((host.getSentry().profileGood ? "<->" : "<>"), 150, 25);
+            drawString(LanguageUtility.getLocal("sentry.gui.permissions.field.id"), 8, 18);
 
-            String string = LanguageUtility.getLocal("sentry.gui.permissions.tip");
-            String[] split = string.split(";");
-
-            int y = 42;
-            for (String s : split)
-            {
-                drawString(s, 9, y);
-                y += 10;
-            }
+            int x = 5;
+            int y = 30;
+            drawRect(x - 1, y - 1, x + 5, y + 5, Color.GRAY.getRGB());
+            drawRect(x, y, x + 3, y + 3, host.getSentry().profileGood ? Color.GREEN.getRGB() : Color.RED.getRGB());
         }
         //Upgrades GUI
         else if (gui_id == GUI_UPGRADE)

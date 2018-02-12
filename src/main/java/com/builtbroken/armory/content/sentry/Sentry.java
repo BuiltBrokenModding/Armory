@@ -115,7 +115,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     /** Cached fof station tile */
     public IFoFProvider fofStation;
 
-    public String profileID = "";
+    public String profileID = GlobalAccessSystem.FRIENDS_LIST_ID;
     public boolean profileGood = false;
 
     public EntityTargetSelector targetSelector;
@@ -134,7 +134,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     {
         if (!oldWorld().isRemote)
         {
-            profileGood  = getAccessProfile() != null;
+            profileGood = getAccessProfile() != null;
 
             if (ticks == 1)
             {
@@ -711,7 +711,15 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     @Override
     public AccessProfile getAccessProfile()
     {
-        return GlobalAccessSystem.getProfile(profileID);
+        if (host != null)
+        {
+            if (profileID.equalsIgnoreCase(GlobalAccessSystem.FRIENDS_LIST_ID))
+            {
+                return GlobalAccessSystem.getFriendList(host.getOwnerName(), host.getOwnerID());
+            }
+            return GlobalAccessSystem.getProfile(profileID);
+        }
+        return null;
     }
 
     @Override

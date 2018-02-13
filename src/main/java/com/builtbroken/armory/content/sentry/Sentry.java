@@ -24,6 +24,7 @@ import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.framework.access.AccessProfile;
 import com.builtbroken.mc.framework.access.api.IProfileContainer;
+import com.builtbroken.mc.framework.access.global.GlobalAccessProfile;
 import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
 import com.builtbroken.mc.framework.access.perm.Permissions;
 import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
@@ -121,6 +122,9 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     public EntityTargetSelector targetSelector;
 
     public final HashMap<String, TargetMode> targetModes = new HashMap();
+
+    /** Client side field to bypass special handling from the main field */
+    public String actualProfileID;
 
     public Sentry(SentryData sentryData)
     {
@@ -611,6 +615,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         aim.readBytes(buf);
         status = ByteBufUtils.readUTF8String(buf);
         profileID = ByteBufUtils.readUTF8String(buf);
+        actualProfileID = ByteBufUtils.readUTF8String(buf);
         profileGood = buf.readBoolean();
 
         //Load gun data
@@ -630,6 +635,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         aim.writeBytes(buf);
         ByteBufUtils.writeUTF8String(buf, status != null ? status : "");
         ByteBufUtils.writeUTF8String(buf, profileID != null ? profileID : "");
+        ByteBufUtils.writeUTF8String(buf, getAccessProfile() != null ? getAccessProfile().getID() : "");
         buf.writeBoolean(profileGood);
 
         //Save gun data
@@ -709,7 +715,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     }
 
     @Override
-    public AccessProfile getAccessProfile()
+    public GlobalAccessProfile getAccessProfile()
     {
         if (host != null)
         {

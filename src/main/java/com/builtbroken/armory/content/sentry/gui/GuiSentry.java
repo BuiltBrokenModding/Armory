@@ -6,6 +6,7 @@ import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.core.network.packet.PacketTile;
 import com.builtbroken.mc.core.network.packet.callback.PacketOpenGUI;
+import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
 import com.builtbroken.mc.imp.transform.region.Rectangle;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.prefab.gui.GuiButton2;
@@ -43,7 +44,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     public static final int BUTTON_SAVE = 12;
 
     public static final int BUTTON_ACCESS_PROFILE_HELP = 13;
-    public static final int BUTTON_ACCESS_PROFILE= 14;
+    public static final int BUTTON_ACCESS_PROFILE = 14;
 
     private final int gui_id;
 
@@ -260,14 +261,14 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 String value = accessProfileField.getText();
                 host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_SET_PROFILE_ID, value != null ? value : ""));
             }
-            else if(buttonId == BUTTON_ACCESS_PROFILE_HELP)
+            else if (buttonId == BUTTON_ACCESS_PROFILE_HELP)
             {
 
             }
-            else if(buttonId == BUTTON_ACCESS_PROFILE)
+            else if (buttonId == BUTTON_ACCESS_PROFILE)
             {
                 onGuiClosed();
-                ModLoader.proxy.openPermissionGUI(host.getSentry().profileID);
+                ModLoader.proxy.openPermissionGUI(host.getSentry().actualProfileID);
             }
         }
         else if (gui_id == GUI_MAIN)

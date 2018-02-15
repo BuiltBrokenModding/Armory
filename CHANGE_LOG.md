@@ -4,6 +4,23 @@ This log contains changes made to the project. Each entry contains changed made 
 If this is a problem, use exact build numbers to track changes. As each build logs the git-hash it was created from to better understand changes made.
 
 # Versions
+# 0.7.7 - 2/15/2018
+### Runtime Changes
+Added: Global Access System Support for sentries
+Added: GUI to manage access system
+Added: Indicator if profile is loaded
+Added: Profile quick access button - opens global access GUI with the current profile for the sentry
+Added: Help button - opens Guide book
+Added: @Optional support for RF power (still a WIP)
+Added: Default friends_list for any placed sentry (sentry will default to a user's friend list)
+Fixed: Permission checks
+Fixed: Friend or Foe checks
+Fixed: Missing inventories on sentry tabs
+Fixed: Sentry shooting owner
+
+### Develoment Changes
+Sentries now have global access systems
+
 # 0.7.6 - 12/24/2017
 ### Runtime Changes
 Added: chat command to give filled ammo clips

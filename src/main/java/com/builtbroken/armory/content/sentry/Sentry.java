@@ -651,7 +651,6 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         return host instanceof IEnergyBufferProvider ? ((IEnergyBufferProvider) host).getEnergyBuffer(side) : null;
     }
 
-
     public IFoFProvider getFoFStation()
     {
         if ((fofStation == null || fofStation instanceof TileEntity && ((TileEntity) fofStation).isInvalid()) && fofStationPos != null)

@@ -6,7 +6,6 @@ import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.core.network.packet.PacketTile;
 import com.builtbroken.mc.core.network.packet.callback.PacketOpenGUI;
-import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
 import com.builtbroken.mc.imp.transform.region.Rectangle;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.prefab.gui.GuiButton2;
@@ -25,6 +24,8 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 
 /**
+ * User interface for the sentry, handles 5 different tabs
+ *
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/9/2017.
  */
@@ -263,7 +264,8 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             }
             else if (buttonId == BUTTON_ACCESS_PROFILE_HELP)
             {
-
+                onGuiClosed();
+                ModLoader.proxy.openHelpGUI("sentry.profile");
             }
             else if (buttonId == BUTTON_ACCESS_PROFILE)
             {

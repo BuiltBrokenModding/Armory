@@ -79,7 +79,7 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
             toolDamage = data.getDamageTakenBreakingBlocks();
         }
 
-        if ((double) block.getBlockHardness(world, x, y, z) != 0.0D)
+        if ((double) block.getBlockHardness(world, x, y, z) > 0)
         {
             damageItem(tool, toolDamage, entity);
         }
@@ -173,7 +173,7 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
         //Update stack
         setToolDamage(tool, damage);
         //return true if damage is zero
-        return currentDamage >= getMaxDamage(tool);
+        return currentDamage >= getToolDamageLimit(tool);
     }
 
     protected int getToolDamageLimit(ItemStack tool)
@@ -183,7 +183,7 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
         {
             return data.getToolDamageLimit();
         }
-        return 0;
+        return Integer.MAX_VALUE;
     }
 
     /**

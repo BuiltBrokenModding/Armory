@@ -101,6 +101,7 @@ public final class Armory extends AbstractMod
     @Override
     public void loadJsonContentHandlers()
     {
+        super.loadJsonContentHandlers();
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.GUN_ID));
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.AMMO_ID));
         ArmoryDataHandler.INSTANCE.add(new ArmoryDataHandler.ArmoryData(References.BBM_CONFIG_FOLDER, ArmoryAPI.AMMO_TYPE_ID));

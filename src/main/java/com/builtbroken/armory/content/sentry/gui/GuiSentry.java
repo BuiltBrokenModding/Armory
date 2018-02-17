@@ -6,6 +6,7 @@ import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.core.network.packet.PacketTile;
 import com.builtbroken.mc.core.network.packet.callback.PacketOpenGUI;
+import com.builtbroken.mc.framework.guide.GuideEntry;
 import com.builtbroken.mc.imp.transform.region.Rectangle;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.prefab.gui.GuiButton2;
@@ -31,6 +32,9 @@ import java.awt.*;
  */
 public class GuiSentry extends GuiContainerBase<TileSentry>
 {
+    public static final GuideEntry SENTRY_PROFILE_PAGE = new GuideEntry(Armory.DOMAIN, "sentry", "gui", "profile");
+    public static final GuideEntry SENTRY_TARGET_PAGE = new GuideEntry(Armory.DOMAIN, "sentry", "gui", "target");
+
     public static final ResourceLocation GUI_BUTTONS = new ResourceLocation(Armory.DOMAIN, "textures/gui/gui.buttons.32pix.png");
     public static final int TARGET_LIST_SPACE_Y = 10;
 
@@ -265,7 +269,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             else if (buttonId == BUTTON_ACCESS_PROFILE_HELP)
             {
                 onGuiClosed();
-                ModLoader.proxy.openHelpGUI("sentry.profile");
+                ModLoader.proxy.openHelpGUI(SENTRY_PROFILE_PAGE);
             }
             else if (buttonId == BUTTON_ACCESS_PROFILE)
             {

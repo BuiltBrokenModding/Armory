@@ -95,16 +95,16 @@ public class MeleeToolData extends WeaponData
         if (block != null)
         {
             //Check block
-            if (blockToBreakSpeed.containsKey(block))
+            if (getBlockToBreakSpeed().containsKey(block))
             {
-                return blockToBreakSpeed.get(block);
+                return getBlockToBreakSpeed().get(block);
             }
 
             //Check against material
             Material material = block.getMaterial();
-            if (materialToBreakSpeed.containsKey(material))
+            if (getMaterialToBreakSpeed().containsKey(material))
             {
-                return materialToBreakSpeed.get(material);
+                return getMaterialToBreakSpeed().get(material);
             }
             //TODO add property and ore name checks
         }
@@ -136,7 +136,7 @@ public class MeleeToolData extends WeaponData
     {
         if (block != null)
         {
-            this.blockToBreakSpeed.put(block, speed);
+            this.getBlockToBreakSpeed().put(block, speed);
         }
     }
 
@@ -144,8 +144,20 @@ public class MeleeToolData extends WeaponData
     {
         if (material != null)
         {
-            this.materialToBreakSpeed.put(material, speed);
+            this.getMaterialToBreakSpeed().put(material, speed);
         }
+    }
+
+    /** Breakable blocks to speed */
+    public HashMap<Block, Float> getBlockToBreakSpeed()
+    {
+        return blockToBreakSpeed;
+    }
+
+    /** Breakable materials to speed */
+    public HashMap<Material, Float> getMaterialToBreakSpeed()
+    {
+        return materialToBreakSpeed;
     }
 
     @Override
@@ -176,5 +188,4 @@ public class MeleeToolData extends WeaponData
     {
         return blockBreakDamage;
     }
-
 }

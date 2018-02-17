@@ -3,6 +3,9 @@ package com.builtbroken.armory.content.items;
 import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.data.meele.MeleeToolData;
+import com.builtbroken.jlib.data.Colors;
+import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.lib.helper.MaterialDict;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -13,6 +16,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -31,6 +36,36 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
     {
         super("armoryMeleeTool", ArmoryAPI.MELEE_TOOL_ID, ArmoryAPI.MELEE_TOOL_ID);
         this.maxStackSize = 1;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack tool, EntityPlayer player, List list, boolean b)
+    {
+        try
+        {
+            super.addInformation(tool, player, list, b);
+            if (Engine.runningAsDev && Engine.isShiftHeld())
+            {
+                MeleeToolData data = getData(tool);
+                if (data != null)
+                {
+                    list.add("Harvesting Data:");
+                    list.add("--Blocks:");
+                    data.getBlockToBreakSpeed().forEach((k, v) -> list.add("----" + k + " > " + v));
+                    list.add("--Materials:");
+                    data.getMaterialToBreakSpeed().forEach((k, v) -> list.add("----" + MaterialDict.getName(k) + " > " + v));
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            list.add(Colors.RED.code + "Error: " + e);
+            if (Engine.runningAsDev)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
     //Break speed of block
@@ -89,6 +124,7 @@ public class ItemTool<T extends MeleeToolData> extends ItemMetaArmoryEntry<T>
 
     /**
      * Checks if the item can take damage
+     *
      * @param tool
      * @return
      */

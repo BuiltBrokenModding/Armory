@@ -6,6 +6,8 @@ import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.core.network.packet.PacketTile;
 import com.builtbroken.mc.core.network.packet.callback.PacketOpenGUI;
+import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
+import com.builtbroken.mc.framework.guide.GuideBookModule;
 import com.builtbroken.mc.framework.guide.GuideEntry;
 import com.builtbroken.mc.imp.transform.region.Rectangle;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
@@ -14,7 +16,6 @@ import com.builtbroken.mc.prefab.gui.GuiContainerBase;
 import com.builtbroken.mc.prefab.gui.buttons.GuiButton9px;
 import com.builtbroken.mc.prefab.gui.buttons.GuiButtonCheck;
 import com.builtbroken.mc.prefab.gui.buttons.GuiImageButton;
-import com.builtbroken.mc.seven.ModLoader;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.entity.player.EntityPlayer;
@@ -269,12 +270,12 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             else if (buttonId == BUTTON_ACCESS_PROFILE_HELP)
             {
                 onGuiClosed();
-                ModLoader.proxy.openHelpGUI(SENTRY_PROFILE_PAGE);
+                GuideBookModule.openGUI(SENTRY_PROFILE_PAGE);
             }
             else if (buttonId == BUTTON_ACCESS_PROFILE)
             {
                 onGuiClosed();
-                ModLoader.proxy.openPermissionGUI(host.getSentry().actualProfileID);
+                GlobalAccessSystem.openGUI(host.getSentry().actualProfileID);
             }
         }
         else if (gui_id == GUI_MAIN)

@@ -66,6 +66,7 @@ public class ItemGun extends ItemMetaArmoryEntry<GunData> implements IMouseButto
     public ItemGun()
     {
         super("armoryGun", ArmoryAPI.GUN_ID, ArmoryAPI.GUN_ID);
+        setMaxStackSize(1);
         if (!Engine.isJUnitTest())
         {
             FMLCommonHandler.instance().bus().register(this);

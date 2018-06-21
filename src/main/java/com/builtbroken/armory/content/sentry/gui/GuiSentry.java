@@ -257,8 +257,10 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
 
 
                             dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.data.header"));
-                            dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.fire.rate").replace("[d]", "" + weaponData.getRateOfFire()));
-                            dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.reload.time").replace("[d]", "" + weaponData.getReloadTime()));
+                            dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.fire.rate")
+                                    .replace("[d]", (weaponData.getRateOfFire() > 0 ? "" + weaponData.getRateOfFire() : "constant")));
+                            dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.reload.time")
+                                    .replace("[d]", weaponData.getReloadTime() > 0 ? "" + weaponData.getReloadTime() : "N/A"));
                             dataDisplayList.add("");
                         }
                     }

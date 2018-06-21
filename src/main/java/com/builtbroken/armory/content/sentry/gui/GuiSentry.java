@@ -4,7 +4,10 @@ import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.armory.content.sentry.TargetMode;
 import com.builtbroken.armory.content.sentry.tile.TileSentry;
+import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.sentry.SentryData;
+import com.builtbroken.mc.api.data.weapon.IAmmoData;
+import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.core.network.packet.PacketTile;
 import com.builtbroken.mc.core.network.packet.callback.PacketOpenGUI;
@@ -56,6 +59,9 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
 
     public static final int BUTTON_ACCESS_PROFILE_HELP = 13;
     public static final int BUTTON_ACCESS_PROFILE = 14;
+
+    public static final int SCROLL_UP = 15;
+    public static final int SCROLL_DOWN = 16;
 
     private final int gui_id;
 
@@ -149,10 +155,10 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 //Add scroll bar buttons
                 x = guiLeft + 161;
                 y = guiTop + 14;
-                scrollUpButton = (GuiButton2) add(GuiButton9px.newUpButton(12, x, y).disable()); //Up is disabled by default
+                scrollUpButton = (GuiButton2) add(GuiButton9px.newUpButton(SCROLL_UP, x, y).disable()); //Up is disabled by default
 
                 y = guiTop + 69;
-                scrollDownButton = (GuiButton2) add(GuiButton9px.newDownButton(13, x, y).setEnabled(host.getSentry().getSentryData().getAllowedTargetTypes().length > 6)); //Down is disabled if not enough entries
+                scrollDownButton = (GuiButton2) add(GuiButton9px.newDownButton(SCROLL_DOWN, x, y).setEnabled(host.getSentry().getSentryData().getAllowedTargetTypes().length > 6)); //Down is disabled if not enough entries
                 break;
             case GUI_PERMISSION:
                 permissionWindowButton.disable();
@@ -214,7 +220,38 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                         dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.target.loss.delay").replace("[d]", "" + sentryData.getTargetLossTimer()));
                         dataDisplayList.add("");
 
-                        dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.energy.header"));
+                        if (sentryData.getEnergyBuffer() > 0 && sentryData.getEnergyCost() > 0)
+                        {
+                            dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.energy.header"));
+                            dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.energy.cost").replace("[d]", "" + sentryData.getEnergyCost()));
+                            dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.energy.buffer").replace("[d]", "" + sentryData.getEnergyBuffer()));
+                        }
+
+                        GunData weaponData = sentryData.getGunData();
+                        if (weaponData != null)
+                        {
+                            IAmmoType ammoType = weaponData.getAmmoType();
+                            IAmmoData setAmmo = weaponData.getOverrideAmmo();
+                            if (weaponData.getChargeData() != null || weaponData.getBufferData() != null)
+                            {
+                                dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.header"));
+                                if(setAmmo != null && setAmmo.getEnergyCost() > 0)
+                                {
+                                    dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.cost").replace("[d]", "" + setAmmo.getEnergyCost()));
+                                }
+
+                                if(weaponData.getChargeData() != null)
+                                {
+                                    dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.limit.input").replace("[d]", "" + weaponData.getChargeData().getInputEnergyLimit()));
+                                    dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.limit.output").replace("[d]", "" + weaponData.getChargeData().getOutputEnergyLimit()));
+                                }
+
+                                if(weaponData.getBufferData() != null)
+                                {
+                                    dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.buffer").replace("[d]", "" + weaponData.getBufferData().getEnergyCapacity()));
+                                }
+                            }
+                        }
                     }
                     else
                     {
@@ -225,6 +262,15 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 {
                     dataDisplayList.add(LanguageUtility.getLocal("sentry.gui.info.sentry.missing"));
                 }
+
+                //Add scroll bar buttons
+                x = guiLeft + 161;
+                y = guiTop + 14;
+                scrollUpButton = (GuiButton2) add(GuiButton9px.newUpButton(SCROLL_UP, x, y).disable()); //Up is disabled by default
+
+                y = guiTop + 69;
+                scrollDownButton = (GuiButton2) add(GuiButton9px.newDownButton(SCROLL_DOWN, x, y).setEnabled(host.getSentry().getSentryData().getAllowedTargetTypes().length > 6)); //Down is disabled if not enough entries
+                break;
         }
     }
 
@@ -322,7 +368,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         else if (gui_id == GUI_TARGET)
         {
             //Scroll up button
-            if (buttonId == 12)
+            if (buttonId == SCROLL_UP)
             {
                 if (scrollTargetList > 0)
                 {
@@ -339,7 +385,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 }
             }
             //Scroll down button
-            else if (buttonId == 13)
+            else if (buttonId == SCROLL_DOWN)
             {
                 int maxScroll = host.getSentry().getSentryData().getAllowedTargetTypes().length - 6;
                 if (scrollTargetList < maxScroll)
@@ -399,6 +445,44 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 {
                     PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.ALL.ordinal());
                     host.sendPacketToServer(packetTile);
+                }
+            }
+        }
+        else if (gui_id == GUI_DATA)
+        {
+            //Scroll up button
+            if (buttonId == SCROLL_UP)
+            {
+                if (scrollTargetList > 0)
+                {
+                    scrollTargetList--;
+                    scrollDownButton.enable();
+                    if (scrollTargetList == 0)
+                    {
+                        scrollUpButton.disable();
+                    }
+                }
+                else
+                {
+                    scrollUpButton.disable();
+                }
+            }
+            //Scroll down button
+            else if (buttonId == SCROLL_DOWN)
+            {
+                int maxScroll = dataDisplayList.size() - 6;
+                if (scrollTargetList < maxScroll)
+                {
+                    scrollTargetList++;
+                    scrollUpButton.enable();
+                    if (scrollTargetList == maxScroll)
+                    {
+                        scrollDownButton.disable();
+                    }
+                }
+                else
+                {
+                    scrollDownButton.disable();
                 }
             }
         }
@@ -542,6 +626,15 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             drawString(LanguageUtility.getLocal("sentry.gui.settings"), 7, 4);
 
             drawString(LanguageUtility.getLocal("Not currently Implemented"), 7, 20, Color.RED.getRGB());
+        }
+        else if (gui_id == GUI_DATA)
+        {
+            int index = scrollTargetList;
+            for (int i = 0; i < 6 && index < dataDisplayList.size(); i++)
+            {
+                drawString(dataDisplayList.get(index), 9, 20 + 10 * i);
+                index++;
+            }
         }
     }
 }

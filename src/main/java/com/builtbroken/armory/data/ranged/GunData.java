@@ -24,7 +24,6 @@ public class GunData extends RangeWeaponData implements IGunData
 
     public final String gunType;
 
-
     private IAmmoData overrideAmmo;
 
     /** Does the weapon need to be sighted in order to be fired */

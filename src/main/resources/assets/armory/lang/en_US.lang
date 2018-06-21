@@ -67,14 +67,14 @@ sentry.gui.info.data.missing=Sentry data is missing
 sentry.gui.info.sentry.missing=Sentry instance is missing
 
 ## Sentry Targeting data
-info.data.sentry.target.header=Targeting:
+info.data.sentry.target.header=AI Targeting:
 info.data.sentry.range.target=Targeting Range: [d] meters
 info.data.sentry.target.delay=Targeting Delay: [d] ticks
 info.data.sentry.target.attack.delay=Attack Delay: [d] ticks
 info.data.sentry.target.loss.delay=Target Loss Timer: [d] ticks
 
 ## Sentry energy data
-info.data.sentry.energy.header=Energy:
+info.data.sentry.energy.header=Sentry Energy:
 info.data.sentry.energy.cost=Usage: [d] joules
 info.data.sentry.energy.buffer=Storage: [d] joules
 
@@ -86,6 +86,7 @@ info.data.gun.reload.type=Reload Type: [s]
 info.data.gun.fire.rate=Fire Rate: [d] per minute
 info.data.gun.reload.time=Reload: [d] ticks
 
+info.data.gun.energy.header=Weapon Energy:
 info.data.gun.energy.cost=Energy Cost: -[d] joules
 info.data.gun.energy.buffer=Energy Storage: -[d] joules
 info.data.gun.energy.limit.input=Energy Input: [d] joules

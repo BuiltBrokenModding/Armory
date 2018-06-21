@@ -50,7 +50,7 @@ import java.util.Map;
 @Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "CoFHCore")
 public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler, IEMReceptiveDevice, ILinkFeedback, ILinkable, IPassCode
 {
-    public static final int MAX_GUI_TABS = 5;
+    public static final int MAX_GUI_TABS = 6;
     public static final int PACKET_GUI_DATA = 1;
     public static final int PACKET_SENTRY = 2;
     public static final int PACKET_POWER = 3;

@@ -220,6 +220,11 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                         dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.target.loss.delay").replace("[d]", "" + sentryData.getTargetLossTimer()));
                         dataDisplayList.add("");
 
+                        if(sentryData.getMaxHealth() > 0)
+                        {
+                            dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.health").replace("[d]", "" + sentryData.getMaxHealth()));
+                        }
+
                         if (sentryData.getEnergyBuffer() > 0 && sentryData.getEnergyCost() > 0)
                         {
                             dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.energy.header"));
@@ -625,7 +630,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 String translation = String.format(LanguageUtility.getLocal("sentry.gui.ammo"), host.getSentry().gunInstance._clip.getAmmoCount(), host.getSentry().gunInstance._clip.getMaxAmmo());
                 drawString(translation, 7, 52);
             }
-            else
+            else if(host.getSentry().gunInstance.overrideRound == null)
             {
                 drawString(LanguageUtility.getLocal("sentry.gui.ammo.empty"), 7, 52);
             }

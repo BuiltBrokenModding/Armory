@@ -26,7 +26,7 @@ sentry.gui.ammo.empty=No ammo loaded
 sentry.gui.node.bay=Batteries
 sentry.gui.inventory=Inventory
 
-sentry.gui.ammo.bay
+sentry.gui.ammo.bay=Ammo Bay
 sentry.gui.battery.bay=Batteries
 
 ## Sentry GUI tab names
@@ -65,6 +65,8 @@ sentry.gui.tooltip.status.light=Profile Status;Green = Loaded;Red = Missing
 ## Sentry GUI data
 sentry.gui.info.data.missing=Sentry data is missing
 sentry.gui.info.sentry.missing=Sentry instance is missing
+
+info.data.sentry.health=Hit Points: [d]
 
 ## Sentry Targeting data
 info.data.sentry.target.header=AI Targeting:

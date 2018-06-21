@@ -1,32 +1,44 @@
 ## Master language file
 itemGroup.armory=Armory
 
+## Blocks
+tile.armory:sentry.name=Sentry Gun
+
+## Ammo Types
 ammoType.armory:20x100mm.name=20x100mm Ammo
 ammoType.armory:9mm.name=9mm Ammo
 
+## Clip Entries
 clip.armory:20x100mm.box.name=20x100mm 240 Ammo Box
 clip.armory:20x100mm.20.mag.name=20x100mm 20 Box Clip
 clip.armory:9mm.clip.15.name=15 round 9mm clip
 clip.armory:9mm.clip.30.name=30 round 9mm clip
 
+## Ammo Entries
 ammo.armory:20x100mm.basic.name=Basic 20x100mm Round
 ammo.armory:9mm.basic.name=Basic 9mm Round
 ammo.armory:9mm.advanced.name=Advanced 9mm Round
 ammo.armory:9mm.elite.name=Elite 9mm Round
 
+## Main GUI display
 sentry.gui.ammo=Ammo: %d / %d
 sentry.gui.ammo.empty=No ammo loaded
 sentry.gui.node.bay=Batteries
 sentry.gui.inventory=Inventory
 
-sentry.gui.ammo.bay=Ammo Bay
+sentry.gui.ammo.bay
+sentry.gui.battery.bay=Batteries
+
+## Sentry GUI tab names
 sentry.gui.targeting=Targeting Settings
 sentry.gui.permissions=Permission Settings
 sentry.gui.upgrades=Upgrades
 sentry.gui.settings=Settings
+sentry.gui.data=System Data
 
 sentry.gui.permissions.field.id=Permission Profile ID
 
+## Sentry GUI buttons tooltips
 sentry.gui.tooltip.power.on=Power On
 sentry.gui.tooltip.power.off=Power Off
 sentry.gui.tooltip.tab.main=Ammo Bay
@@ -36,6 +48,7 @@ sentry.gui.tooltip.tab.upgrades=Upgrades
 sentry.gui.tooltip.tab.settings=Settings
 sentry.gui.tooltip.save=Save
 
+## Sentry GUI access data button tooltips
 sentry.gui.tooltip.target.all=Target All
 sentry.gui.tooltip.target.friendly=Target Friendly
 sentry.gui.tooltip.target.friendly.non=Target Non-Friendly
@@ -43,11 +56,44 @@ sentry.gui.tooltip.target.hostile=Target Hostile
 sentry.gui.tooltip.target.neutral=Target Neutral
 sentry.gui.tooltip.target.none=Target None
 
+## Sentry GUI buttons
 sentry.gui.tooltip.button.save=Save
 sentry.gui.tooltip.button.help=Help
 sentry.gui.tooltip.button.profile=Profile Settings
 sentry.gui.tooltip.status.light=Profile Status;Green = Loaded;Red = Missing
 
+## Sentry GUI data
+sentry.gui.info.data.missing=Sentry data is missing
+sentry.gui.info.sentry.missing=Sentry instance is missing
+
+## Sentry Targeting data
+info.data.sentry.target.header=Targeting:
+info.data.sentry.range.target=Targeting Range: [d] meters
+info.data.sentry.target.delay=Targeting Delay: [d] ticks
+info.data.sentry.target.attack.delay=Attack Delay: [d] ticks
+info.data.sentry.target.loss.delay=Target Loss Timer: [d] ticks
+
+## Sentry energy data
+info.data.sentry.energy.header=Energy:
+info.data.sentry.energy.cost=Usage: [d] joules
+info.data.sentry.energy.buffer=Storage: [d] joules
+
+## Weapon data
+info.data.gun.type=Gun Type: [s]
+info.data.gun.clip=Clip Type: [s]
+info.data.gun.reload.type=Reload Type: [s]
+
+info.data.gun.fire.rate=Fire Rate: [d] per minute
+info.data.gun.reload.time=Reload: [d] ticks
+
+info.data.gun.energy.cost=Energy Cost: -[d] joules
+info.data.gun.energy.buffer=Energy Storage: -[d] joules
+info.data.gun.energy.limit.input=Energy Input: [d] joules
+info.data.gun.energy.limit.output=Energy Output: [d] joules
+
+info.data.gun.damage=Damage: [d]
+
+## Test Weapons
 meleeWeapon.armory:sword.instant.name=Test Sword
 meleeWeapon.armory:sword.name=Test Sword
 meleeWeapon.armory:ax.name=Test Ax

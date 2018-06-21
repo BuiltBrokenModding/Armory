@@ -1,8 +1,10 @@
 package com.builtbroken.armory.content.sentry.gui;
 
 import com.builtbroken.armory.Armory;
+import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.armory.content.sentry.TargetMode;
 import com.builtbroken.armory.content.sentry.tile.TileSentry;
+import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.core.network.packet.PacketTile;
 import com.builtbroken.mc.core.network.packet.callback.PacketOpenGUI;
@@ -24,6 +26,8 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User interface for the sentry, handles 5 different tabs
@@ -44,6 +48,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     public static final int GUI_PERMISSION = 2;
     public static final int GUI_UPGRADE = 3;
     public static final int GUI_SETTINGS = 4;
+    public static final int GUI_DATA = 5;
 
     public static final int BUTTON_ON = 10;
     public static final int BUTTON_OFF = 11;
@@ -60,6 +65,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     private GuiImageButton permissionWindowButton;
     private GuiImageButton upgradeWindowButton;
     private GuiImageButton settingsWindowButton;
+    private GuiImageButton dataWindowButton;
 
     //Power buttons
     private GuiButton2 onButton;
@@ -76,6 +82,9 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     private GuiTextField accessProfileField;
     private GuiButton9px accessProfileHelpButton;
     private GuiButton9px accessProfileButton;
+
+    //components for data tab
+    private List<String> dataDisplayList;
 
     public GuiSentry(EntityPlayer player, TileSentry sentry, int gui_id)
     {
@@ -98,11 +107,11 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         permissionWindowButton = addButton(GuiImageButton.newButton18(GUI_PERMISSION, x, y + 19 * 2, 2, 0).setTexture(GUI_BUTTONS));
         upgradeWindowButton = addButton(GuiImageButton.newButton18(GUI_UPGRADE, x, y + 19 * 3, 7, 0).setTexture(GUI_BUTTONS));
         settingsWindowButton = addButton(GuiImageButton.newButton18(GUI_SETTINGS, x, y + 19 * 4, 5, 0).setTexture(GUI_BUTTONS));
+        dataWindowButton = addButton(GuiImageButton.newButton18(GUI_DATA, x, y + 19 * 5, 5, 0).setTexture(GUI_BUTTONS));
 
         //Power buttons
         onButton = (GuiButton2) add(GuiButton9px.newOnButton(BUTTON_ON, x, y - 10).setEnabled(!host.getSentry().turnedOn));
         offButton = (GuiButton2) add(GuiButton9px.newOffButton(BUTTON_OFF, x + 9, y - 10).setEnabled(host.getSentry().turnedOn));
-
 
         //Per tab components
         x = guiLeft;
@@ -188,6 +197,34 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 settingsWindowButton.disable();
                 addButton(GuiImageButton.newSaveButton(BUTTON_SAVE, x, y));
                 break;
+            case GUI_DATA:
+                dataWindowButton.disable();
+
+                dataDisplayList = new ArrayList();
+                Sentry sentry = host.getSentry();
+                if (sentry != null)
+                {
+                    SentryData sentryData = sentry.getSentryData();
+                    if (sentryData != null)
+                    {
+                        dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.target.header"));
+                        dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.range.target").replace("[d]", "" + sentryData.getRange()));
+                        dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.target.delay").replace("[d]", "" + sentryData.getTargetSearchDelay()));
+                        dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.target.attack.delay").replace("[d]", "" + sentryData.getTargetAttackDelay()));
+                        dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.target.loss.delay").replace("[d]", "" + sentryData.getTargetLossTimer()));
+                        dataDisplayList.add("");
+
+                        dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.energy.header"));
+                    }
+                    else
+                    {
+                        dataDisplayList.add(LanguageUtility.getLocal("sentry.gui.info.data.missing"));
+                    }
+                }
+                else
+                {
+                    dataDisplayList.add(LanguageUtility.getLocal("sentry.gui.info.sentry.missing"));
+                }
         }
     }
 

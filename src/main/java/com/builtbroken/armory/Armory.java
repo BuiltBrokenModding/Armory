@@ -17,6 +17,7 @@ import com.builtbroken.armory.data.ranged.ThrowableData;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.armory.json.damage.DamageJsonProcessor;
 import com.builtbroken.armory.json.processors.*;
+import com.builtbroken.armory.mod.waila.WailaLoader;
 import com.builtbroken.armory.server.commands.CommandClip;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
@@ -25,6 +26,7 @@ import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
 import com.builtbroken.mc.framework.mod.AbstractMod;
 import com.builtbroken.mc.framework.mod.ModCreativeTab;
+import com.builtbroken.mc.framework.mod.Mods;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -127,6 +129,8 @@ public final class Armory extends AbstractMod
     public void preInit(FMLPreInitializationEvent event)
     {
         fixConfig();
+
+        loader.applyModule(WailaLoader.class, Mods.WAILA.isLoaded());
 
         super.preInit(event); //load items
 

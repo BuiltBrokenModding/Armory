@@ -83,16 +83,18 @@ info.data.gun.type=Gun Type: [s]
 info.data.gun.clip=Clip Type: [s]
 info.data.gun.reload.type=Reload Type: [s]
 
-info.data.gun.fire.rate=Fire Rate: [d] per minute
+info.data.gun.data.header=Weapon Data:
+info.data.gun.fire.rate=Fire Rate: [d] rpm
 info.data.gun.reload.time=Reload: [d] ticks
+info.data.gun.damage=Damage: [d]
 
 info.data.gun.energy.header=Weapon Energy:
-info.data.gun.energy.cost=Energy Cost: -[d] joules
-info.data.gun.energy.buffer=Energy Storage: -[d] joules
+info.data.gun.energy.cost=Energy Cost: [d] joules
+info.data.gun.energy.buffer=Energy Storage: [d] joules
 info.data.gun.energy.limit.input=Energy Input: [d] joules
 info.data.gun.energy.limit.output=Energy Output: [d] joules
 
-info.data.gun.damage=Damage: [d]
+
 
 ## Test Weapons
 meleeWeapon.armory:sword.instant.name=Test Sword

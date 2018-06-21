@@ -225,6 +225,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                             dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.energy.header"));
                             dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.energy.cost").replace("[d]", "" + sentryData.getEnergyCost()));
                             dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.energy.buffer").replace("[d]", "" + sentryData.getEnergyBuffer()));
+                            dataDisplayList.add("");
                         }
 
                         GunData weaponData = sentryData.getGunData();
@@ -232,25 +233,33 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                         {
                             IAmmoType ammoType = weaponData.getAmmoType();
                             IAmmoData setAmmo = weaponData.getOverrideAmmo();
-                            if (weaponData.getChargeData() != null || weaponData.getBufferData() != null)
+                            if (weaponData.getChargeData() != null || weaponData.getBufferData() != null || setAmmo != null && setAmmo.getEnergyCost() > 0)
                             {
                                 dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.header"));
-                                if(setAmmo != null && setAmmo.getEnergyCost() > 0)
+                                if (setAmmo != null && setAmmo.getEnergyCost() > 0)
                                 {
                                     dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.cost").replace("[d]", "" + setAmmo.getEnergyCost()));
                                 }
 
-                                if(weaponData.getChargeData() != null)
+                                if (weaponData.getChargeData() != null)
                                 {
                                     dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.limit.input").replace("[d]", "" + weaponData.getChargeData().getInputEnergyLimit()));
                                     dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.limit.output").replace("[d]", "" + weaponData.getChargeData().getOutputEnergyLimit()));
                                 }
 
-                                if(weaponData.getBufferData() != null)
+                                if (weaponData.getBufferData() != null)
                                 {
                                     dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.energy.buffer").replace("[d]", "" + weaponData.getBufferData().getEnergyCapacity()));
                                 }
+
+                                dataDisplayList.add("");
                             }
+
+
+                            dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.data.header"));
+                            dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.fire.rate").replace("[d]", "" + weaponData.getRateOfFire()));
+                            dataDisplayList.add(LanguageUtility.getLocal("info.data.gun.reload.time").replace("[d]", "" + weaponData.getReloadTime()));
+                            dataDisplayList.add("");
                         }
                     }
                     else
@@ -531,37 +540,70 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 }
             }
 
+            drawScroll(host.getSentry().getSentryData().getAllowedTargetTypes().length - 6);
+        }
 
-            //Set texture and reset color
-            this.mc.renderEngine.bindTexture(SharedAssets.GUI_COMPONENTS_BARS);
+        if (gui_id == GUI_DATA)
+        {
+            //TODO add background behind scroll area
+            //TODO add scroll bar
+            this.mc.renderEngine.bindTexture(SharedAssets.GREY_TEXTURE_40pAlpha);
+
+            float c = 100f / 255f;
+            GL11.glColor4f(c, c, c, 1.0F);
+
+            this.drawTexturedModalRect(guiLeft + 5, guiTop + 14, 0, 0, 163, 14 + (5 * TARGET_LIST_SPACE_Y));
+
+            c = 160f / 255f;
+            GL11.glColor4f(c, c, c, 1.0F);
+
+            this.drawTexturedModalRect(guiLeft + 7, guiTop + 17, 0, 0, 152, 9 + (5 * TARGET_LIST_SPACE_Y));
+
             c = 192f / 255f;
             GL11.glColor4f(c, c, c, 1.0F);
 
-            //Position cache
-            final int yStart = 23;
-            final int xStart = xSize - 15;
+            for (int i = 0; i < 6; i++)
+            {
+                if ((i + scrollTargetList) % 2 == 0)
+                {
+                    this.drawTexturedModalRect(guiLeft + 7, guiTop + (17 + (i * TARGET_LIST_SPACE_Y)), 0, 0, 152, 10);
+                }
+            }
 
-            //Size cache
-            final int topHeight = 20;
-            final int bottomHeight = 26;
-            final int totalSize = topHeight + bottomHeight;
-
-            //Render background for scroll bar TODO make reusable
-            drawTexturedModalRect(guiLeft + xStart, guiTop + yStart, 16, 0, 9, topHeight);
-            drawTexturedModalRect(guiLeft + xStart, guiTop + yStart + topHeight, 16, 139 - bottomHeight, 9, bottomHeight);
-
-            //Render scroll bar
-            int maxScroll = host.getSentry().getSentryData().getAllowedTargetTypes().length - 6;
-            float scrollBar = (float) scrollTargetList / (float) maxScroll;
-            float heightP = Math.min(1f, 6f / (float) host.getSentry().getSentryData().getAllowedTargetTypes().length);
-            int height = (int) (heightP * totalSize);
-            int yPos = Math.max((int) (scrollBar * totalSize) - height + yStart, yStart);
-
-            //Set color to red and render texture
-            c = 80f / 255f;
-            GL11.glColor4f(c, c, c, 1.0F);
-            drawTexturedModalRect(guiLeft + xStart, guiTop + yPos, 16, 0, 9, 2 + height);
+            drawScroll(dataDisplayList.size() - 6);
         }
+    }
+
+    private void drawScroll(int maxScroll)
+    {
+        //Set texture and reset color
+        this.mc.renderEngine.bindTexture(SharedAssets.GUI_COMPONENTS_BARS);
+        float c = 192f / 255f;
+        GL11.glColor4f(c, c, c, 1.0F);
+
+        //Position cache
+        final int yStart = 23;
+        final int xStart = xSize - 15;
+
+        //Size cache
+        final int topHeight = 20;
+        final int bottomHeight = 26;
+        final int totalSize = topHeight + bottomHeight;
+
+        //Render background for scroll bar TODO make reusable
+        drawTexturedModalRect(guiLeft + xStart, guiTop + yStart, 16, 0, 9, topHeight);
+        drawTexturedModalRect(guiLeft + xStart, guiTop + yStart + topHeight, 16, 139 - bottomHeight, 9, bottomHeight);
+
+        //Render scroll bar
+        float scrollBar = (float) scrollTargetList / (float) maxScroll;
+        float heightP = Math.min(1f, 6f / (float) host.getSentry().getSentryData().getAllowedTargetTypes().length);
+        int height = (int) (heightP * totalSize);
+        int yPos = Math.max((int) (scrollBar * totalSize) - height + yStart, yStart);
+
+        //Set color to red and render texture
+        c = 80f / 255f;
+        GL11.glColor4f(c, c, c, 1.0F);
+        drawTexturedModalRect(guiLeft + xStart, guiTop + yPos, 16, 0, 9, 2 + height);
     }
 
     @Override
@@ -632,7 +674,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             int index = scrollTargetList;
             for (int i = 0; i < 6 && index < dataDisplayList.size(); i++)
             {
-                drawString(dataDisplayList.get(index), 9, 20 + 10 * i);
+                drawString(dataDisplayList.get(index), 9, 18 + 10 * i);
                 index++;
             }
         }

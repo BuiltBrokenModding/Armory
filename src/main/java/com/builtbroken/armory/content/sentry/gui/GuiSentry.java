@@ -8,6 +8,8 @@ import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
 import com.builtbroken.mc.api.data.weapon.IAmmoType;
+import com.builtbroken.mc.api.data.weapon.ReloadType;
+import com.builtbroken.mc.api.energy.IEnergyBuffer;
 import com.builtbroken.mc.client.SharedAssets;
 import com.builtbroken.mc.core.network.packet.PacketTile;
 import com.builtbroken.mc.core.network.packet.callback.PacketOpenGUI;
@@ -220,7 +222,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                         dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.target.loss.delay").replace("[d]", "" + sentryData.getTargetLossTimer()));
                         dataDisplayList.add("");
 
-                        if(sentryData.getMaxHealth() > 0)
+                        if (sentryData.getMaxHealth() > 0)
                         {
                             dataDisplayList.add(LanguageUtility.getLocal("info.data.sentry.health").replace("[d]", "" + sentryData.getMaxHealth()));
                         }
@@ -516,8 +518,17 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             }
         }
 
+        if (gui_id == GUI_MAIN)
+        {
+            IEnergyBuffer buffer = host.getSentry().getEnergyBuffer(null);
+            if (buffer != null)
+            {
+                float e = buffer.getEnergyStored() / (float) buffer.getMaxBufferSize();
+                drawElectricity(7, 61, e);
+            }
+        }
         //Target setting GUI
-        if (gui_id == GUI_TARGET)
+        else if (gui_id == GUI_TARGET)
         {
             //TODO add background behind scroll area
             //TODO add scroll bar
@@ -620,20 +631,51 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         //Main GUI
         if (gui_id == GUI_MAIN)
         {
+            //Ammo bay title
             drawString(LanguageUtility.getLocal("sentry.gui.ammo.bay"), 7, 4);
+
+            //Battery bay title
             if (host.getEnergyBufferSize() > 0)
             {
                 drawString(LanguageUtility.getLocal("sentry.gui.battery.bay"), 110, 4);
+
+                if(host.getSentry().getSentryData().getEnergyCost() > 0)
+                {
+                    drawString(LanguageUtility.getLocalFormatted("sentry.gui.energy.tick", -host.getSentry().getSentryData().getEnergyCost()), 116, 62);
+                }
             }
-            if (host.getSentry().gunInstance._clip != null)
+
+            //Ammo display
+            if (host.getSentry().getSentryData().getGunData().getReloadType() == ReloadType.ENERGY)
             {
-                String translation = String.format(LanguageUtility.getLocal("sentry.gui.ammo"), host.getSentry().gunInstance._clip.getAmmoCount(), host.getSentry().gunInstance._clip.getMaxAmmo());
+                if (host.getSentry().gunInstance.getChamberedRound() != null)
+                {
+                    int cost = host.getSentry().gunInstance.getChamberedRound().getEnergyCost();
+                    if (host.getSentry().getSentryData().getGunData().getReloadTime() <= 0)
+                    {
+                        drawString(LanguageUtility.getLocalFormatted("sentry.gui.ammo.energy.tick", -cost), 7, 52);
+                    }
+                    else
+                    {
+                        drawString(LanguageUtility.getLocalFormatted("sentry.gui.ammo.energy.shot", -cost), 7, 52);
+                    }
+                }
+                else
+                {
+                    drawString(LanguageUtility.getLocal("Error: Missing shot data"), 7, 52);
+                }
+            }
+            else if (host.getSentry().gunInstance._clip != null)
+            {
+                String translation = LanguageUtility.getLocalFormatted("sentry.gui.ammo", host.getSentry().gunInstance._clip.getAmmoCount(), host.getSentry().gunInstance._clip.getMaxAmmo());
                 drawString(translation, 7, 52);
             }
-            else if(host.getSentry().gunInstance.overrideRound == null)
+            else if (host.getSentry().gunInstance.overrideRound == null)
             {
                 drawString(LanguageUtility.getLocal("sentry.gui.ammo.empty"), 7, 52);
             }
+
+            //Inventory title
             drawString(LanguageUtility.getLocal("sentry.gui.inventory"), 7, 74);
         }
         //Target Settings GUI

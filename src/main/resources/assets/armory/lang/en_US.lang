@@ -21,13 +21,18 @@ ammo.armory:9mm.advanced.name=Advanced 9mm Round
 ammo.armory:9mm.elite.name=Elite 9mm Round
 
 ## Main GUI display
-sentry.gui.ammo=Ammo: %d / %d
-sentry.gui.ammo.empty=No ammo loaded
 sentry.gui.node.bay=Batteries
 sentry.gui.inventory=Inventory
 
 sentry.gui.ammo.bay=Ammo Bay
 sentry.gui.battery.bay=Batteries
+
+sentry.gui.ammo=Ammo: %d / %d
+sentry.gui.ammo.empty=Ammo: Empty
+sentry.gui.ammo.energy.tick=Ammo: §4%dj/t
+sentry.gui.ammo.energy.shot=Ammo: §4%dj
+
+sentry.gui.energy.tick=§4%dj/t
 
 ## Sentry GUI tab names
 sentry.gui.targeting=Targeting Settings
@@ -95,8 +100,6 @@ info.data.gun.energy.cost=Energy Cost: [d] joules
 info.data.gun.energy.buffer=Energy Storage: [d] joules
 info.data.gun.energy.limit.input=Energy Input: [d] joules
 info.data.gun.energy.limit.output=Energy Output: [d] joules
-
-
 
 ## Test Weapons
 meleeWeapon.armory:sword.instant.name=Test Sword

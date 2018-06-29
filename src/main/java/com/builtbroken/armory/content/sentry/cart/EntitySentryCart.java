@@ -18,6 +18,7 @@ import com.builtbroken.mc.core.network.packet.PacketType;
 import com.builtbroken.mc.framework.energy.data.EnergyBuffer;
 import com.builtbroken.mc.framework.mod.AbstractProxy;
 import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
+import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.ExternalInventory;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
@@ -66,6 +67,14 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
         super.onUpdate();
         if (getSentry() != null)
         {
+            //TODO add check to see if we have moved
+            getSentry().center = new Pos(posX, posY + (height / 2f), posZ);
+            if (getSentry().getSentryData() != null && getSentry().getSentryData().getCenterOffset() != null)
+            {
+                getSentry().center = getSentry().center.add(getSentry().getSentryData().getCenterOffset());
+            }
+            getSentry().searchArea = null; //TODO Replace search area with object that doesn't require updating
+
             //Track time between updates
             deltaTime = (float) ((System.nanoTime() - lastSentryUpdate) / 100000000.0); // time / time_tick, client uses different value
 

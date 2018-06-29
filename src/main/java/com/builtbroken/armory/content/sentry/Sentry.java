@@ -140,7 +140,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         {
             profileGood = getAccessProfile() != null;
 
-            if (ticks == 1)
+            if (ticks == 1) //TODO setup init check, as tick == 1 may not always work (sponge -.-)
             {
                 for (String key : sentryData.getAllowedTargetTypes())
                 {

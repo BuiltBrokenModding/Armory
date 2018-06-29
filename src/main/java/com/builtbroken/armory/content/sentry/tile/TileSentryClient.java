@@ -111,7 +111,7 @@ public class TileSentryClient extends TileSentry
     @SideOnly(Side.CLIENT)
     public void renderDynamic(Pos pos, float deltaFrame, int pass)
     {
-        RenderSentry.render(getSentry(), worldObj, pos.x(), pos.y(), pos.z(), deltaFrame, pass);
+        RenderSentry.render(getSentry(), worldObj, pos.x() + 0.5, pos.y() + 0.5, pos.z() + 0.5, deltaFrame, pass);
     }
 
     @Override

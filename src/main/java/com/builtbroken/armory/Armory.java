@@ -5,6 +5,7 @@ import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.content.items.*;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
 import com.builtbroken.armory.content.sentry.cart.EntitySentryCart;
+import com.builtbroken.armory.content.sentry.cart.ItemSentryCart;
 import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.tile.ItemSentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
@@ -81,6 +82,7 @@ public final class Armory extends AbstractMod
     public static ItemClip itemClip;
     public static ItemMetaArmoryEntry<AmmoData> itemAmmo;
     public static ItemMetaArmoryEntry<SentryData> itemSentry;
+    public static ItemMetaArmoryEntry<SentryData> itemSentryCart;
     public static ItemMetaArmoryEntry<ThrowableData> itemThrownWeapon;
     public static ItemMetaArmoryEntry<MeleeToolData> itemMeleeTool;
     public static ItemMetaArmoryEntry<MeleeWeaponData> itemMeleeWeapon;
@@ -150,6 +152,7 @@ public final class Armory extends AbstractMod
         itemClip = manager.newItem("armoryClip", new ItemClip());
         itemAmmo = manager.newItem("armoryAmmo", new ItemAmmo());
         itemSentry = manager.newItem("armorySentry", new ItemSentry());
+        itemSentryCart = manager.newItem("armorySentryCart", new ItemSentryCart());
         itemThrownWeapon = manager.newItem("armoryThrownWeapon", new ItemThrownWeapon());
         itemMeleeTool = manager.newItem("armoryMeleeTool", new ItemTool());
         itemMeleeWeapon = manager.newItem("armoryMeleeWeapon", new ItemMeleeWeapon());
@@ -160,6 +163,7 @@ public final class Armory extends AbstractMod
         ArmoryDataHandler.INSTANCE.get(itemClip.typeName).init(itemClip);
         ArmoryDataHandler.INSTANCE.get(itemAmmo.typeName).init(itemAmmo);
         ArmoryDataHandler.INSTANCE.get(itemSentry.typeName).init(itemSentry);
+        ArmoryDataHandler.INSTANCE.get(itemSentryCart.typeName).init(itemSentryCart);
         ArmoryDataHandler.INSTANCE.get(itemThrownWeapon.typeName).init(itemThrownWeapon);
         ArmoryDataHandler.INSTANCE.get(itemMeleeTool.typeName).init(itemMeleeTool);
         ArmoryDataHandler.INSTANCE.get(itemMeleeWeapon.typeName).init(itemMeleeWeapon);

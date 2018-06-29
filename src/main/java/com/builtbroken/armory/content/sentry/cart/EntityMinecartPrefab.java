@@ -196,7 +196,7 @@ public class EntityMinecartPrefab extends EntityMinecart implements IEntityAddit
     @Override
     public boolean shouldReadPacket(EntityPlayer player, IWorldPosition receiveLocation, PacketType packet)
     {
-        return player.getDistanceSqToEntity(this) <= 40;
+        return player.getDistanceSqToEntity(this) <= 1000;
     }
 
     public void sendDescPacket()

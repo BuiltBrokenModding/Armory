@@ -51,8 +51,6 @@ import java.util.Map;
 @Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "CoFHCore")
 public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler, IEMReceptiveDevice, ILinkFeedback, ILinkable, IPassCode
 {
-    public static final int MAX_GUI_TABS = 6;
-
     private static final String NBT_SENTRY_STACK = "sentryStack";
     private static final String NBT_SENTRY_DATA = "sentryData";
 
@@ -395,7 +393,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     @Override
     public boolean openGui(EntityPlayer player, int requestedID)
     {
-        if (requestedID >= 0 && requestedID < MAX_GUI_TABS)
+        if (requestedID >= 0 && requestedID < SentryRefs.MAX_GUI_TABS)
         {
             player.openGui(Armory.INSTANCE, requestedID, oldWorld(), xi(), yi(), zi());
             return true;

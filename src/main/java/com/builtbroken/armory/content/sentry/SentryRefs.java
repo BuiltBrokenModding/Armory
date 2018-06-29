@@ -12,4 +12,6 @@ public class SentryRefs
     public static final int PACKET_SET_TARGET_MODE = 4;
     public static final int PACKET_SET_PROFILE_ID = 5;
     public static final int PACKET_GUI_BUTTON = 6;
+
+    public static final int MAX_GUI_TABS = 6;
 }

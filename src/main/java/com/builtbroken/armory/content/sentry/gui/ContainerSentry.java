@@ -30,11 +30,13 @@ public class ContainerSentry extends ContainerBase<ISentryHost>
             {
                 int ammoBaySize = (host.getSentry().getSentryData().getInventoryAmmoEnd() - host.getSentry().getSentryData().getInventoryAmmoStart());
                 int rows = (ammoBaySize / 5) + 1; //TODO add scroll bar
-                for (int y = 0; y < rows; y++)
+                int count = 0;
+                for (int y = 0; y < rows && count < ammoBaySize; y++)
                 {
-                    for (int x = 0; x < 5; x++)
+                    for (int x = 0; x < 5 && count < ammoBaySize; x++)
                     {
                         addSlotToContainer(new SlotAmmo(host.getSentry().getInventory(), host.getSentry().getSentryData().getGunData().getAmmoType(), slotID++, 8 + 18 * x, 16 + 18 * y));
+                        count++;
                     }
                 }
 

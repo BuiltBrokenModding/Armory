@@ -33,9 +33,9 @@ public class RenderSentryCart extends Render
         {
             EntitySentryCart entitySentryCart = (EntitySentryCart) entity;
 
-            GL11.glPushMatrix();
 
-            this.bindEntityTexture(entitySentryCart);
+
+            GL11.glPushMatrix();
 
             long i = (long) entitySentryCart.getEntityId() * 493286711L;
             i = i * i * 4392167121L + i * 98761L;
@@ -82,6 +82,11 @@ public class RenderSentryCart extends Render
             }
 
             GL11.glTranslatef((float) xx, (float) yy, (float) zz);
+
+            GL11.glPushMatrix();
+            RenderSentry.render(entitySentryCart.sentry, entity.worldObj, 0, 0, 0, delta, 0);
+            GL11.glPopMatrix();
+
             GL11.glRotatef(180.0F - yaw, 0.0F, 1.0F, 0.0F);
             GL11.glRotatef(-f5, 0.0F, 0.0F, 1.0F);
             float f7 = (float) entitySentryCart.getRollingAmplitude() - delta;
@@ -97,8 +102,9 @@ public class RenderSentryCart extends Render
                 GL11.glRotatef(MathHelper.sin(f7) * f7 * f8 / 10.0F * (float) entitySentryCart.getRollingDirection(), 1.0F, 0.0F, 0.0F);
             }
 
-            RenderSentry.render(entitySentryCart.sentry, entity.worldObj, xx, yy, zz, delta, 0);
 
+
+            this.bindEntityTexture(entitySentryCart);
             GL11.glScalef(-1.0F, -1.0F, 1.0F);
             this.modelMinecart.render(entitySentryCart, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
             GL11.glPopMatrix();

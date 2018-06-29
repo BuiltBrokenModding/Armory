@@ -8,12 +8,17 @@ import com.builtbroken.armory.content.sentry.gui.ContainerSentry;
 import com.builtbroken.armory.content.sentry.gui.GuiSentry;
 import com.builtbroken.armory.content.sentry.imp.ISentryHost;
 import com.builtbroken.armory.data.sentry.SentryData;
+import com.builtbroken.mc.api.energy.IEnergyBuffer;
+import com.builtbroken.mc.api.energy.IEnergyBufferProvider;
 import com.builtbroken.mc.api.tile.access.IGuiTile;
+import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.network.packet.PacketEntity;
 import com.builtbroken.mc.core.network.packet.PacketType;
+import com.builtbroken.mc.framework.energy.data.EnergyBuffer;
 import com.builtbroken.mc.framework.mod.AbstractProxy;
 import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
+import com.builtbroken.mc.prefab.inventory.ExternalInventory;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
@@ -23,6 +28,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +37,7 @@ import java.util.Map;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 6/29/2018.
  */
-public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHost, IGuiTile
+public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHost, IGuiTile, IInventoryProvider<ExternalInventory>, IEnergyBufferProvider
 {
     //TODO rewrite entire class once TileSentry is NodeSentry. As this class can be abstracted as a generic cart that supports Nodes.
     private static final String NBT_SENTRY_STACK = "sentryStack";
@@ -46,6 +52,8 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
     protected float deltaTime;
 
     private ItemStack sentryStack;
+    private ExternalInventory inventory;
+    private IEnergyBuffer energyBuffer;
 
     public EntitySentryCart(World world)
     {
@@ -84,7 +92,7 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
     {
         if (!worldObj.isRemote)
         {
-            player.openGui(Engine.loaderInstance, AbstractProxy.GUI_ENTITY, worldObj, getEntityId(), 0, 0);
+            openGui(player, 0);
         }
         return true;
     }
@@ -286,6 +294,17 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
     }
 
     @Override
+    public boolean openGui(EntityPlayer player, int requestedID)
+    {
+        if (requestedID >= 0 && requestedID < SentryRefs.MAX_GUI_TABS)
+        {
+            player.openGui(Armory.INSTANCE, AbstractProxy.GUI_ENTITY, worldObj, getEntityId(), 0, 0);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected boolean shouldGetGuiPacket(EntityPlayer player)
     {
         return player.openContainer instanceof ContainerSentry;
@@ -301,5 +320,47 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
     public void setSentry(Sentry sentry)
     {
         this.sentry = sentry;
+        if (sentry != null)
+        {
+            sentry.host = this;
+        }
+    }
+
+    @Override
+    public ExternalInventory getInventory()
+    {
+        if (inventory == null)
+        {
+            inventory = createInventory();
+        }
+        return inventory;
+    }
+
+    protected ExternalInventory createInventory()
+    {
+        if (getSentry() != null && getSentry().getSentryData() != null && getSentry().getSentryData().getInventorySize() > 0)
+        {
+            return new ExternalInventory(this, getSentry().getSentryData().getInventorySize());
+        }
+        return null;
+    }
+
+    @Override
+    public IEnergyBuffer getEnergyBuffer(ForgeDirection side)
+    {
+        if (energyBuffer == null)
+        {
+            energyBuffer = createEnergyBuffer();
+        }
+        return energyBuffer;
+    }
+
+    protected IEnergyBuffer createEnergyBuffer()
+    {
+        if (getSentry() != null && getSentry().getSentryData() != null && getSentry().getSentryData().getEnergyBuffer() > 0)
+        {
+            return new EnergyBuffer(getSentry().getSentryData().getEnergyBuffer());
+        }
+        return null;
     }
 }

@@ -5,7 +5,6 @@ import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.armory.content.sentry.SentryRefs;
 import com.builtbroken.armory.content.sentry.TargetMode;
 import com.builtbroken.armory.content.sentry.imp.ISentryHost;
-import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.sentry.SentryData;
 import com.builtbroken.mc.api.data.weapon.IAmmoData;
@@ -358,7 +357,7 @@ public class GuiSentry extends GuiContainerBase<ISentryHost>
             host.sendDataPacket(SentryRefs.PACKET_POWER, Side.SERVER, false); //TODO move to method in host
         }
         //Tab switch buttons
-        else if (buttonId >= 0 && buttonId < TileSentry.MAX_GUI_TABS && buttonId != gui_id)
+        else if (buttonId >= 0 && buttonId < SentryRefs.MAX_GUI_TABS && buttonId != gui_id)
         {
             host.sendDataPacket(SentryRefs.PACKET_GUI_BUTTON, Side.SERVER, buttonId);
         }

@@ -1,6 +1,7 @@
 package com.builtbroken.armory.content.sentry.cart;
 
 import com.builtbroken.armory.content.sentry.SentryRefs;
+import com.builtbroken.jlib.data.network.IByteBufWriter;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.api.tile.IPlayerUsing;
 import com.builtbroken.mc.core.Engine;
@@ -21,7 +22,7 @@ import java.util.*;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 6/29/2018.
  */
-public class EntityMinecartPrefab extends EntityMinecart implements IEntityAdditionalSpawnData, IPacketIDReceiver, IPlayerUsing, IWorldPosition
+public class EntityMinecartPrefab extends EntityMinecart implements IEntityAdditionalSpawnData, IPacketIDReceiver, IPlayerUsing, IWorldPosition, IByteBufWriter
 {
     private static final String NBT_TILE_OWNER_NAME = "tileOwnerUsername";
     private static final String NBT_TILE_OWNER_UUID_M = "tileOwnerMostSigBit";
@@ -167,6 +168,13 @@ public class EntityMinecartPrefab extends EntityMinecart implements IEntityAddit
     }
 
     @Override
+    public ByteBuf writeBytes(ByteBuf buf)
+    {
+        writeDescPacket(buf, null);
+        return buf;
+    }
+
+    @Override
     public boolean read(ByteBuf buf, int id, EntityPlayer player, PacketType type)
     {
         if (worldObj.isRemote)
@@ -193,7 +201,7 @@ public class EntityMinecartPrefab extends EntityMinecart implements IEntityAddit
 
     public void sendDescPacket()
     {
-        PacketEntity packetEntity = new PacketEntity(this, PACKET_DESC);
+        PacketEntity packetEntity = new PacketEntity(this, PACKET_DESC, this);
         Engine.packetHandler.sendToAllAround(packetEntity, worldObj, posX, posY, posZ, 100);
     }
     //</editor-fold>

@@ -240,7 +240,12 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
         {
             if (!worldObj.isRemote)
             {
-                if (id == SentryRefs.PACKET_POWER)
+                if (id == SentryRefs.PACKET_GUI_BUTTON)
+                {
+                    openGui(player, buf.readInt());
+                    return true;
+                }
+                else if (id == SentryRefs.PACKET_POWER)
                 {
                     getSentry().turnedOn = buf.readBoolean();
                     return true;

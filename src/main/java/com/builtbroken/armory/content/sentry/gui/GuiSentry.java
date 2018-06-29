@@ -360,7 +360,7 @@ public class GuiSentry extends GuiContainerBase<ISentryHost>
         //Tab switch buttons
         else if (buttonId >= 0 && buttonId < TileSentry.MAX_GUI_TABS && buttonId != gui_id)
         {
-            host.sendDataPacket(buttonId, Side.SERVER);
+            host.sendDataPacket(SentryRefs.PACKET_GUI_BUTTON, Side.SERVER, buttonId);
         }
         else if (gui_id == GUI_PERMISSION)
         {

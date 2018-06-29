@@ -8,6 +8,7 @@ import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.tile.Tile;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -193,10 +194,16 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
         return false;
     }
 
+    @Override
+    public void sendDataPacket(int id, Side side, Object... data)
+    {
+        host.sendDataPacket(id, side, data);
+    }
+
     public void setSentry(Sentry sentry)
     {
         this.sentry = sentry;
-        if(this.sentry != null)
+        if (this.sentry != null)
         {
             this.sentry.host = this;
             setSize(sentry.getSentryData().getBodyWidth(), sentry.getSentryData().getBodyHeight());

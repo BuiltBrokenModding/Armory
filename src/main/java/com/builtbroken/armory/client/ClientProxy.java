@@ -5,6 +5,8 @@ import com.builtbroken.armory.CommonProxy;
 import com.builtbroken.armory.client.effects.VEProviderGunSmoke;
 import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.content.entity.projectile.RenderEntityProjectile;
+import com.builtbroken.armory.content.sentry.cart.EntitySentryCart;
+import com.builtbroken.armory.content.sentry.cart.RenderSentryCart;
 import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.entity.RenderEntitySentry;
 import com.builtbroken.armory.content.sentry.tile.TileSentryClient;
@@ -40,5 +42,6 @@ public class ClientProxy extends CommonProxy
         MinecraftForge.EVENT_BUS.register(renderer);
         RenderingRegistry.registerEntityRenderingHandler(EntityAmmoProjectile.class, new RenderEntityProjectile());
         RenderingRegistry.registerEntityRenderingHandler(EntitySentry.class, new RenderEntitySentry());
+        RenderingRegistry.registerEntityRenderingHandler(EntitySentryCart.class, new RenderSentryCart());
     }
 }

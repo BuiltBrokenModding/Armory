@@ -2,7 +2,9 @@ package com.builtbroken.armory.content.sentry.gui;
 
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.sentry.Sentry;
+import com.builtbroken.armory.content.sentry.SentryRefs;
 import com.builtbroken.armory.content.sentry.TargetMode;
+import com.builtbroken.armory.content.sentry.imp.ISentryHost;
 import com.builtbroken.armory.content.sentry.tile.TileSentry;
 import com.builtbroken.armory.data.ranged.GunData;
 import com.builtbroken.armory.data.sentry.SentryData;
@@ -11,8 +13,6 @@ import com.builtbroken.mc.api.data.weapon.IAmmoType;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.mc.api.energy.IEnergyBuffer;
 import com.builtbroken.mc.client.SharedAssets;
-import com.builtbroken.mc.core.network.packet.PacketTile;
-import com.builtbroken.mc.core.network.packet.callback.PacketOpenGUI;
 import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
 import com.builtbroken.mc.framework.guide.GuideBookModule;
 import com.builtbroken.mc.framework.guide.GuideEntry;
@@ -23,6 +23,7 @@ import com.builtbroken.mc.prefab.gui.GuiContainerBase;
 import com.builtbroken.mc.prefab.gui.buttons.GuiButton9px;
 import com.builtbroken.mc.prefab.gui.buttons.GuiButtonCheck;
 import com.builtbroken.mc.prefab.gui.buttons.GuiImageButton;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.entity.player.EntityPlayer;
@@ -40,7 +41,7 @@ import java.util.List;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/9/2017.
  */
-public class GuiSentry extends GuiContainerBase<TileSentry>
+public class GuiSentry extends GuiContainerBase<ISentryHost>
 {
     public static final GuideEntry SENTRY_PROFILE_PAGE = new GuideEntry(Armory.DOMAIN, "sentry", "gui", "profile");
     public static final GuideEntry SENTRY_TARGET_PAGE = new GuideEntry(Armory.DOMAIN, "sentry", "gui", "target");
@@ -94,7 +95,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
     //components for data tab
     private List<String> dataDisplayList;
 
-    public GuiSentry(EntityPlayer player, TileSentry sentry, int gui_id)
+    public GuiSentry(EntityPlayer player, ISentryHost sentry, int gui_id)
     {
         super(new ContainerSentry(player, sentry, gui_id), sentry);
         this.gui_id = gui_id;
@@ -349,24 +350,24 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
         //Turn sentry on
         if (buttonId == BUTTON_ON)
         {
-            host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_POWER, true)); //TODO move to method in host
+            host.sendDataPacket(SentryRefs.PACKET_POWER, Side.SERVER, true); //TODO move to method in host
         }
         //Turn sentry off
         else if (buttonId == BUTTON_OFF)
         {
-            host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_POWER, false)); //TODO move to method in host
+            host.sendDataPacket(SentryRefs.PACKET_POWER, Side.SERVER, false); //TODO move to method in host
         }
         //Tab switch buttons
         else if (buttonId >= 0 && buttonId < TileSentry.MAX_GUI_TABS && buttonId != gui_id)
         {
-            host.sendPacketToServer(new PacketOpenGUI(host, buttonId));
+            host.sendDataPacket(buttonId, Side.SERVER);
         }
         else if (gui_id == GUI_PERMISSION)
         {
             if (buttonId == BUTTON_SAVE)
             {
                 String value = accessProfileField.getText();
-                host.sendPacketToServer(new PacketTile(host, TileSentry.PACKET_SET_PROFILE_ID, value != null ? value : ""));
+                host.sendDataPacket(SentryRefs.PACKET_SET_PROFILE_ID, Side.SERVER, value != null ? value : "");
             }
             else if (buttonId == BUTTON_ACCESS_PROFILE_HELP)
             {
@@ -425,8 +426,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 60 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NONE.ordinal());
-                    host.sendPacketToServer(packetTile);
+                    host.sendDataPacket(SentryRefs.PACKET_SET_TARGET_MODE, Side.SERVER, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NONE.ordinal());
                 }
             }
             else if (buttonId >= 50)
@@ -434,8 +434,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 50 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NEUTRAL.ordinal());
-                    host.sendPacketToServer(packetTile);
+                    host.sendDataPacket(SentryRefs.PACKET_SET_TARGET_MODE, Side.SERVER, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NEUTRAL.ordinal());
                 }
             }
             else if (buttonId >= 40)
@@ -443,8 +442,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 40 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.HOSTILE.ordinal());
-                    host.sendPacketToServer(packetTile);
+                    host.sendDataPacket(SentryRefs.PACKET_SET_TARGET_MODE, Side.SERVER, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.HOSTILE.ordinal());
                 }
             }
             else if (buttonId >= 30)
@@ -452,8 +450,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 30 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NOT_FRIEND.ordinal());
-                    host.sendPacketToServer(packetTile);
+                    host.sendDataPacket(SentryRefs.PACKET_SET_TARGET_MODE, Side.SERVER, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.NOT_FRIEND.ordinal());
                 }
             }
             else if (buttonId >= 20)
@@ -461,8 +458,7 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
                 int index = buttonId - 20 + scrollTargetList;  //TODO move to method in host
                 if (index < host.getSentry().getSentryData().getAllowedTargetTypes().length)
                 {
-                    PacketTile packetTile = new PacketTile(host, TileSentry.PACKET_SET_TARGET_MODE, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.ALL.ordinal());
-                    host.sendPacketToServer(packetTile);
+                    host.sendDataPacket(SentryRefs.PACKET_SET_TARGET_MODE, Side.SERVER, host.getSentry().getSentryData().getAllowedTargetTypes()[index], (byte) TargetMode.ALL.ordinal());
                 }
             }
         }
@@ -635,11 +631,12 @@ public class GuiSentry extends GuiContainerBase<TileSentry>
             drawString(LanguageUtility.getLocal("sentry.gui.ammo.bay"), 7, 4);
 
             //Battery bay title
-            if (host.getEnergyBufferSize() > 0)
+            IEnergyBuffer buffer = host.getSentry().getEnergyBuffer(null);
+            if (buffer != null && buffer.getMaxBufferSize() > 0)
             {
                 drawString(LanguageUtility.getLocal("sentry.gui.battery.bay"), 110, 4);
 
-                if(host.getSentry().getSentryData().getEnergyCost() > 0)
+                if (host.getSentry().getSentryData().getEnergyCost() > 0)
                 {
                     drawString(LanguageUtility.getLocalFormatted("sentry.gui.energy.tick", -host.getSentry().getSentryData().getEnergyCost()), 116, 62);
                 }

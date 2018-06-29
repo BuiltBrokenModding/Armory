@@ -4,6 +4,7 @@ import com.builtbroken.armory.api.ArmoryAPI;
 import com.builtbroken.armory.content.entity.projectile.EntityAmmoProjectile;
 import com.builtbroken.armory.content.items.*;
 import com.builtbroken.armory.content.prefab.ItemMetaArmoryEntry;
+import com.builtbroken.armory.content.sentry.cart.EntitySentryCart;
 import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.tile.ItemSentry;
 import com.builtbroken.armory.data.ArmoryDataHandler;
@@ -178,6 +179,7 @@ public final class Armory extends AbstractMod
         //Register entities
         EntityRegistry.registerModEntity(EntityAmmoProjectile.class, "ArmoryProjectile", 0, this, 500, 1, true);
         EntityRegistry.registerModEntity(EntitySentry.class, "ArmorySentry", 1, this, 500, 1, true);
+        EntityRegistry.registerModEntity(EntitySentryCart.class, "ArmorySentryCart", 2, this, 500, 1, true);
     }
 
     @Mod.EventHandler

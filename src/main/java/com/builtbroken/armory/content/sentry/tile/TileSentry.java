@@ -3,6 +3,7 @@ package com.builtbroken.armory.content.sentry.tile;
 import cofh.api.energy.IEnergyHandler;
 import com.builtbroken.armory.Armory;
 import com.builtbroken.armory.content.sentry.Sentry;
+import com.builtbroken.armory.content.sentry.SentryRefs;
 import com.builtbroken.armory.content.sentry.TargetMode;
 import com.builtbroken.armory.content.sentry.entity.EntitySentry;
 import com.builtbroken.armory.content.sentry.gui.ContainerSentry;
@@ -51,11 +52,9 @@ import java.util.Map;
 public class TileSentry extends TileModuleMachine<ExternalInventory> implements IGuiTile, IPacketIDReceiver, ISentryHost, IEnergyBufferProvider, IEnergyHandler, IEMReceptiveDevice, ILinkFeedback, ILinkable, IPassCode
 {
     public static final int MAX_GUI_TABS = 6;
-    public static final int PACKET_GUI_DATA = 1;
-    public static final int PACKET_SENTRY = 2;
-    public static final int PACKET_POWER = 3;
-    public static final int PACKET_SET_TARGET_MODE = 4;
-    public static final int PACKET_SET_PROFILE_ID = 5;
+
+    private static final String NBT_SENTRY_STACK = "sentryStack";
+    private static final String NBT_SENTRY_DATA = "sentryData";
 
     protected Sentry sentry;
     private ItemStack sentryStack;
@@ -176,7 +175,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         super.doUpdateGuiUsers();
         if (ticks % 3 == 0 && getSentry() != null)
         {
-            PacketTile packet = new PacketTile(this, PACKET_GUI_DATA);
+            PacketTile packet = new PacketTile(this, SentryRefs.PACKET_GUI_DATA);
             //Write target data
             packet.data().writeInt(getSentry().targetModes.size());
             for (Map.Entry<String, TargetMode> entry : getSentry().targetModes.entrySet())
@@ -209,20 +208,6 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         return super.toItemStack();
     }
 
-    @Override
-    public void readFromNBT(NBTTagCompound nbt)
-    {
-        if (nbt.hasKey("sentryStack"))
-        {
-            setSentryStack(ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("sentryStack")));
-        }
-        if (getSentry() != null && nbt.hasKey("sentryData"))
-        {
-            getSentry().load(nbt.getCompoundTag("sentryData"));
-        }
-        super.readFromNBT(nbt);
-    }
-
     public void setSentryStack(ItemStack stack)
     {
         sentryStack = stack;
@@ -236,7 +221,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
             }
             else
             {
-                Armory.INSTANCE.logger().error("Could not read sentry data from " + stack, new RuntimeException());
+                Armory.INSTANCE.logger().error("TileSentry: Could not read sentry data from " + stack, new RuntimeException());
                 setSentry(null);
             }
         }
@@ -247,18 +232,32 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     }
 
     @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+        if (nbt.hasKey(NBT_SENTRY_STACK))
+        {
+            setSentryStack(ItemStack.loadItemStackFromNBT(nbt.getCompoundTag(NBT_SENTRY_STACK)));
+        }
+        if (getSentry() != null && nbt.hasKey(NBT_SENTRY_DATA))
+        {
+            getSentry().load(nbt.getCompoundTag(NBT_SENTRY_DATA));
+        }
+    }
+
+    @Override
     public void writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
         if (sentryStack != null)
         {
-            nbt.setTag("sentryStack", sentryStack.writeToNBT(new NBTTagCompound()));
+            nbt.setTag(NBT_SENTRY_STACK, sentryStack.writeToNBT(new NBTTagCompound()));
         }
         if (getSentry() != null)
         {
             NBTTagCompound sentryTag = new NBTTagCompound();
             getSentry().save(sentryTag);
-            nbt.setTag("sentryData", sentryTag);
+            nbt.setTag(NBT_SENTRY_DATA, sentryTag);
         }
     }
 
@@ -282,12 +281,12 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         {
             if (isServer())
             {
-                if (id == PACKET_POWER)
+                if (id == SentryRefs.PACKET_POWER)
                 {
                     getSentry().turnedOn = buf.readBoolean();
                     return true;
                 }
-                else if (id == PACKET_SET_TARGET_MODE)
+                else if (id == SentryRefs.PACKET_SET_TARGET_MODE)
                 {
                     String key = ByteBufUtils.readUTF8String(buf);
                     byte value = buf.readByte();
@@ -297,7 +296,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
                     }
                     return true;
                 }
-                else if (id == PACKET_SET_PROFILE_ID)
+                else if (id == SentryRefs.PACKET_SET_PROFILE_ID)
                 {
                     getSentry().profileID = ByteBufUtils.readUTF8String(buf).trim();
                     return true;
@@ -371,7 +370,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
     {
         if (oldWorld() != null && isServer())
         {
-            PacketTile packetTile = new PacketTile(this, PACKET_SENTRY, getSentry() == null ? -1 : getSentryEntity().getEntityId());
+            PacketTile packetTile = new PacketTile(this, SentryRefs.PACKET_SENTRY, getSentry() == null ? -1 : getSentryEntity().getEntityId());
             Engine.packetHandler.sendToAllAround(packetTile, this);
         }
     }
@@ -438,6 +437,20 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void sendDataPacket(int id, Side side, Object... data)
+    {
+        PacketTile packetTile = new PacketTile(this, id, data);
+        if (side == Side.CLIENT)
+        {
+            sendPacket(packetTile);
+        }
+        else
+        {
+            sendPacketToServer(packetTile);
+        }
     }
 
     public void setSentry(Sentry sentry)

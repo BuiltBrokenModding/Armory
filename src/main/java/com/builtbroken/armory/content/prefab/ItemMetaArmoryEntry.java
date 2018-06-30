@@ -130,7 +130,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
     protected void sendSyncPacket(EntityPlayerMP player)
     {
         PacketPlayerItem packet = new PacketPlayerItem(Item.getIdFromItem(this) * -1);
-        ArmoryDataHandler.INSTANCE.get(typeName).writeBytes(packet.data());
+        packet.addWriter(byteBuf -> ArmoryDataHandler.INSTANCE.get(typeName).writeBytes(byteBuf));
         Engine.packetHandler.sendToPlayer(packet, player);
     }
 
@@ -144,7 +144,7 @@ public class ItemMetaArmoryEntry<E extends ArmoryEntry> extends ItemBase impleme
     @SideOnly(Side.CLIENT)
     public void getSubItems(Item item, CreativeTabs tab, List items)
     {
-        if(tab != null)
+        if (tab != null)
         {
             String tabName = tab.getTabLabel();
             Map<Integer, E> map = ArmoryDataHandler.INSTANCE.get(typeName).metaToEntry;

@@ -175,11 +175,11 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         {
             PacketTile packet = new PacketTile(this, SentryRefs.PACKET_GUI_DATA);
             //Write target data
-            packet.data().writeInt(getSentry().targetModes.size());
+            packet.add(getSentry().targetModes.size());
             for (Map.Entry<String, TargetMode> entry : getSentry().targetModes.entrySet())
             {
-                ByteBufUtils.writeUTF8String(packet.data(), entry.getKey());
-                packet.data().writeByte(entry.getValue().ordinal());
+                packet.add(entry.getKey());
+                packet.add((byte) entry.getValue().ordinal());
             }
             //Send
             sendPacketToGuiUsers(packet);
@@ -279,7 +279,7 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         {
             if (isServer())
             {
-                if(id == SentryRefs.PACKET_GUI_BUTTON)
+                if (id == SentryRefs.PACKET_GUI_BUTTON)
                 {
                     openGui(player, buf.readInt());
                     return true;

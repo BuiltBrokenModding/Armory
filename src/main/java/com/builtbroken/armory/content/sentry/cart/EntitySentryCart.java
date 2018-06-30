@@ -33,6 +33,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -179,7 +180,7 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
     @Override
     public void sendDataPacket(int id, Side side, Object... data)
     {
-        PacketEntity packetEntity = new PacketEntity(this, id, data);
+        PacketEntity packetEntity = new PacketEntity(this).add(id).add(data);
         if (side == Side.CLIENT)
         {
             Engine.packetHandler.sendToAllAround(packetEntity, worldObj, posX, posY, posZ, 100);
@@ -226,8 +227,9 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
     protected void getGuiPacketData(EntityPlayer player, List data)
     {
         //Write target data
-        data.add(getSentry().targetModes.size());
-        for (Map.Entry<String, TargetMode> entry : getSentry().targetModes.entrySet())
+        Set<Map.Entry<String, TargetMode>> set = getSentry().targetModes.entrySet();
+        data.add(set.size());
+        for (Map.Entry<String, TargetMode> entry : set)
         {
             data.add(entry.getKey());
             data.add(entry.getValue().ordinal());
@@ -307,7 +309,7 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
     {
         if (requestedID >= 0 && requestedID < SentryRefs.MAX_GUI_TABS)
         {
-            player.openGui(Armory.INSTANCE, AbstractProxy.GUI_ENTITY, worldObj, getEntityId(), 0, 0);
+            player.openGui(Armory.INSTANCE, AbstractProxy.GUI_ENTITY, worldObj, getEntityId(), requestedID, 0);
             return true;
         }
         return false;

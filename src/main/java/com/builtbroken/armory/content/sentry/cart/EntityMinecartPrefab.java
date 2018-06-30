@@ -1,6 +1,5 @@
 package com.builtbroken.armory.content.sentry.cart;
 
-import com.builtbroken.armory.content.sentry.SentryRefs;
 import com.builtbroken.jlib.data.network.IByteBufWriter;
 import com.builtbroken.mc.api.IWorldPosition;
 import com.builtbroken.mc.api.tile.IPlayerUsing;
@@ -65,7 +64,7 @@ public class EntityMinecartPrefab extends EntityMinecart implements IEntityAddit
                     if (data != null && !data.isEmpty())
                     {
                         //Make packet
-                        PacketEntity packet = new PacketEntity(this, SentryRefs.PACKET_GUI_DATA, data);
+                        PacketEntity packet = new PacketEntity(this).add(PACKET_GUI).add(data);
 
                         //Send
                         Engine.packetHandler.sendToPlayer(packet, (EntityPlayerMP) player);
@@ -201,7 +200,7 @@ public class EntityMinecartPrefab extends EntityMinecart implements IEntityAddit
 
     public void sendDescPacket()
     {
-        PacketEntity packetEntity = new PacketEntity(this, PACKET_DESC, this);
+        PacketEntity packetEntity = new PacketEntity(this).add(PACKET_DESC).add(this);
         Engine.packetHandler.sendToAllAround(packetEntity, worldObj, posX, posY, posZ, 100);
     }
     //</editor-fold>

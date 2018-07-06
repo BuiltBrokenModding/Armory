@@ -9,9 +9,12 @@ import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.tile.Tile;
 import cpw.mods.fml.relauncher.Side;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
@@ -25,7 +28,7 @@ import java.util.UUID;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 3/26/2017.
  */
-public class EntitySentry extends Entity implements IEnergyBufferProvider, ISentryHost, IInventoryProvider
+public class EntitySentry extends EntityLivingBase implements IEnergyBufferProvider, ISentryHost, IInventoryProvider
 {
     /** Host that is managing this entity */
     public ISentryHost host;
@@ -46,6 +49,7 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
     @Override
     protected void entityInit()
     {
+        super.entityInit();
     }
 
     public EntitySentry(World world, Sentry sentry, ISentryHost host)
@@ -82,18 +86,60 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
     }
 
     @Override
+    public boolean isInsideOfMaterial(Material p_70055_1_)
+    {
+        return false;
+    }
+
+    @Override
     public void onUpdate()
     {
         onEntityUpdate();
+        onLivingUpdate();
+        extinguish();
+
+        int i = this.getArrowCountInEntity();
+        if (i > 0)
+        {
+            if (this.arrowHitTimer <= 0)
+            {
+                this.arrowHitTimer = 20 * (30 - i);
+            }
+
+            --this.arrowHitTimer;
+
+            if (this.arrowHitTimer <= 0)
+            {
+                this.setArrowCountInEntity(i - 1);
+            }
+        }
+
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
         this.prevRotationPitch = this.rotationPitch;
         this.prevRotationYaw = this.rotationYaw;
-        if (this.posY < -64.0D || host == null) //TODO add bypass for host being null
+
+        if (this.posY < -64.0D || host == null || !host.isHostValid())
         {
-            this.kill();
+            if (!worldObj.isRemote)
+            {
+                this.setDead();
+            }
         }
+    }
+
+    @Override
+    public void onLivingUpdate()
+    {
+        this.worldObj.theProfiler.startSection("push");
+
+        if (!this.worldObj.isRemote)
+        {
+            this.collideWithNearbyEntities();
+        }
+
+        this.worldObj.theProfiler.endSection();
     }
 
     @Override
@@ -125,6 +171,30 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
         return false;
     }
 
+    @Override
+    public ItemStack getHeldItem()
+    {
+        return null;
+    }
+
+    @Override
+    public ItemStack getEquipmentInSlot(int p_71124_1_)
+    {
+        return null;
+    }
+
+    @Override
+    public void setCurrentItemOrArmor(int p_70062_1_, ItemStack p_70062_2_)
+    {
+
+    }
+
+    @Override
+    public ItemStack[] getLastActiveItems()
+    {
+        return new ItemStack[0];
+    }
+
     /**
      * Called when the entity is killed
      */
@@ -135,13 +205,13 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
     }
 
     @Override
-    protected void readEntityFromNBT(NBTTagCompound p_70037_1_)
+    public void readEntityFromNBT(NBTTagCompound p_70037_1_)
     {
 
     }
 
     @Override
-    protected void writeEntityToNBT(NBTTagCompound p_70014_1_)
+    public void writeEntityToNBT(NBTTagCompound p_70014_1_)
     {
 
     }
@@ -200,6 +270,12 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
         host.sendDataPacket(id, side, data);
     }
 
+    @Override
+    public boolean isHostValid()
+    {
+        return host.isHostValid() && !isDead;
+    }
+
     public void setSentry(Sentry sentry)
     {
         this.sentry = sentry;
@@ -238,5 +314,47 @@ public class EntitySentry extends Entity implements IEnergyBufferProvider, ISent
     public double z()
     {
         return posZ;
+    }
+
+
+    //----------------------------------------------
+    //---- Disable stuff ---------------------------
+    //----------------------------------------------
+
+    @Override
+    public void knockBack(Entity p_70653_1_, float p_70653_2_, double p_70653_3_, double p_70653_5_)
+    {
+        //Sentry can't move
+    }
+
+    @Override
+    public void moveEntityWithHeading(float p_70612_1_, float p_70612_2_)
+    {
+        //Sentry can't move
+    }
+
+    @Override
+    public void addVelocity(double p_70024_1_, double p_70024_3_, double p_70024_5_)
+    {
+        //Sentry can't move
+    }
+
+    @Override
+    public void applyEntityCollision(Entity entity)
+    {
+        //Sentry can't move
+    }
+
+    @Override
+    public void moveEntity(double p_70091_1_, double p_70091_3_, double p_70091_5_)
+    {
+        //Sentry can't move
+    }
+
+    @Override
+    public boolean canBePushed()
+    {
+        //Sentry can't move
+        return false;
     }
 }

@@ -456,6 +456,12 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
         }
     }
 
+    @Override
+    public boolean isHostValid()
+    {
+        return !isInvalid() && worldObj != null;
+    }
+
     public void setSentry(Sentry sentry)
     {
         this.sentry = sentry;

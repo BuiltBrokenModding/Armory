@@ -192,6 +192,12 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
     }
 
     @Override
+    public boolean isHostValid()
+    {
+        return !isDead;
+    }
+
+    @Override
     public void writeDescPacket(ByteBuf buf, EntityPlayer player)
     {
         //Write sentry stack

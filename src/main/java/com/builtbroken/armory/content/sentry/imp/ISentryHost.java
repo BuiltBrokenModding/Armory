@@ -34,4 +34,11 @@ public interface ISentryHost extends IWorldPosition
      * @param data - packet data
      */
     void sendDataPacket(int id, Side side, Object... data);
+
+    /**
+     * Checks if the host is still functional
+     *
+     * @return false if host is no longer in world
+     */
+    boolean isHostValid();
 }

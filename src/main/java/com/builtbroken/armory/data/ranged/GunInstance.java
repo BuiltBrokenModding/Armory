@@ -604,13 +604,13 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 if (stack.getItem() instanceof IItemAmmo)
                 {
                     IItemAmmo ammo = ((IItemAmmo) stack.getItem());
-                    if (ammo.isAmmo(stack) && !ammo.isClip(stack))
+                    if (ammo.isAmmo(stack) && !ammo.isClip(stack)) //TODO setup way to drain mags
                     {
                         IAmmoData data = ammo.getAmmoData(stack);
                         IAmmoType type = data.getAmmoType();
                         if (type == gunData.getAmmoType())
                         {
-                            if (getLoadedClip().getAmmoCount() < getLoadedClip().getClipData().getMaxAmmo())
+                            if (getLoadedClip().getAmmoCount() < getLoadedClip().getMaxAmmo())
                             {
                                 //Decrease stack and load gun
                                 if (doAction)

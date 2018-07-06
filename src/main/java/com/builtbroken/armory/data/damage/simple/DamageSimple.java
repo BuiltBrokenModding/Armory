@@ -18,6 +18,8 @@ import java.util.HashMap;
  */
 public class DamageSimple extends DamageData
 {
+    public static final DamageSource DEFAULT_DAMAGE = (new DamageSource(Armory.PREFIX + "generic"));
+
     public static final HashMap<String, DamageType> damageTypes = new HashMap();
 
     public final float damage;
@@ -47,7 +49,7 @@ public class DamageSimple extends DamageData
                 return true;
             }
 
-            DamageSource damageSource = DamageSource.generic;
+            DamageSource damageSource = DEFAULT_DAMAGE;
             if (damageTypes.containsKey(damageName))
             {
                 DamageSource damageSource1 = damageTypes.get(damageName).createDamage(attacker);

@@ -12,6 +12,7 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
 import com.builtbroken.armory.data.damage.simple.DamageSimple;
 import com.builtbroken.armory.data.damage.type.DamageImpact;
+import com.builtbroken.armory.data.damage.type.DamageThermal;
 import com.builtbroken.armory.data.meele.MeleeToolData;
 import com.builtbroken.armory.data.meele.MeleeWeaponData;
 import com.builtbroken.armory.data.ranged.GunData;
@@ -178,7 +179,8 @@ public final class Armory extends AbstractMod
         blockSentry.setCreativeTab(null);
 
         //Load damage types
-        DamageSimple.damageTypes.put("impact", new DamageImpact.DamageTypeImpact());
+        DamageSimple.damageTypes.put("impact", new DamageImpact.DamageType());
+        DamageSimple.damageTypes.put("thermal", new DamageThermal.DamageType());
 
         //Register entities
         EntityRegistry.registerModEntity(EntityAmmoProjectile.class, "ArmoryProjectile", 0, this, 500, 1, true);

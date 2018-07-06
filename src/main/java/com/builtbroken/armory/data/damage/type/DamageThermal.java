@@ -6,16 +6,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 
 /**
- * Simple impact damage caused by a projectile
+ * Simple heat based damage
  *
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
- * Created by Dark(DarkGuardsman, Robert) on 10/26/2017.
+ * Created by Dark(DarkGuardsman, Robert) on 7/6/2018.
  */
-public class DamageImpact extends EntityDamageSource
+public class DamageThermal extends EntityDamageSource
 {
-    public DamageImpact(Entity entity)
+    public DamageThermal(Entity entity)
     {
-        super("impact", entity);
+        super("thermal", entity);
+        this.setFireDamage();
     }
 
     @Override
@@ -31,13 +32,13 @@ public class DamageImpact extends EntityDamageSource
     {
         public DamageType()
         {
-            super("impact");
+            super("thermal");
         }
 
         @Override
         public DamageSource createDamage(Entity attacker)
         {
-            return new DamageImpact(attacker);
+            return new DamageThermal(attacker);
         }
     }
 }

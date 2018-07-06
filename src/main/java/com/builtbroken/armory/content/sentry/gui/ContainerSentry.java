@@ -2,11 +2,14 @@ package com.builtbroken.armory.content.sentry.gui;
 
 import com.builtbroken.armory.content.sentry.Sentry;
 import com.builtbroken.armory.content.sentry.imp.ISentryHost;
+import com.builtbroken.mc.framework.energy.UniversalEnergySystem;
 import com.builtbroken.mc.prefab.gui.ContainerBase;
 import com.builtbroken.mc.prefab.gui.slot.SlotAmmo;
 import com.builtbroken.mc.prefab.gui.slot.SlotEnergyItem;
 import com.builtbroken.mc.prefab.gui.slot.SlotOutput;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -15,6 +18,10 @@ import net.minecraft.entity.player.EntityPlayer;
 public class ContainerSentry extends ContainerBase<ISentryHost>
 {
     private final int id;
+
+    private int playerInventoryStart;
+    private int ammoBayEnd;
+    private int batteryBayEnd;
 
     public ContainerSentry(EntityPlayer player, ISentryHost host, int id)
     {
@@ -39,10 +46,11 @@ public class ContainerSentry extends ContainerBase<ISentryHost>
                         count++;
                     }
                 }
+                ammoBayEnd = inventorySlots.size();
 
                 if (sentry.getEnergyBuffer(null) != null)
                 {
-                    //Battery slots
+                    //Battery input slots
                     if (host.getSentry().getSentryData().getBatteryIn() != null) //TODO add scroll bar
                     {
                         int y = 0;
@@ -51,6 +59,9 @@ public class ContainerSentry extends ContainerBase<ISentryHost>
                             addSlotToContainer(new SlotEnergyItem(host.getSentry().getInventory(), host.getSentry().getSentryData().getBatteryIn()[i], 110, 16 + 18 * (y++)));
                         }
                     }
+                    batteryBayEnd = inventorySlots.size();
+
+                    //Battery output slots
                     if (host.getSentry().getSentryData().getBatteryOut() != null)
                     {
                         int y = 0;
@@ -64,6 +75,76 @@ public class ContainerSentry extends ContainerBase<ISentryHost>
         }
 
         //Player inventory
+        playerInventoryStart = inventorySlots.size();
         addPlayerInventory(player);
+    }
+
+    @Override
+    public ItemStack transferStackInSlot(EntityPlayer player, int slotIndex)
+    {
+        final int playerInvStart = this.playerInventoryStart;
+        final int playerHotBarStart = playerInvStart + 27;
+        final int playerInvEnd = playerInvStart + 36;
+
+
+        ItemStack itemstack = null;
+        Slot slot = (Slot) this.inventorySlots.get(slotIndex);
+
+        if (slot != null && slot.getHasStack())
+        {
+            ItemStack itemstack1 = slot.getStack();
+            itemstack = itemstack1.copy();
+
+            if (slotIndex > playerInvStart)
+            {
+                if (SlotAmmo.ammoTypeMatch(itemstack1, host.getSentry().getSentryData().getGunData().getAmmoType()))
+                {
+                    if (!this.mergeItemStack(itemstack1, 0, ammoBayEnd, false))
+                    {
+                        return null;
+                    }
+                }
+                else if (UniversalEnergySystem.isHandler(itemstack1, null))
+                {
+                    if (!this.mergeItemStack(itemstack1, ammoBayEnd, batteryBayEnd, false))
+                    {
+                        return null;
+                    }
+                }
+                else if (slotIndex >= playerInvStart && slotIndex < playerHotBarStart)
+                {
+                    if (!this.mergeItemStack(itemstack1, playerHotBarStart, playerInvEnd, false))
+                    {
+                        return null;
+                    }
+                }
+                else if (slotIndex >= playerHotBarStart && slotIndex < playerInvEnd && !this.mergeItemStack(itemstack1, playerInvStart, playerHotBarStart, false))
+                {
+                    return null;
+                }
+            }
+            else if (!this.mergeItemStack(itemstack1, playerInvStart, playerInvEnd, false))
+            {
+                return null;
+            }
+
+            if (itemstack1.stackSize == 0)
+            {
+                slot.putStack((ItemStack) null);
+            }
+            else
+            {
+                slot.onSlotChanged();
+            }
+
+            if (itemstack1.stackSize == itemstack.stackSize)
+            {
+                return null;
+            }
+
+            slot.onPickupFromSlot(player, itemstack1);
+        }
+
+        return itemstack;
     }
 }

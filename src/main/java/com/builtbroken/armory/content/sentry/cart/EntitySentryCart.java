@@ -232,7 +232,7 @@ public class EntitySentryCart extends EntityMinecartPrefab implements ISentryHos
         for (Map.Entry<String, TargetMode> entry : set)
         {
             data.add(entry.getKey());
-            data.add(entry.getValue().ordinal());
+            data.add((byte)entry.getValue().ordinal());
         }
     }
 

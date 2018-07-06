@@ -37,6 +37,8 @@ public class ItemSentryCart extends ItemSentry
                     entityminecart.setMinecartName(stack.getDisplayName());
                 }
 
+                entityminecart.setOwner(player);
+
                 world.spawnEntityInWorld(entityminecart);
             }
             stack.stackSize--;

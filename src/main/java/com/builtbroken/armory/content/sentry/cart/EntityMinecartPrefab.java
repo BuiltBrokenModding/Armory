@@ -222,6 +222,12 @@ public class EntityMinecartPrefab extends EntityMinecart implements IEntityAddit
         return ownerUUID;
     }
 
+    public void setOwner(EntityPlayer player)
+    {
+        ownerName = player.getGameProfile().getName();
+        ownerUUID = player.getGameProfile().getId();
+    }
+
     @Override
     public World oldWorld()
     {

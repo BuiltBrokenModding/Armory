@@ -59,8 +59,6 @@ public class RenderSentry
                 RenderUtility.renderFloatingText(String.format("Ammo: %s", clip), x, y + height + 0.9, z, Color.red.getRGB());
             }
 
-            GL11.glPushMatrix();
-            GL11.glTranslated(x, y, z);
 
             //Get render data
             RenderData renderData = null;
@@ -70,52 +68,32 @@ public class RenderSentry
             }
 
             //Render parts
-            boolean rendered = false;
+            boolean renderedBase = false;
+            boolean renderedTurret = false;
+            boolean renderedCannon = false;
+
             if (renderData != null)
             {
                 final String emptyS = (sentry.sentryHasAmmo ? "" : ".empty");
+
                 //Render base
-                for (String key : new String[]{"entity.sentry.base.dead" + emptyS, "entity.sentry.base.dead", "entity.sentry.base" + emptyS, "entity.sentry.base"})
-                {
-                    IRenderState renderState = renderData.getState(key);
-                    if (renderState instanceof IModelState && ((IModelState) renderState).render(false))
-                    {
-                        rendered = true;
-                        break;
-                    }
-                }
+                renderedBase = render(renderData, x, y, z, 0, 0, "entity.sentry.base.dead" + emptyS, "entity.sentry.base.dead", "entity.sentry.base" + emptyS, "entity.sentry.base");
 
                 //Render turret
-                GL11.glRotated(sentry.yaw(), 0, 1, 0);
-                for (String key : new String[]{"entity.sentry.yaw.dead" + emptyS, "entity.sentry.yaw.dead", "entity.sentry.yaw" + emptyS, "entity.sentry.yaw"})
-                {
-                    IRenderState renderState = renderData.getState(key);
-                    if (renderState instanceof IModelState && ((IModelState) renderState).render(false))
-                    {
-                        rendered = true;
-                        break;
-                    }
-                }
+                renderedTurret = render(renderData, x, y, z, sentry.yaw(), 0, "entity.sentry.yaw.dead" + emptyS, "entity.sentry.yaw.dead", "entity.sentry.yaw" + emptyS, "entity.sentry.yaw");
 
-                GL11.glRotated(sentry.pitch(), 1, 0, 0);
-                for (String key : new String[]{"entity.sentry.pitch.dead" + emptyS, "entity.sentry.pitch.dead", "entity.sentry.pitch" + emptyS, "entity.sentry.pitch"})
-                {
-                    IRenderState renderState = renderData.getState(key);
-                    if (renderState instanceof IModelState && ((IModelState) renderState).render(false))
-                    {
-                        rendered = true;
-                        break;
-                    }
-                }
+                //Render cannon
+                renderedCannon = render(renderData, x, y, z, sentry.yaw(), sentry.pitch(), "entity.sentry.pitch.dead" + emptyS, "entity.sentry.pitch.dead", "entity.sentry.pitch" + emptyS, "entity.sentry.pitch");
             }
 
             //If didn't render run backup
-            if (!rendered)
+            if (!(renderedBase && renderedTurret && renderedCannon))
             {
+                GL11.glPushMatrix();
+                GL11.glTranslated(x, y, z);
                 doBackupRender(sentry.yaw(), sentry.pitch());
+                GL11.glPopMatrix();
             }
-
-            GL11.glPopMatrix();
         }
         else
         {
@@ -124,6 +102,33 @@ public class RenderSentry
             doBackupRender(0, 0);
             GL11.glPopMatrix();
         }
+    }
+
+    private static boolean render(RenderData renderData, double x, double y, double z, double yaw, double pitch, String... keys)
+    {
+        GL11.glPushMatrix();
+        GL11.glTranslated(x, y, z);
+
+        if (yaw != 0)
+        {
+            GL11.glRotated(yaw, 0, 1, 0);
+        }
+        if (pitch != 0)
+        {
+            GL11.glRotated(pitch, 1, 0, 0);
+        }
+
+        for (String key : keys)
+        {
+            IRenderState renderState = renderData.getState(key);
+            if (renderState instanceof IModelState && ((IModelState) renderState).render(false))
+            {
+                GL11.glPopMatrix();
+                return true;
+            }
+        }
+        GL11.glPopMatrix();
+        return false;
     }
 
     /**

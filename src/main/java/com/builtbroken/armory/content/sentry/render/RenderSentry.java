@@ -59,7 +59,6 @@ public class RenderSentry
                 RenderUtility.renderFloatingText(String.format("Ammo: %s", clip), x, y + height + 0.9, z, Color.red.getRGB());
             }
 
-
             //Get render data
             RenderData renderData = null;
             if (sentry.getSentryData() != null)
@@ -87,7 +86,7 @@ public class RenderSentry
             }
 
             //If didn't render run backup
-            if (!(renderedBase && renderedTurret && renderedCannon))
+            if (!(renderedBase || renderedTurret || renderedCannon))
             {
                 GL11.glPushMatrix();
                 GL11.glTranslated(x, y, z);
@@ -109,22 +108,17 @@ public class RenderSentry
         GL11.glPushMatrix();
         GL11.glTranslated(x, y, z);
 
-        if (yaw != 0)
-        {
-            GL11.glRotated(yaw, 0, 1, 0);
-        }
-        if (pitch != 0)
-        {
-            GL11.glRotated(pitch, 1, 0, 0);
-        }
-
         for (String key : keys)
         {
             IRenderState renderState = renderData.getState(key);
-            if (renderState instanceof IModelState && ((IModelState) renderState).render(false))
+            if (renderState instanceof IModelState)
             {
-                GL11.glPopMatrix();
-                return true;
+                IModelState modelState = ((IModelState) renderState);
+                if (modelState.render(false, (float) yaw, (float) pitch, 0))
+                {
+                    GL11.glPopMatrix();
+                    return true;
+                }
             }
         }
         GL11.glPopMatrix();

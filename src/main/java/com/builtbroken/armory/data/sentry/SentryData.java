@@ -206,7 +206,7 @@ public class SentryData extends ArmoryEntry
         return maxHealth;
     }
 
-    @JsonProcessorData(value = "healthMax", type = "int", allowRuntimeChanges = true)
+    @JsonProcessorData(value = {"healthMax", "health"}, type = "int", allowRuntimeChanges = true)
     public void setMaxHealth(int hp)
     {
         this.maxHealth = hp;

@@ -62,11 +62,11 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
 {
     //TODO implement log system (enemy detected, enemy killed, ammo consumed, power failed, etc. with time stamps and custom log limits)
     /** Desired aim angle, updated every tick if target != null */
-    protected final EulerAngle aim = new EulerAngle(0, 0, 0);
+    public final EulerAngle aim = new EulerAngle(0, 0, 0);
     /** Current aim angle, updated each tick */
-    protected final EulerAngle currentAim = new EulerAngle(0, 0, 0);
+    public final EulerAngle currentAim = new EulerAngle(0, 0, 0);
     /** Default aim to use when not targeting things */
-    protected final EulerAngle defaultAim = new EulerAngle(0, 0, 0); //TODO implement
+    public final EulerAngle defaultAim = new EulerAngle(0, 0, 0); //TODO implement
     /** Data that defines this sentry instance */
     protected final SentryData sentryData;
     public final GunInstance gunInstance;

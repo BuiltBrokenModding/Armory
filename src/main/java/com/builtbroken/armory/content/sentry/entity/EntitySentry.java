@@ -12,11 +12,13 @@ import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -114,6 +116,12 @@ public class EntitySentry extends EntityLivingBase implements IEnergyBufferProvi
             }
         }
 
+        if (host != null && host.getSentry() != null)
+        {
+            this.setHealth(host.getSentry().health);
+            this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(host.getSentry().getSentryData().getMaxHealth());
+        }
+
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
@@ -127,6 +135,16 @@ public class EntitySentry extends EntityLivingBase implements IEnergyBufferProvi
                 this.setDead();
             }
         }
+    }
+
+    @Override
+    public String getCommandSenderName()
+    {
+        if (host != null && host.getSentry() != null)
+        {
+            return StatCollector.translateToLocal(host.getSentry().getSentryData().getUnlocalizedName() + ".name");
+        }
+        return super.getCommandSenderName();
     }
 
     @Override
@@ -356,5 +374,11 @@ public class EntitySentry extends EntityLivingBase implements IEnergyBufferProvi
     {
         //Sentry can't move
         return false;
+    }
+
+    @Override
+    public void heal(float p_70691_1_)
+    {
+        //Can't heal
     }
 }

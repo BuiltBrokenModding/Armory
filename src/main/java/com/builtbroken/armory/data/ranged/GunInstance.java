@@ -49,7 +49,7 @@ import java.util.List;
  */
 public class GunInstance extends AbstractModule implements ISave, IGun
 {
-    public static Pos defaultRayAim = new Pos(0,0,500);
+    public static Pos defaultRayAim = new Pos(0, 0, 500);
 
     public static final String NBT_ROUND = "chamberedRound";
     public static final String NBT_CLIP = "clip";
@@ -169,8 +169,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                                         //Play firing effect
                                         playFiringEffect(bulletStartPoint, aim);
 
+                                        IAmmoData ammoData = _lastFiredRound != null ? _lastFiredRound : getChamberedRound();
+
                                         //If ray trace, fire all traces
-                                        if (_lastFiredRound.getProjectileVelocity() <= 0 || _lastFiredRound.getProjectileVelocity() > PROJECTILE_SPEED_LIMIT)
+                                        if (ammoData != null && (ammoData.getProjectileVelocity() <= 0 || ammoData.getProjectileVelocity() > PROJECTILE_SPEED_LIMIT))
                                         {
                                             playEffect("round.fired.rayTrace", bulletStartPoint, hitPos, aim, true);
                                         }
@@ -389,6 +391,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      */
     public void debugRayTrace(Pos entityPos, EulerAngle aim, Pos target, Pos bulletOffset)
     {
+        debugRayTraces = Engine.runningAsDev;
         if ((debugRayTraces || doDebugRayTracesOnTthisGun) && Engine.loaderInstance != null && Engine.runningAsDev)
         {
             final Pos bulletStartPoint = entityPos.add(bulletOffset);

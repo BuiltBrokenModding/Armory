@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 public class WeaponUserEntity<E extends Entity> implements IWeaponUser
 {
     public final E entity;
-    private EulerAngle angle = new EulerAngle(0, 0, 0);
+    private static final EulerAngle angle_fix = new EulerAngle(180, 0, 0);
 
     public WeaponUserEntity(E entity)
     {
@@ -33,7 +33,7 @@ public class WeaponUserEntity<E extends Entity> implements IWeaponUser
         double x = (double)(-MathHelper.sin((float)yaw() / 180.0F * (float)Math.PI) * MathHelper.cos((float)pitch() / 180.0F * (float)Math.PI));
         double z = (double)(MathHelper.cos((float)yaw() / 180.0F * (float)Math.PI) * MathHelper.cos((float)pitch() / 180.0F * (float)Math.PI));
         double y = (double)(MathHelper.sin((float)pitch() / 180.0F * (float)Math.PI));
-        return new Pos(x, y, z).normalize().toEulerAngle().add(new EulerAngle(180, 0, 0));
+        return new Pos(x, y, z).normalize().toEulerAngle().add(angle_fix);
     }
 
     @Override

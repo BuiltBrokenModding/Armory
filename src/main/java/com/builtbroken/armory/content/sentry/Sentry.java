@@ -310,12 +310,14 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     {
         float width = (float) Math.max(sentryData != null ? sentryData.getBarrelLength() : 0, halfWidth);
 
-        bulletSpawnOffset = (Pos) new Pos(0, 0, -width).transform(currentAim);
+        Pos offset = new Pos(width);
 
         if (sentryData != null && sentryData.getBarrelOffset() != null)
         {
-            bulletSpawnOffset = bulletSpawnOffset.add(sentryData.getBarrelOffset());
+            offset = offset.add(sentryData.getBarrelOffset());
         }
+
+        bulletSpawnOffset = currentAim.toPos().multiply(offset);
     }
 
     protected void loadAmmo()

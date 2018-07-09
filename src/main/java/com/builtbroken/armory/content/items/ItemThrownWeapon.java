@@ -94,7 +94,7 @@ public class ItemThrownWeapon extends ItemMetaArmoryEntry<ThrowableData> impleme
                     final WeaponUserPlayer weaponUser = new WeaponUserPlayer(entityPlayer); //TODO cache
 
                     //Calculate position and aim
-                    final Pos aim = weaponUser.getEntityAim();
+                    final Pos aim = weaponUser.getEntityAim().toPos();
                     final Pos entityPos = weaponUser.getEntityPosition();
 
                     //Create projectile

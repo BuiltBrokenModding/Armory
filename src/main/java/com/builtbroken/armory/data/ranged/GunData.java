@@ -45,7 +45,7 @@ public class GunData extends RangeWeaponData implements IGunData
     private IEnergyChargeData chargeData;
     private IEnergyBufferData bufferData;
 
-    public final GunBarrelData gunBarrelData = new GunBarrelData();
+    public GunBarrelData gunBarrelData = new GunBarrelData();
 
     public GunData(IJsonProcessor processor, String id, String type, String name, IAmmoType ammoType, ReloadType clipType, IClipData singleFireData)
     {
@@ -53,6 +53,12 @@ public class GunData extends RangeWeaponData implements IGunData
         this.gunType = type;
         this.reloadType = clipType;
         this.builtInClip = singleFireData;
+    }
+
+    @Override
+    public IGunBarrelData getGunBarrelData()
+    {
+        return gunBarrelData;
     }
 
     @Override

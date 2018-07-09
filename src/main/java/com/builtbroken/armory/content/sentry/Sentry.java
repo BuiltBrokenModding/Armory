@@ -438,7 +438,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
         if (gunInstance.chamberNextRound())
         {
             aimPoint = getAimPoint(target);
-            gunInstance.fireWeapon(oldWorld(), 1, aimPoint, bulletSpawnOffset); //TODO get firing ticks
+            gunInstance.fireWeapon(oldWorld(), 1, aimPoint, aim); //TODO get firing ticks
         }
     }
 
@@ -502,9 +502,9 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
     }
 
     @Override
-    public Pos getEntityAim()
+    public EulerAngle getEntityAim()
     {
-        return currentAim.toPos();
+        return currentAim;
     }
 
     @Override
@@ -779,7 +779,7 @@ public class Sentry implements IWorldPosition, IRotation, IWeaponUser, ISave, IB
             effect.send();
 
             //Test entity aim
-            hand = center.add(getEntityAim());
+            hand = center.add(getEntityAim().toPos());
             effect.setPosition(center.add(0, 0.2, 0));
             effect.setEndPoint(hand.add(0, 0.2, 0));
             effect.addData("red", (Color.blue.getRed() / 255f));

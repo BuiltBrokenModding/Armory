@@ -5,11 +5,11 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoType;
 import com.builtbroken.armory.data.clip.ClipData;
 import com.builtbroken.armory.data.ranged.GunData;
-import com.builtbroken.armory.data.ranged.barrels.BarrelDamageMode;
-import com.builtbroken.armory.data.ranged.barrels.BarrelFireMode;
 import com.builtbroken.armory.data.ranged.barrels.GunBarrel;
 import com.builtbroken.armory.json.ArmoryEntryJsonProcessor;
 import com.builtbroken.jlib.debug.DebugPrinter;
+import com.builtbroken.mc.api.data.weapon.BarrelDamageMode;
+import com.builtbroken.mc.api.data.weapon.BarrelFireMode;
 import com.builtbroken.mc.api.data.weapon.ReloadType;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
@@ -124,7 +124,11 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
             {
                 gunData.gunBarrelData.barrelFireMode = BarrelFireMode.SINGLE;
             }
-            else if (fireMode.equalsIgnoreCase("CURRENT"))
+            else if (fireMode.equalsIgnoreCase("group"))
+            {
+                gunData.gunBarrelData.barrelFireMode = BarrelFireMode.GROUP;
+            }
+            else if (fireMode.equalsIgnoreCase("current"))
             {
                 gunData.gunBarrelData.barrelFireMode = BarrelFireMode.CURRENT;
             }
@@ -156,7 +160,7 @@ public class GunJsonProcessor extends ArmoryEntryJsonProcessor<GunData>
 
                     String barrelName = barrelPointData.getAsJsonPrimitive("name").getAsString();
                     int index = barrelPointData.getAsJsonPrimitive("index").getAsInt();
-                    Pos pos = JsonConverterPos.fromJson(barrelJsonData.get("pos"));
+                    Pos pos = JsonConverterPos.fromJson(barrelPointData.get("pos"));
 
                     GunBarrel gunBarrel = new GunBarrel();
                     gunBarrel.index = index;

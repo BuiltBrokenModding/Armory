@@ -2,6 +2,7 @@ package com.builtbroken.armory.data.user;
 
 import com.builtbroken.armory.data.ranged.GunInstance;
 import com.builtbroken.mc.api.IWorldPosition;
+import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.rotation.IRotation;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import net.minecraft.entity.Entity;
@@ -40,7 +41,7 @@ public interface IWeaponUser extends IWorldPosition, IRotation
      *
      * @return
      */
-    Pos getEntityAim();
+    EulerAngle getEntityAim();
 
     /**
      * Gets the position to spawn projectiles

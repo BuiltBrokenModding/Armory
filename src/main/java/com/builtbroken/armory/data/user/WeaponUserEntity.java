@@ -1,5 +1,6 @@
 package com.builtbroken.armory.data.user;
 
+import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
@@ -13,6 +14,7 @@ import net.minecraft.world.World;
 public class WeaponUserEntity<E extends Entity> implements IWeaponUser
 {
     public final E entity;
+    private EulerAngle angle = new EulerAngle(0, 0, 0);
 
     public WeaponUserEntity(E entity)
     {
@@ -26,19 +28,12 @@ public class WeaponUserEntity<E extends Entity> implements IWeaponUser
     }
 
     @Override
-    public Pos getEntityAim()
+    public EulerAngle getEntityAim()
     {
-        //Used to calculate x and z position
-        double f3 = MathHelper.cos((float) (-yaw() * 0.017453292F - Math.PI));
-        double f4 = MathHelper.sin((float) (-yaw() * 0.017453292F - Math.PI));
-        double f5 = -MathHelper.cos((float) (-pitch() * 0.017453292F));
-
-        //used to calculate aim y
-        double aimY = MathHelper.sin((float) (-pitch() * 0.017453292F));
-
-        double aimX = f4 * f5;
-        double aimZ = f3 * f5;
-        return new Pos(aimX, aimY, aimZ);
+        double x = (double)(-MathHelper.sin((float)yaw() / 180.0F * (float)Math.PI) * MathHelper.cos((float)pitch() / 180.0F * (float)Math.PI));
+        double z = (double)(MathHelper.cos((float)yaw() / 180.0F * (float)Math.PI) * MathHelper.cos((float)pitch() / 180.0F * (float)Math.PI));
+        double y = (double)(MathHelper.sin((float)pitch() / 180.0F * (float)Math.PI));
+        return new Pos(x, y, z).normalize().toEulerAngle().add(new EulerAngle(180, 0, 0));
     }
 
     @Override

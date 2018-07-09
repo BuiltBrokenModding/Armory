@@ -7,6 +7,7 @@ import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.clip.ClipInstance;
 import com.builtbroken.armory.data.clip.ClipInstanceItem;
 import com.builtbroken.armory.data.user.IWeaponUser;
+import com.builtbroken.jlib.data.vector.IPos3D;
 import com.builtbroken.mc.api.ISave;
 import com.builtbroken.mc.api.abstraction.EffectInstance;
 import com.builtbroken.mc.api.abstraction.world.IWorld;
@@ -20,6 +21,7 @@ import com.builtbroken.mc.api.modules.weapon.IClip;
 import com.builtbroken.mc.api.modules.weapon.IGun;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
+import com.builtbroken.mc.imp.transform.rotation.EulerAngle;
 import com.builtbroken.mc.imp.transform.vector.Location;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.prefab.inventory.InventoryIterator;
@@ -47,6 +49,8 @@ import java.util.List;
  */
 public class GunInstance extends AbstractModule implements ISave, IGun
 {
+    public static Pos defaultRayAim = new Pos(0,0,500);
+
     public static final String NBT_ROUND = "chamberedRound";
     public static final String NBT_CLIP = "clip";
     /** Enabled ray trace debug on all weapons, normally only client side */
@@ -66,6 +70,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public IClip _clip;
 
     private IAmmoData _chamberedRound;
+    private IAmmoData _lastFiredRound;
+
     public IAmmoData overrideRound;
 
     /** Last time the weapon was fired, milliseconds */
@@ -87,6 +93,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public boolean isLowered = false;
     /** Last time the weapon was taken out of lowered state */
     public long lastTimeUnLowered = 0L;
+
+    public int barrelIndex = 0;
 
     public GunInstance(ItemStack gunStack, IWeaponUser weaponUser, IGunData gun)
     {
@@ -120,7 +128,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      * @param world      -world fired in
      * @param ticksFired - number of ticks fired for
      */
-    public void fireWeapon(World world, int ticksFired, Pos aimPoint, Pos aim)
+    public void fireWeapon(World world, int ticksFired, Pos aimPoint, EulerAngle aim)
     {
         //Check if sighted is required to fire
         if (isSighted || !gunData.isSightedRequiredToFire())
@@ -132,7 +140,90 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 float pitch = (float) weaponUser.pitch();
                 float yaw = (float) weaponUser.yaw();
 
-                _doFire(world, yaw, pitch, aimPoint, aim);
+                final Pos gunFiringOffset = getGunData().getProjectileSpawnOffset();
+
+                IGunBarrelData gunBarrelData = getGunData().getGunBarrelData();
+                if (gunBarrelData != null && gunBarrelData.hasData())
+                {
+                    //Render firing
+                    if (gunBarrelData.getDamageMode() == BarrelDamageMode.ALL)
+                    {
+                        if (gunBarrelData.getFireMode() == BarrelFireMode.ALL || gunBarrelData.getFireMode() == BarrelFireMode.GROUP)
+                        {
+                            //Fire weapon once for damage
+                            Pos hitPos = _doFire(world, yaw, pitch, aimPoint, aim, gunFiringOffset, false);
+
+                            //if fired, render effects
+                            if (hitPos != null)
+                            {
+                                int[] barrels = gunBarrelData.getBarrelsInGroup(gunBarrelData.getFireMode() == BarrelFireMode.ALL ? -1 : barrelIndex);
+                                if (barrels != null)
+                                {
+                                    for (int barrelIndex : barrels)
+                                    {
+                                        final IPos3D barrelOffset = gunBarrelData.getBarrelOffset(barrelIndex);
+                                        final IPos3D offset = gunFiringOffset.add(barrelOffset);
+                                        final Pos entityPos = weaponUser.getEntityPosition();
+                                        final Pos bulletStartPoint = entityPos.add(weaponUser.getProjectileSpawnOffset().add(aim.transform(offset)));
+
+                                        //Play firing effect
+                                        playFiringEffect(bulletStartPoint, aim);
+
+                                        //If ray trace, fire all traces
+                                        if (_lastFiredRound.getProjectileVelocity() <= 0 || _lastFiredRound.getProjectileVelocity() > PROJECTILE_SPEED_LIMIT)
+                                        {
+                                            playEffect("round.fired.rayTrace", bulletStartPoint, hitPos, aim, true);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        //Incompatible mode, but fire normally
+                        else if (gunBarrelData.getFireMode() == BarrelFireMode.SINGLE)
+                        {
+                            _doFire(world, yaw, pitch, aimPoint, aim, gunFiringOffset.add(gunBarrelData.getBarrelOffset(barrelIndex)), true);
+                            barrelIndex = gunBarrelData.nextBarrelIndex(barrelIndex);
+                        }
+                        //Custom logic
+                        else if (gunBarrelData.getFireMode() == BarrelFireMode.CURRENT)
+                        {
+                            _doFire(world, yaw, pitch, aimPoint, aim, gunFiringOffset.add(gunBarrelData.getBarrelOffset(barrelIndex)), true);
+                        }
+                    }
+                    //individual barrel firing
+                    else
+                    {
+                        //Normal fire mode
+                        if (gunBarrelData.getFireMode() == BarrelFireMode.SINGLE)
+                        {
+                            _doFire(world, yaw, pitch, aimPoint, aim, gunFiringOffset.add(gunBarrelData.getBarrelOffset(barrelIndex)), true);
+                            barrelIndex = gunBarrelData.nextBarrelIndex(barrelIndex);
+                        }
+                        //Custom logic
+                        else if (gunBarrelData.getFireMode() == BarrelFireMode.CURRENT)
+                        {
+                            _doFire(world, yaw, pitch, aimPoint, aim, gunFiringOffset.add(gunBarrelData.getBarrelOffset(barrelIndex)), true);
+                        }
+                        //Fire each barrel
+                        else if (gunBarrelData.getFireMode() == BarrelFireMode.ALL || gunBarrelData.getFireMode() == BarrelFireMode.GROUP)
+                        {
+                            int[] barrels = gunBarrelData.getBarrelsInGroup(gunBarrelData.getFireMode() == BarrelFireMode.ALL ? -1 : barrelIndex);
+                            if (barrels != null)
+                            {
+                                //Get barrel
+                                final IPos3D barrelPos = aim.transform(gunFiringOffset.add(gunBarrelData.getBarrelOffset(barrelIndex)));
+
+                                //Fire barrel
+                                _doFire(world, yaw, pitch, aimPoint, aim, barrelPos, true);
+                            }
+                        }
+                    }
+                }
+                //Normal fire
+                else
+                {
+                    _doFire(world, yaw, pitch, aimPoint, aim, gunFiringOffset, true);
+                }
             }
         }
         else
@@ -142,8 +233,27 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
     }
 
-    protected void _doFire(World world, float yaw, float pitch, Pos aimPointOverride, Pos aim)
+    private void playFiringEffect(Pos point, EulerAngle aim)
     {
+        playAudio("round.fired");
+        playEffect("round.fired", point, aim.toPos(), aim, false); //TODO check with ammo if it has an effect to play then use this as backup
+    }
+
+    /**
+     * Called to fire the weapon, consume ammo, and play effects
+     *
+     * @param world               - world firing inside
+     * @param yaw                 - rotation
+     * @param pitch               - rotation
+     * @param aimPointOverride    - spot to aim at, can be null
+     * @param aim                 - aim vector
+     * @param barrelOffset        - barrel offset
+     * @param doProjectileEffects - true to enable effects related to projectile.
+     * @return impact point of ray trace, end point of aim, or null if nothing fired
+     */
+    protected Pos _doFire(World world, float yaw, float pitch, Pos aimPointOverride, EulerAngle aim, IPos3D barrelOffset, boolean doProjectileEffects)
+    {
+        Pos hitPos = null;
         //TODO add safety checks
         if (getChamberedRound() != null || hasMagWithAmmo())
         {
@@ -165,41 +275,27 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //TODO allow other users to see each other's weapon data (with a permission system)
 
                 final Pos entityPos = weaponUser.getEntityPosition();
-                final Pos bulletStartPoint = entityPos.add(weaponUser.getProjectileSpawnOffset().add(getGunData().getProjectileSpawnOffset()));
-                final Pos target = aimPointOverride != null ? aimPointOverride : entityPos.add(aim.multiply(500));
+                final Pos bulletStartPoint = entityPos.add(weaponUser.getProjectileSpawnOffset().add(barrelOffset));
+                final Pos target = aimPointOverride != null ? aimPointOverride : entityPos.add(aim.toPos().multiply(200));
 
-                playAudio("round.fired");
-                playEffect("round.fired", bulletStartPoint, aim, aim, false); //TODO check with ammo if it has an effect to play then use this as backup
+                if (doProjectileEffects)
+                {
+                    playFiringEffect(bulletStartPoint, aim);
+                }
 
                 //Fire round out of gun
                 if (getChamberedRound().getProjectileVelocity() <= 0 || getChamberedRound().getProjectileVelocity() > PROJECTILE_SPEED_LIMIT)
                 {
-                    _doRayTrace(world, yaw, pitch, getChamberedRound(), entityPos.add(aim), target, aim);
+                    hitPos = _doRayTrace(world, yaw, pitch, getChamberedRound(), entityPos.add(aim.toPos()), target, aim, doProjectileEffects);
                 }
                 else
                 {
-                    _createAndFireEntity(world, yaw, pitch, getChamberedRound(), bulletStartPoint, target, aim);
+                    _createAndFireEntity(world, yaw, pitch, getChamberedRound(), bulletStartPoint, target, aim.toPos());
+                    hitPos = target;
                 }
 
-                List<ItemStack> droppedItems = new ArrayList();
-                getChamberedRound().getEjectedItems(droppedItems);
-                if (droppedItems != null && droppedItems.size() > 0)
-                {
-                    //TODO implement ejection collectors
-                    Pos ejectionPoint = weaponUser.getProjectileSpawnOffset().add(getGunData().getEjectionSpawnOffset());
-                    playAudio("round.eject");
-                    playEffect("round.eject", ejectionPoint, getGunData().getEjectionSpawnVector(), aim, false);
-                    for (ItemStack stack : droppedItems)
-                    {
-                        EntityItem item = InventoryUtility.dropItemStack(world, ejectionPoint, stack, 5 + world.rand.nextInt(20), 0.3f);
-                        if (item != null)
-                        {
-                            item.motionX += getGunData().getEjectionSpawnVector().x();
-                            item.motionY += getGunData().getEjectionSpawnVector().y();
-                            item.motionZ += getGunData().getEjectionSpawnVector().z();
-                        }
-                    }
-                }
+                //Eject junk
+                ejectBulletItems(world, aim, doProjectileEffects);
 
                 //Clear current round as it has been fired
                 consumeShot();
@@ -210,6 +306,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 //Load next round to fire
                 chamberNextRound();
             }
+
+            //Update stack so it saves
             weaponUser.updateWeaponStack(this, toStack(), "_doFire");
         }
 
@@ -217,6 +315,36 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         {
             doReload = true;
             playAudio("empty");
+        }
+
+        return hitPos;
+    }
+
+    protected void ejectBulletItems(World world, EulerAngle aim, boolean doEffects)
+    {
+        List<ItemStack> droppedItems = new ArrayList();
+        getChamberedRound().getEjectedItems(droppedItems);
+        if (droppedItems != null && droppedItems.size() > 0)
+        {
+            //TODO implement ejection collectors
+            Pos ejectionPoint = weaponUser.getProjectileSpawnOffset().add(getGunData().getEjectionSpawnOffset());
+
+            if (doEffects)
+            {
+                playAudio("round.eject");
+                playEffect("round.eject", ejectionPoint, getGunData().getEjectionSpawnVector(), aim, false);
+            }
+
+            for (ItemStack stack : droppedItems)
+            {
+                EntityItem item = InventoryUtility.dropItemStack(world, ejectionPoint, stack, 5 + world.rand.nextInt(20), 0.3f);
+                if (item != null)
+                {
+                    item.motionX += getGunData().getEjectionSpawnVector().x();
+                    item.motionY += getGunData().getEjectionSpawnVector().y();
+                    item.motionZ += getGunData().getEjectionSpawnVector().z();
+                }
+            }
         }
     }
 
@@ -249,8 +377,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     public void debugRayTrace()
     {
         final Pos entityPos = weaponUser.getEntityPosition();
-        final Pos aim = weaponUser.getEntityAim();
-        final Pos target = entityPos.add(aim.multiply(500));
+        final EulerAngle aim = weaponUser.getEntityAim();
+        final Pos target = entityPos.add(aim.toPos().multiply(200));
         debugRayTrace(entityPos, aim, target, weaponUser.getProjectileSpawnOffset());
     }
 
@@ -259,12 +387,13 @@ public class GunInstance extends AbstractModule implements ISave, IGun
      * <p>
      * Has to be triggered in order to be used.
      */
-    public void debugRayTrace(Pos entityPos, Pos aim, Pos target, Pos bulletOffset)
+    public void debugRayTrace(Pos entityPos, EulerAngle aim, Pos target, Pos bulletOffset)
     {
         if ((debugRayTraces || doDebugRayTracesOnTthisGun) && Engine.loaderInstance != null && Engine.runningAsDev)
         {
             final Pos bulletStartPoint = entityPos.add(bulletOffset);
-            final Pos start = entityPos.add(aim);
+            final Pos aimPos = aim.toPos();
+            final Pos start = entityPos.add(aimPos);
 
             Pos end = target;
             MovingObjectPosition hit = start.rayTrace(weaponUser.oldWorld(), end, false, true, false);
@@ -276,24 +405,29 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             IWorld world = Engine.minecraft.getWorld(weaponUser.oldWorld().provider.dimensionId); //TODO remove once world is switch over to wrapper
 
             //Test ray cast
-            EffectInstance effect = world.newEffect(References.LASER_EFFECT, start);
+            EffectInstance effect = world.newEffect(References.LASER_EFFECT, entityPos);
+            effect.setEndPoint(start);
+            effect.addData("color", Color.PINK.getRGB());
+            effect.addData("lifeTime", 20);
+            //effect.send();
+
+            //Test ray cast
+            effect.setPosition(start);
             effect.setEndPoint(end);
-            effect.addData("red", (Color.blue.getRed() / 255f));
-            effect.addData("green", (Color.blue.getRed() / 255f));
-            effect.addData("blue", (Color.blue.getRed() / 255f));
-            effect.send();
+            effect.addData("color", Color.blue.getRGB());
+            effect.addData("lifeTime", 20);
+            //effect.send();
 
             //Test bullet ray case
             effect.setPosition(bulletStartPoint);
             effect.setEndPoint(end);
-            effect.addData("red", (Color.GREEN.getRed() / 255f));
-            effect.addData("green", (Color.GREEN.getRed() / 255f));
-            effect.addData("blue", (Color.GREEN.getRed() / 255f));
+            effect.addData("color", Color.green.getRGB());
+            effect.addData("lifeTime", 20);
             effect.send();
         }
     }
 
-    protected void _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos end, Pos aim)
+    protected Pos _doRayTrace(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos end, EulerAngle aim, boolean fireEffect)
     {
         MovingObjectPosition hit = start.rayTrace(world, end, false, true, false);
         if (hit != null && hit.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)
@@ -306,12 +440,18 @@ public class GunInstance extends AbstractModule implements ISave, IGun
             {
                 nextRound.onImpactGround(weaponUser.getShooter(), world, hit.blockX, hit.blockY, hit.blockZ, hit.hitVec.xCoord, hit.hitVec.yCoord, hit.hitVec.zCoord, nextRound.getProjectileVelocity());
             }
-            playEffect("round.fired.rayTrace", start, new Pos(hit.hitVec), aim, true);
+            Pos hitPos = new Pos(hit.hitVec);
+            if (fireEffect)
+            {
+                playEffect("round.fired.rayTrace", start, hitPos, aim, true);
+            }
+            return hitPos;
         }
-        else
+        else if (fireEffect)
         {
             playEffect("round.fired.rayTrace", start, end, aim, true);
         }
+        return end;
     }
 
     protected void _createAndFireEntity(World world, float yaw, float pitch, IAmmoData nextRound, Pos start, Pos end, Pos aim)
@@ -337,6 +477,10 @@ public class GunInstance extends AbstractModule implements ISave, IGun
     {
         if (getChamberedRound() != null)
         {
+            //Track last round fires
+            _lastFiredRound = _chamberedRound;
+
+            //Consume ammo if enabled
             if (!consumeAmmo)
             {
                 ReloadType reloadType = getGunData().getReloadType();
@@ -346,6 +490,8 @@ public class GunInstance extends AbstractModule implements ISave, IGun
                 }
                 consumeEnergyToFire();
             }
+
+            //Play effects
             playAudio("round.consume");
             weaponUser.updateWeaponStack(this, toStack(), "consume ammo");
         }
@@ -457,7 +603,7 @@ public class GunInstance extends AbstractModule implements ISave, IGun
         }
     }
 
-    public void playEffect(String key, Pos pos, Pos end, Pos aim, boolean endPoint)
+    public void playEffect(String key, Pos pos, Pos end, EulerAngle aim, boolean endPoint)
     {
         //Checks for JUnit testing TODO fix
         if (Engine.loaderInstance != null)

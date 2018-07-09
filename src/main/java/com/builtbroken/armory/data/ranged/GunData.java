@@ -2,12 +2,13 @@ package com.builtbroken.armory.data.ranged;
 
 import com.builtbroken.armory.data.ArmoryDataHandler;
 import com.builtbroken.armory.data.ammo.AmmoData;
+import com.builtbroken.armory.data.ranged.barrels.GunBarrelData;
 import com.builtbroken.mc.api.data.energy.IEnergyBufferData;
 import com.builtbroken.mc.api.data.energy.IEnergyChargeData;
 import com.builtbroken.mc.api.data.weapon.*;
+import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import com.builtbroken.mc.imp.transform.vector.Pos;
-import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 
 /**
  * Holds all data about a gun
@@ -43,6 +44,8 @@ public class GunData extends RangeWeaponData implements IGunData
 
     private IEnergyChargeData chargeData;
     private IEnergyBufferData bufferData;
+
+    public final GunBarrelData gunBarrelData = new GunBarrelData();
 
     public GunData(IJsonProcessor processor, String id, String type, String name, IAmmoType ammoType, ReloadType clipType, IClipData singleFireData)
     {

@@ -4,6 +4,7 @@ import com.builtbroken.armory.content.sentry.tile.ItemSentry;
 import com.builtbroken.mc.client.json.render.RenderData;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockRailBase;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -76,5 +77,11 @@ public class ItemSentryCart extends ItemSentry
     {
         keys.add(RenderData.INVENTORY_RENDER_KEY + ".cart");
         super.getPossibleRenderStateKeys(keys, meta, pass);
+    }
+
+    @Override
+    public String getRenderKey(ItemStack stack, Entity entity, int useRemaining)
+    {
+        return "cart";
     }
 }

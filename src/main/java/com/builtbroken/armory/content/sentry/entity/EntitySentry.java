@@ -128,10 +128,17 @@ public class EntitySentry extends EntityLivingBase implements IEnergyBufferProvi
         this.prevRotationPitch = this.rotationPitch;
         this.prevRotationYaw = this.rotationYaw;
 
-        if (this.posY < -64.0D || host == null || !host.isHostValid())
+        if (!worldObj.isRemote && !isDead)
         {
-            if (!worldObj.isRemote)
+            if (this.posY < -64.0D)
             {
+                System.out.println("Sentry is outside of world, setting dead");
+                this.setDead();
+            }
+            else if (host == null || !host.isHostValid())
+            {
+
+                System.out.println("Sentry has no host, setting dead");
                 this.setDead();
             }
         }

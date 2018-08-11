@@ -404,6 +404,10 @@ public class TileSentry extends TileModuleMachine<ExternalInventory> implements 
 
     public EntitySentry getSentryEntity()
     {
+        if(sentryEntity != null && sentryEntity.isDead)
+        {
+            sentryEntity = null;
+        }
         return sentryEntity;
     }
 
